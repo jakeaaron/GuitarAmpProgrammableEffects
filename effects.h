@@ -16,42 +16,25 @@
  * DELAY **************************************************************************************************************
  */
 
-// define decimation to reduce sample rate for guitar signal, so the dsp doesn't run out of memory
-#define Fs 124000
-
-/**
- * @brief struct declaration for delay function using an FIR filter. convolve impulse response with delayed input
- */
 typedef struct delay_struct {
-	 	uint32_t sample_delay;	// number of samples to delay by ie. how long the delay is
-		uint32_t delay_gain;	// volume of delayed signal
-		float* h;				// array holding impulse response
-} DELAY_STRUCT;
+	// data structure contains number of coefs, pointer to the coef array
+	arm_fir_instance_f32 S;	// and pointer to state variable buffer
+	float32_t sample_delay;	// amount of delay
+	float32_t delay_gain;	// amplitude of delayed signal
+	uint32_t block_size;	// number of samples to work on
+} DELAY_T;
 
-// allocate memory for delay buffer
-// increasing the amount of values stored in the buffer will increase the amount of delay of the signal
 
-/**
- * @brief initialize the delay struct used for FIR calculations
- * 
- * @param time_delay user controlled amount of time to delay the signal
- * @param delay_gain volume of the delayed signal
- * @return pointer to the delay struct 
- */
-DELAY_STRUCT* init_delay(		
-		uint32_t time_delay,
-		uint32_t delay_gain	
+
+DELAY_T * init_delay(
+	uint32_t FS,		// sampling frequency
+	uint32_t block_size	// number of samples to work on
 );
 
-// delay the signal by the appropriate amount of time
-// using stm 16bit FIR filtering
+void delay(
+	DELAY_T * T,		// struct containing delay information
+	float32_t * input,	// input buffer
+	float32_t * output	// output buffer
+);
 
 
-
-
-
-
-
-/**
- * DELAY END **********************************************************************************************************
- */
