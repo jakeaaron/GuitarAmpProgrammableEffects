@@ -1,16 +1,16 @@
 /**
- * @file effects.c
+ * @file delay.c
  *
  * @author Jacob Allenwood
  * @date September 1, 2015
  *
- * @brief This file contains the functions for each effect in the 
- * GAPE unit. This program will be passed parameters to control 
+ * @brief This file contains the functions for the delay effect portion 
+ * of the GAPE suite. This program will be passed parameters to control 
  * the way each effect behaves.
  * 
  */
 
-#include "effects.h"
+#include "delay.h"
 
 DELAY_T * init_delay(uint32_t FS, float32_t sample_delay, float32_t delay_gain, uint32_t block_size) {
 
