@@ -1,5 +1,5 @@
 /**
- * @file delay.c
+ * @file effects.c
  *
  * @author Jacob Allenwood
  * @date September 1, 2015
