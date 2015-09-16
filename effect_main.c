@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "delay.h"
+#include "delay.c"
 // ---------------------------------------------------------------------
 
 #define FS 50K
@@ -36,7 +36,7 @@
  * 
  * @return [description]
  */
-int32_t main(int32_t argc, char const *argv[]) {
+int main(int argc, char const *argv[]) {
 
 	// Set up the DAC/ADC interface
 	initialize(FS_50K, MONO_IN, STEREO_OUT); 	
@@ -62,7 +62,7 @@ int32_t main(int32_t argc, char const *argv[]) {
 
 
 
-	DELAY_T * T = init_delay(FS, 0.5, 0.5);
+	DELAY_T * T = init_delay(FS, 0.5, 0.5, block_size);
 
 	/*
 	* Infinite Loop to process the data stream, "block_size" samples at a time
@@ -81,7 +81,10 @@ int32_t main(int32_t argc, char const *argv[]) {
 		DIGITAL_IO_SET(); 	// Use a scope on PC4 to measure execution time
 
 
-		delay(T, input, output1);
+		delay(T, input, output2);
+		for (i = 0; i < block_size; ++i) {
+			output1[i] = input[i];
+		}
 
 		
 		DIGITAL_IO_RESET();	// (falling edge....  done processing data )
@@ -89,7 +92,8 @@ int32_t main(int32_t argc, char const *argv[]) {
 		/*
 		 * pass the processed working buffer back for DAC output
 		 */
-		putblockstereo(output1);
+		putblockstereo(output1, output2);
+
 	}
 }
 

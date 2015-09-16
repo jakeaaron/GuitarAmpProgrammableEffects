@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+
+
 /**
  * DELAY **************************************************************************************************************
  */
@@ -19,7 +21,7 @@
 typedef struct delay_struct {
 	// data structure contains number of coefs, pointer to the coef array
 	arm_fir_instance_f32 S;	// and pointer to state variable buffer
-	float32_t sample_delay;	// amount of delay
+	uint32_t sample_delay;	// amount of delay
 	float32_t delay_gain;	// amplitude of delayed signal
 	uint32_t block_size;	// number of samples to work on
 } DELAY_T;
@@ -27,8 +29,10 @@ typedef struct delay_struct {
 
 
 DELAY_T * init_delay(
-	uint32_t FS,		// sampling frequency
-	uint32_t block_size	// number of samples to work on
+	uint32_t FS,			// sampling frequency
+	float32_t time_delay,	// amount of delay 
+	float32_t delay_gain,	// volume of delayed signal
+	uint32_t block_size		// number of samples to work on
 );
 
 void delay(

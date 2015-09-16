@@ -12,13 +12,16 @@
 
 #include "delay.h"
 
-DELAY_T * init_delay(uint32_t FS, float32_t sample_delay, float32_t delay_gain, uint32_t block_size) {
+
+
+
+DELAY_T * init_delay(uint32_t FS, float32_t time_delay, float32_t delay_gain, uint32_t block_size) {
 
 	// sample delay is time delay * Fs
-	float32_t sample_delay = FS * time_delay;
+	uint32_t sample_delay = FS * time_delay;
 
 	// coef array is delayed impulse response in reverse order
-	float32_t firCoeffs32[sample_delay] = 0;
+	float32_t * firCoeffs32 = calloc(sizeof(float32_t), sample_delay);
 	firCoeffs32[0] = delay_gain;
 	firCoeffs32[sample_delay - 1] = 1;
 
@@ -28,7 +31,8 @@ DELAY_T * init_delay(uint32_t FS, float32_t sample_delay, float32_t delay_gain, 
 	DELAY_T * D;
 	D = (DELAY_T *)malloc(sizeof(DELAY_T));
 
-	D->S = arm_fir_instance_f32 S;	// FIR struct instance
+	arm_fir_instance_f32 S;	// FIR struct instance
+	D->S = S;	
 	D->block_size = block_size;
 	D->sample_delay = sample_delay;
 	D->delay_gain = delay_gain;
@@ -36,14 +40,14 @@ DELAY_T * init_delay(uint32_t FS, float32_t sample_delay, float32_t delay_gain, 
 
 	// Call FIR init function to initialize the instance structure -------------
 	// sample_delay is number of fir coefs
-	arm_fir_init_f32(S, sample_delay, (float32_t *)&firCoeffs32[0], &firStateF32[0], block_size);
+	arm_fir_init_f32(&S, sample_delay, (float32_t *)&firCoeffs32[0], &firStateF32[0], block_size);
 
 	return D;
 
 }
 
 
-delay(DELAY_T * T, float32_t * input, float32_t * output1) {
+void delay(DELAY_T * T, float32_t * input, float32_t * output1) {
 
 	// fir routine to delay input signal
 	arm_fir_f32(&(T->S), input, output1, T->block_size);
