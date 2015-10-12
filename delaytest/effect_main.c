@@ -22,9 +22,9 @@
 #include <math.h>
 
 #include "delay.h"
+#include "ece486_fir.h"
 
 // ---------------------------------------------------------------------
-
 
 
 /**
@@ -38,14 +38,13 @@
  */
 int main(int argc, char const *argv[]) {
 
-	// set up serial buffer
 	char outstr[100];
 
 	// Set up the DAC/ADC interface
 	initialize(FS_48K, MONO_IN, STEREO_OUT); 
 
 	int block_size, i;
-	float *input, *output1, *output2;
+	float * input, * output1, * output2;
 
 	/**
 	 * Allocate memory -------------------------------------------------------- 
@@ -56,26 +55,26 @@ int main(int argc, char const *argv[]) {
 	output1 = (float *)malloc(sizeof(float)*block_size);
 	output2 = (float *)malloc(sizeof(float)*block_size);
 
-	if (input == NULL || output1 == NULL || output2 == NULL) {
+	if(input == NULL || output1 == NULL || output2 == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
 	} 
 	// ----------------------------------------------------------------------
 
-
-	// setup delay impulse response / fir filter coefs
+	// initialize data structures -------------------------------------------
 	DELAY_T * D = init_delay(FS_48K, 0.25, 0.5);
 	if(D == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
 	}
 
-	// setup state variable array used by arm_fir routine
-	float * state = (float *)malloc(sizeof(float) * (D->sample_delay + block_size - 1));
+	FIR_T * T = init_fir(D->delay_coefs, D->sample_delay, block_size);
+	if(T == NULL) {
+		flagerror(MEMORY_ALLOCATION_ERROR);
+		while(1);
+	}
+	// ----------------------------------------------------------------------
 
-	// initialize arm_fir struct
-	arm_fir_instance_f32 S;
-	arm_fir_init_f32(&S, D->sample_delay, &(D->delay_coefs[0]), state, block_size);
 
 	/*
 	* Infinite Loop to process the data stream, "block_size" samples at a time
@@ -96,13 +95,11 @@ int main(int argc, char const *argv[]) {
 		// sprintf(outstr,"YAYAYYAYY"); // %d, %f seem to be buggy
 		// UART_putstr(outstr);
 
-		for (i = 0; i < block_size; ++i) {
-			output1[i] = input[i];
-		}
+		// for (i = 0; i < block_size; ++i) {
+		// 	output1[i] = input[i];
+		// }
 
-    	// Call the arm provided FIR filter routine
-    	// arm_fir_f32(&S, input, output2, block_size);
-		
+		calc_fir(T, input, output2);
 		
 		DIGITAL_IO_RESET();	// (falling edge....  done processing data )
 
@@ -112,6 +109,8 @@ int main(int argc, char const *argv[]) {
 		putblockstereo(output1, output2);
 
 	}
+
+	return 0;
 }
 
 

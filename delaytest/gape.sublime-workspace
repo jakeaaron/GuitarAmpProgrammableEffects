@@ -1,0 +1,1288 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"del",
+				"delay_gain"
+			],
+			[
+				"delay",
+				"delay_coefs"
+			],
+			[
+				"de",
+				"delay_coefs"
+			],
+			[
+				"out",
+				"outstr"
+			],
+			[
+				"D",
+				"DELAY"
+			],
+			[
+				"fir_",
+				"fir_coefs"
+			],
+			[
+				"lcd",
+				"lcd_write"
+			],
+			[
+				"init",
+				"init_display"
+			],
+			[
+				"ini",
+				"init_display"
+			],
+			[
+				"dev",
+				"device_file"
+			],
+			[
+				"I",
+				"I2C_DEVICE"
+			],
+			[
+				"device",
+				"device_file"
+			],
+			[
+				"in",
+				"init_i2c"
+			],
+			[
+				"ENA",
+				"ENABLE_GPIO4_FILE"
+			],
+			[
+				"SET",
+				"SET_DIRECTION4_FILE"
+			],
+			[
+				"GP",
+				"GPIO4_VALUE_FILE"
+			],
+			[
+				"print",
+				"print_switch_state"
+			],
+			[
+				"debou",
+				"debounced_switch_value"
+			],
+			[
+				"get",
+				"get_debounce_vals"
+			],
+			[
+				"swi",
+				"switch_vals"
+			],
+			[
+				"debo",
+				"debounced_switch_value"
+			],
+			[
+				"low",
+				"low_status"
+			],
+			[
+				"high",
+				"high_status"
+			],
+			[
+				"val",
+				"values"
+			],
+			[
+				"read",
+				"read_buffer"
+			],
+			[
+				"write",
+				"write_to_file"
+			],
+			[
+				"sit",
+				"switch_status"
+			],
+			[
+				"open",
+				"open_file"
+			],
+			[
+				"blo",
+				"block_size"
+			],
+			[
+				"sample",
+				"sample_delay"
+			],
+			[
+				"dela",
+				"delay"
+			],
+			[
+				"samp",
+				"sample_delay"
+			],
+			[
+				"ef",
+				"effects"
+			],
+			[
+				"DEL",
+				"DELAY_STRUCT"
+			],
+			[
+				"time",
+				"time_delay"
+			],
+			[
+				"dl",
+				"delay_buffer"
+			],
+			[
+				"block",
+				"blocksize"
+			],
+			[
+				"u",
+				"uint32_t"
+			],
+			[
+				"Tmp",
+				"temperature"
+			],
+			[
+				"H",
+				"HelloWorld"
+			],
+			[
+				"json",
+				"jsonData"
+			],
+			[
+				"line",
+				"LineChart"
+			],
+			[
+				"jso",
+				"jsonTable"
+			],
+			[
+				"temp",
+				"temp_arr"
+			],
+			[
+				"sqlite",
+				"sqlite_open"
+			],
+			[
+				"Temp",
+				"Temperature"
+			],
+			[
+				"bru",
+				"bruce_binary"
+			],
+			[
+				"bruce",
+				"Bruce"
+			],
+			[
+				"set",
+				"set_vars"
+			],
+			[
+				"c",
+				"convert_dB"
+			],
+			[
+				"KER",
+				"KERN_ALERT"
+			],
+			[
+				"led",
+				"leds_gpios"
+			],
+			[
+				"unreg",
+				"unregister_chrdev_region"
+			],
+			[
+				"inc",
+				"include"
+			],
+			[
+				"KERN",
+				"KERN_INFO"
+			],
+			[
+				"s",
+				"semaphore"
+			],
+			[
+				"unre",
+				"unregister_chrdev"
+			],
+			[
+				"return",
+				"return_values"
+			],
+			[
+				"retur",
+				"return_values"
+			],
+			[
+				"major",
+				"major_number"
+			],
+			[
+				"prin",
+				"printk"
+			],
+			[
+				"devi",
+				"device_number"
+			],
+			[
+				"majo",
+				"major_number"
+			],
+			[
+				"LED",
+				"LED_astray"
+			],
+			[
+				"retu",
+				"return_values"
+			],
+			[
+				"dri",
+				"driver_entry"
+			],
+			[
+				"mac",
+				"mac_address"
+			],
+			[
+				"net",
+				"netmask"
+			],
+			[
+				"network",
+				"network_address"
+			],
+			[
+				"outpu",
+				"output_file"
+			],
+			[
+				"O",
+				"O_RDWR"
+			],
+			[
+				"seri",
+				"serial_buffer"
+			],
+			[
+				"ser",
+				"init_serial"
+			],
+			[
+				"inpt",
+				"input_file"
+			],
+			[
+				"br",
+				"bruce_bin"
+			],
+			[
+				"not",
+				"notDtr"
+			],
+			[
+				"TOI",
+				"TIOCM_DTR"
+			],
+			[
+				"TIOC",
+				"TIOCMSET"
+			],
+			[
+				"TIO",
+				"TIOCM_DTR"
+			],
+			[
+				"0b",
+				"0b10110100"
+			],
+			[
+				"add",
+				"address"
+			],
+			[
+				"pipe",
+				"pipefd"
+			],
+			[
+				"pip",
+				"pipefd"
+			],
+			[
+				"E",
+				"EXIT_SUCCESS"
+			],
+			[
+				"inpu",
+				"inputString"
+			],
+			[
+				"sy",
+				"sysClockInitial"
+			],
+			[
+				"sys",
+				"sysClock"
+			],
+			[
+				"ar",
+				"argv"
+			],
+			[
+				"it",
+				"iteration"
+			],
+			[
+				"aver",
+				"average"
+			],
+			[
+				"glo",
+				"glob_t"
+			],
+			[
+				"gl",
+				"glob_t"
+			],
+			[
+				"struc",
+				"structure"
+			],
+			[
+				"st",
+				"stat"
+			],
+			[
+				"inter",
+				"interests2"
+			],
+			[
+				"intere",
+				"interests1"
+			],
+			[
+				"se",
+				"session_destroy"
+			],
+			[
+				"sess",
+				"session_unset"
+			],
+			[
+				"session_d",
+				"session_destroy"
+			],
+			[
+				"j",
+				"json_encode"
+			],
+			[
+				"url",
+				"urlencode"
+			],
+			[
+				"http_bui",
+				"http_build_query"
+			],
+			[
+				"stri",
+				"strip_tags"
+			],
+			[
+				"conte",
+				"content"
+			],
+			[
+				"title",
+				"titleKeysArray"
+			],
+			[
+				"form",
+				"formattedBuildingInfo"
+			],
+			[
+				"js",
+				"json_encode"
+			],
+			[
+				"for",
+				"formattedBuildingInfo"
+			],
+			[
+				"tit",
+				"titleKeysArray"
+			],
+			[
+				"var",
+				"var_dump"
+			],
+			[
+				"con",
+				"contents"
+			],
+			[
+				"file_",
+				"file_get_contents"
+			],
+			[
+				"row",
+				"rowContentArray"
+			],
+			[
+				"assignment",
+				"assignment_id"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "delay/delay.h",
+			"settings":
+			{
+				"buffer_size": 912,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "delay/delay.c",
+			"settings":
+			{
+				"buffer_size": 1310,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "effect_main.c",
+			"settings":
+			{
+				"buffer_size": 2693,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "fir/ece486_fir.c",
+			"settings":
+			{
+				"buffer_size": 3208,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "fir/ece486_fir.h",
+			"settings":
+			{
+				"buffer_size": 2810,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 347.0,
+		"last_filter": "Package Control: ",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"pac",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 488.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/delay",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/fir"
+	],
+	"file_history":
+	[
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/effect_main copy.c",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/fir/ece486_fir.h",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/ece486_fir copy.h",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/fir/ece486_fir.c",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/ece486_fir copy.c",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/delay/delay.h",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/delay copy.h",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/delay copy.c",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/delaytest/delay/delay.c",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/usart.c",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw4_code/README",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw4_code/Makefile",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw4_code/gpio_extra.c",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw4_code/read_switch.c",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw4_code/blink_led.c",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/uart.c",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/uart.h",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/stm32f4xx_it.h ",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/stm32f4xx_hal_conf.h",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/printf.c",
+		"/Users/jacoballenwood/Desktop/GAPE/git_gape/effect_main.c",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw3_code/README",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw3_code/Makefile",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw3_code/hello_world.extra.s",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw3_code/hello_world.thumb.s",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw3_code/hello_world.s",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/ece471_hw3_code/exit_asm.s",
+		"/Users/jacoballenwood/Desktop/everything/Embedded Systems - ECE 471/hello_world.c",
+		"/Users/jacoballenwood/Desktop/everything/codeforDSP/ece486_2015_group_02/lab1/msv_subs.h",
+		"/Users/jacoballenwood/Desktop/everything/codeforDSP/ece486_2015_group_02/lab1/msv_subs.c",
+		"/Users/jacoballenwood/Desktop/everything/codeforDSP/ece486_2015_group_02/lab1/lab1.c",
+		"/Users/jacoballenwood/Desktop/GAPE/code/delay/delay.m",
+		"/Users/jacoballenwood/Desktop/everything/codeforDSP/ece486_2015_group_02/lab2/board.c",
+		"/Users/jacoballenwood/Desktop/GAPE/code/lab1/lab1.c",
+		"/Users/jacoballenwood/Desktop/GAPE/code/lab1/test_calc_msv.m",
+		"/Users/jacoballenwood/Desktop/codefor331/ECE331 notes",
+		"/Users/jacoballenwood/Desktop/codefor331/temp_gtk.py",
+		"/Users/jacoballenwood/Desktop/codefor331/project2/temperature-logger-project2/temp.py",
+		"/Users/jacoballenwood/Library/Containers/com.apple.mail/Data/Library/Mail Downloads/4A29069B-8EBC-4E52-9C90-10D15050D17B/LEDdriver.c",
+		"/Users/jacoballenwood/Desktop/477/project/test.c",
+		"/Users/jacoballenwood/Desktop/477/project/ioctl.h",
+		"/Users/jacoballenwood/Desktop/477/project/rgb.c",
+		"/Users/jacoballenwood/Desktop/codefor331/project2/temperature-logger-project2/website_draw.html",
+		"/Users/jacoballenwood/Desktop/codefor331/Project 1/LED_kernel_driver.c",
+		"/Users/jacoballenwood/Library/Containers/com.apple.mail/Data/Library/Mail Downloads/F46FF4D0-F52D-44F4-AC79-FB55C9405724/LEDdriver.c",
+		"/Users/jacoballenwood/Downloads/ioctl.h",
+		"/Volumes/UNTITLED/rgb.c",
+		"/Users/jacoballenwood/Desktop/477/untitled folder/477project.sublime-project",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab5/radar/real_time.c",
+		"/Users/jacoballenwood/Desktop/codefor331/Project 1/Makefile",
+		"/Users/jacoballenwood/Desktop/codefor331/calender.php",
+		"/Users/jacoballenwood/Desktop/codefor331/ECE 331 Homework 10",
+		"/Users/jacoballenwood/Desktop/codefor331/Project 1/user_test1.c",
+		"/Users/jacoballenwood/Desktop/codefor331/Project 1/LED_kernel_driver.h",
+		"/Users/jacoballenwood/Library/Application Support/Sublime Text 3/Packages/BracketHighlighter/bh_core.sublime-settings",
+		"/Users/jacoballenwood/Desktop/codefor331/MACaddress.c",
+		"/Users/jacoballenwood/Desktop/codefor331/ECE 331 Homework 9",
+		"/Users/jacoballenwood/Desktop/codefor331/ECE 331 Homework 8",
+		"/Users/jacoballenwood/Desktop/codefor331/Homework 6",
+		"/Users/jacoballenwood/Downloads/fade.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/ece486_mixer.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/filter_test.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/dcblock.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/dcblock.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/ece486_biquad.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/ece486_biquad.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/ece486_fir.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/ece486_fir.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/ece486_mixer.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/filter1_coef.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/filter1_coef.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/filter2_coef.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/filter2_coef.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/filter3_coef.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/filter3_coef.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/frequency_estimation.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/frequency_estimation.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/mixer_coef.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/mixer_coef.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/real_time.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/rejectDC.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/rejectDC.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/task1.c",
+		"/Users/jacoballenwood/Desktop/codefor331/hardlinks.pl",
+		"/Users/jacoballenwood/Desktop/codefor331/parseScope.pl",
+		"/Users/jacoballenwood/Desktop/codefor331/network_address_calc.pl",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab4/lab4_template.c",
+		"/Users/jacoballenwood/Desktop/codefor331/kernel_write.c",
+		"/Users/jacoballenwood/Desktop/codefor331/kernel_write.GNUmakefile",
+		"/Users/jacoballenwood/Downloads/indicators/indicators.m",
+		"/Users/jacoballenwood/Desktop/477/zombieserialforkbruce.c",
+		"/Users/jacoballenwood/Desktop/477/serialfork.c",
+		"/Users/jacoballenwood/Desktop/codefor331/serial.c",
+		"/Users/jacoballenwood/Desktop/codefor331/rgbkernelmakefile",
+		"/Users/jacoballenwood/Desktop/codefor331/sd.c",
+		"/Users/jacoballenwood/Desktop/codefor331/makefile.GNUmakefile",
+		"/Users/jacoballenwood/Desktop/codefor331/color.c",
+		"/Users/jacoballenwood/Desktop/codefor331/child_print.c",
+		"/Users/jacoballenwood/Desktop/477/Lab3-477/lab3partB.c",
+		"/Users/jacoballenwood/Desktop/477/pwm.c",
+		"/Users/jacoballenwood/Desktop/codefor331/Homework 5",
+		"/Users/jacoballenwood/Desktop/codefor331/intelhex.pl",
+		"/Users/jacoballenwood/Desktop/codefor331/text",
+		"/Users/jacoballenwood/Desktop/codefor331/grep.c",
+		"/Users/jacoballenwood/Desktop/codefor331/zombie.c",
+		"/Users/jacoballenwood/Desktop/codefor331/ECE 331 Homework 4",
+		"/Users/jacoballenwood/Desktop/477/brucefork.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab2/board.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab2/test_fir.c",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab2/test_biquad.c",
+		"/Users/jacoballenwood/Desktop/477/bruce.txt",
+		"/Users/jacoballenwood/Downloads/Hw2ECE477/partA.c",
+		"/Users/jacoballenwood/Desktop/codefor331/untitled.c",
+		"/Users/jacoballenwood/Desktop/codefor331/scopeData.CSV",
+		"/Users/jacoballenwood/Desktop/codefor331/cdirectory.c",
+		"/Users/jacoballenwood/Desktop/codefor331/scopemfile.pl",
+		"/Users/jacoballenwood/Desktop/codefor331/data.MAT",
+		"/Users/jacoballenwood/Desktop/codefor331/windowAverage.c",
+		"/Users/jacoballenwood/Documents/ECE331 Homework 3",
+		"/Users/jacoballenwood/Documents/windowAverage.c",
+		"/Users/jacoballenwood/Downloads/hw2.m",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab1/msv_subs.h",
+		"/Users/jacoballenwood/Desktop/codeforDSP/ece486_2015_group_02/lab1/msv_subs.c",
+		"/Users/jacoballenwood/Desktop/codefor331/filesizeofsearch.c",
+		"/Users/jacoballenwood/Desktop/codefor331/sizeoffile.c",
+		"/Users/jacoballenwood/Desktop/codefor331/ECE331 Homework 2",
+		"/Users/jacoballenwood/Desktop/untitled folder/ECE331 HW 1",
+		"/Users/jacoballenwood/Documents/498Hw1"
+	],
+	"find":
+	{
+		"height": 22.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"print_switch_state",
+			"10",
+			"5",
+			"file",
+			"nav",
+			"primary-navigation",
+			"page",
+			"page_item",
+			".page_item",
+			".nav",
+			",",
+			"0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,0,1,0,1,1,1,0,0,0,0,1,0,0,1,1,0,0,0,1,\n0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,1,1,1,0,0,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,\n0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,\n1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,\n0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,\n1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,0,\n0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,1,0,0,0,0,1,0,1,1,0,0,0,0,1,0,1,1,0,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,\n0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,\n0,1,1,0,0,1,1,1,0,1,0,0,1,0,1,1,1,0,0,0,0,1,0,0,1,1,0,0,0,1,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,1,1,1,0,0,1,0,0,1,1,1,0,1,1,0,1,0,\n1,1,1,0,0,0,0,1,0,0,1,1,0,0,0,1,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,1,1,1,0,0,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,\n0,1,0,1,1,0,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,\n0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,\n0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,\n1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,0,\n0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,1,1,0",
+			"101000111010001110100010110000101110",
+			"ema",
+			"serialReadLeng",
+			"rx_length",
+			"uart0_filestream",
+			"childPID",
+			"json"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": true,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "delay/delay.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 912,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								513,
+								513
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content"
+							],
+							"syntax": "Packages/C Improved/C Improved.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "delay/delay.c",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1310,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1079,
+								1079
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content"
+							],
+							"syntax": "Packages/C Improved/C Improved.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 2,
+					"file": "effect_main.c",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2693,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2462,
+								2462
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content"
+							],
+							"syntax": "Packages/C Improved/C Improved.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 806.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "fir/ece486_fir.c",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3208,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1842,
+								1842
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content"
+							],
+							"syntax": "Packages/C Improved/C Improved.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 379.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "fir/ece486_fir.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2810,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								988,
+								988
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content"
+							],
+							"syntax": "Packages/C Improved/C Improved.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 326.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 22.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "gape.sublime-project",
+	"replace":
+	{
+		"height": 40.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
