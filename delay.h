@@ -23,7 +23,7 @@
 typedef struct delay_struct {
 	// data structure contains number of coefs, pointer to the coef array
 	float sample_delay;		// amount of delay
-	float * delay_coefs;		// amplitude of delayed signal
+	float * delay_coefs;	// array holding the impulse response for the delayed signal
 } DELAY_T;
 
 

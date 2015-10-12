@@ -13,7 +13,7 @@
 #include "delay.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "ece486.h"
 
 
 DELAY_T * init_delay(float FS, float time_delay, float delay_gain) {

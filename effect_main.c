@@ -101,7 +101,7 @@ int main(int argc, char const *argv[]) {
 		}
 
     	// Call the arm provided FIR filter routine
-    	// arm_fir_f32(&S, input, output2, block_size);
+    	arm_fir_f32(&S, input, output2, block_size);
 		
 		
 		DIGITAL_IO_RESET();	// (falling edge....  done processing data )
