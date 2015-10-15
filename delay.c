@@ -5,8 +5,7 @@
  * @date September 1, 2015
  *
  * @brief This file contains the functions for the delay effect portion 
- * of the GAPE suite. This program will be passed parameters to control 
- * the way each effect behaves.
+ * of the GAPE suite.
  * 
  */
 
@@ -16,6 +15,15 @@
 #include "ece486.h"
 
 
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param FS [description]
+ * @param time_delay [description]
+ * @param delay_gain [description]
+ * @return [description]
+ */
 DELAY_T * init_delay(float FS, float time_delay, float delay_gain) {
 
 	int i;			// counter for incrementing through coef array
@@ -45,8 +53,3 @@ DELAY_T * init_delay(float FS, float time_delay, float delay_gain) {
 }
 
 
-// void delay(DELAY_T * T, float * input, float * output1) {
-
-// 	// fir routine to delay input signal
-// 	arm_fir_f32(&(T->S), input, output1, T->block_size);
-// }

@@ -1,6 +1,12 @@
 /**
-* effects_main.c
-*/
+ * @file effect_main.c
+ *
+ * @author Jacob Allenwood
+ * @date September 1, 2015
+ *
+ * @brief This file contains the main program to run the selected GAPE effect
+ * 
+ */
 
 // include files -------------------------------------------------------
 
@@ -27,15 +33,7 @@
 
 
 
-/**
- * @brief [brief description]
- * @details [long description]
- * 
- * @param argc [description]
- * @param argv [description]
- * 
- * @return [description]
- */
+
 int main(int argc, char const *argv[]) {
 
 	// set up serial buffer
@@ -64,7 +62,7 @@ int main(int argc, char const *argv[]) {
 
 
 	// setup delay impulse response / fir filter coefs
-	DELAY_T * D = init_delay(FS_48K, 0.25, 0.5);
+	DELAY_T * D = init_delay(FS_48K, 0.25, 0.25);
 	if(D == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
@@ -77,20 +75,13 @@ int main(int argc, char const *argv[]) {
 	arm_fir_instance_f32 S;
 	arm_fir_init_f32(&S, D->sample_delay, &(D->delay_coefs[0]), state, block_size);
 
-	/*
-	* Infinite Loop to process the data stream, "block_size" samples at a time
-	*/
+
+	// process input data stream, "block_size" samples at a time
 	while(1) {
-		/*
-		 * Ask for a block of ADC samples to be put into the working buffer
-		 *   getblock() will wait until the input buffer is filled...  On return
-		 *   we work on the new data buffer.
-		 */
+
+		// get input samples from adc
 		getblock(input);	// Wait here until the input buffer is filled... Then process	
 
-		/*
-		 * signal processing code to calculate the required output buffers
-		 */
 		DIGITAL_IO_SET(); 	// Use a scope on PC4 to measure execution time
 
 		// sprintf(outstr,"YAYAYYAYY"); // %d, %f seem to be buggy
@@ -106,12 +97,10 @@ int main(int argc, char const *argv[]) {
 		
 		DIGITAL_IO_RESET();	// (falling edge....  done processing data )
 
-		/*
-		 * pass the processed working buffer back for DAC output
-		 */
+		// pass buffer for output to the dac
 		putblockstereo(output1, output2);
-
 	}
+
 }
 
 
