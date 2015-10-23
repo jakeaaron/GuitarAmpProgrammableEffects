@@ -24,7 +24,7 @@
  * @param block_size [amount of samples to work on]
  * @return [pointer to the delay_struct]
  */
-DELAY_T * init_delay(float FS, float time_delay, float delay_gain, int block_size) {
+DELAY_T * init_delay(int FS, float time_delay, float delay_gain, int block_size) {
 
 	// initialize variables --------------------------------------------
 	int i, j;			// incremental counters		
@@ -41,16 +41,18 @@ DELAY_T * init_delay(float FS, float time_delay, float delay_gain, int block_siz
 	D->block_size = block_size;
 	D->delay_gain = delay_gain;
 	D->index = index;
-	// initialize array of old samples to 0
+
+	// initialize array of history of old samples
 	D->history = malloc(sizeof(float) * sample_delay);
 	if(D->history == NULL) return NULL;
 	for(i = 0; i < sample_delay; i++) {
-		D->history[i] = 0.0;
+		D->history[i] = 1.0;
 	}
+
 	// initialize output array
 	D->output = malloc(sizeof(float) * block_size);
 	for(j = 0; j < block_size; j++) {
-		D->output[j];
+		D->output[j] = 0.0;
 	}
 
 
@@ -79,7 +81,7 @@ void calc_delay(DELAY_T * D, float * input) {
 		D->history[D->index] = input[i];
 
 		// reset index if at the end of history buffer
-		if((D->index % D->sample_delay) == 0) {
+		if(D->index == (D->sample_delay - 1)) {
 			D->index = 0;
 		} else {
 			// if Fs = 48000 then history index will go all the way to 23999

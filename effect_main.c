@@ -31,7 +31,7 @@
 
 // ---------------------------------------------------------------------
 
-#define FS 44100
+#define FS 48000
 
 
 
@@ -63,7 +63,7 @@ int main(int argc, char const *argv[]) {
 
 
 	// setup delay impulse response / fir filter coefs
-	DELAY_T * D = init_delay(FS, 0.25, 0.25, block_size);
+	DELAY_T * D = init_delay(FS, 0.2, 0.25, block_size);
 	if(D == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
@@ -83,7 +83,7 @@ int main(int argc, char const *argv[]) {
 		// get input samples from adc
 		getblock(input);	// Wait here until the input buffer is filled... Then process	
 
-		DIGITAL_IO_SET(); 	// Use a scope on PC4 to measure execution time
+		// DIGITAL_IO_SET(); 	// Use a scope on PC4 to measure execution time
 
 		// sprintf(outstr,"YAYAYYAYY"); // %d, %f seem to be buggy
 		// UART_putstr(outstr);
@@ -94,9 +94,9 @@ int main(int argc, char const *argv[]) {
 
     	// // Call the arm provided FIR filter routine
     	// arm_fir_f32(&S, input, output2, block_size);
-		calc_delay(D, input)
+		calc_delay(D, input);
 		
-		DIGITAL_IO_RESET();	// (falling edge....  done processing data )
+		// DIGITAL_IO_RESET();	// (falling edge....  done processing data )
 
 		// pass buffer for output to the dac
 		putblockstereo(D->output, output2);

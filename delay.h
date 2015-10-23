@@ -21,7 +21,7 @@
  */
 typedef struct delay_struct {
 	// data structure contains number of coefs, pointer to the coef array
-	float sample_delay;		// amount of delay in number of samples
+	int sample_delay;		// amount of delay in number of samples
 	int block_size;			// amount of samples to work on
 	float delay_gain;		// scaled volume of original input
 	int index;				// index through circular buffer of old values
@@ -40,10 +40,10 @@ typedef struct delay_struct {
  * @return [description]
  */
 DELAY_T * init_delay(
-	float FS,			// sampling frequency
+	int FS,			// sampling frequency
 	float time_delay,	// amount of delay 
 	float delay_gain,	// volume of delayed signal
-	int block_size;		// amount of samples to work on
+	int block_size		// amount of samples to work on
 );
 
 
