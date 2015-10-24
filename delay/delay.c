@@ -27,36 +27,35 @@
 DELAY_T * init_delay(int FS, float time_delay, float delay_gain, int block_size) {
 
 	// initialize variables --------------------------------------------
-	int i, j;			// incremental counters		
-	int index = 0;		// index through history array
-	// sample delay is time delay * Fs
-	int sample_delay = FS * time_delay;
+	int i, j;								// incremental counters		
+	int index = 0;							// index through history array
+	int sample_delay = (FS * time_delay);	// number of samples to delay by
 
 
 	// set up struct for delay function --------------------------------
-	DELAY_T * D = malloc(sizeof(DELAY_T));	// allocate struct
-	if(D == NULL) return NULL;				// errcheck malloc call
+	DELAY_T * D = (DELAY_T *)malloc(sizeof(DELAY_T));	// allocate struct
+	if(D == NULL) return NULL;							// errcheck malloc call
 	
 	D->sample_delay = sample_delay;
 	D->block_size = block_size;
 	D->delay_gain = delay_gain;
 	D->index = index;
 
-	// initialize array of history of old samples
-	D->history = malloc(sizeof(float) * sample_delay);
+	// initialize array of history of old samples ----------------------
+	D->history = (float *)malloc(sizeof(float) * sample_delay);	// sizeof delay
 	if(D->history == NULL) return NULL;
 	for(i = 0; i < sample_delay; i++) {
-		D->history[i] = 1.0;
+		D->history[i] = 0.0;
 	}
 
-	// initialize output array
-	D->output = malloc(sizeof(float) * block_size);
+	// initialize output array -----------------------------------------
+	D->output = (float *)malloc(sizeof(float) * block_size);
 	for(j = 0; j < block_size; j++) {
 		D->output[j] = 0.0;
 	}
 
 
-	// return pointer to the struct -----------------------------------
+	// return pointer to the struct ------------------------------------
 	return D;
 
 }
@@ -75,14 +74,14 @@ void calc_delay(DELAY_T * D, float * input) {
 	// calculate block of output
 	for(i = 0; i < D->block_size; i++) {
 
-		// y[n] = x[n] + Gx[n - D]
+		// y[n] = x[n] + (G * x[n - D])
 		// output is input plus sample from sample_delay samples ago
 		D->output[i] = input[i] + (D->delay_gain * (D->history[D->index])); 
 		D->history[D->index] = input[i];
 
 		// reset index if at the end of history buffer
 		if(D->index == (D->sample_delay - 1)) {
-			D->index = 0;
+			D->index = 0;	// reset to beginning of buffer
 		} else {
 			// if Fs = 48000 then history index will go all the way to 23999
 			D->index++; // incremement index all the way through history array

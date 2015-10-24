@@ -28,6 +28,7 @@
 #include <math.h>
 
 #include "delay.h"
+#include "fir_lowpass.h"
 
 // ---------------------------------------------------------------------
 
@@ -46,35 +47,31 @@ int main(int argc, char const *argv[]) {
 	int block_size, i;
 	float *input, *output1, *output2;
 
-	/**
-	 * Allocate memory -------------------------------------------------------- 
-	 */ 
+	// allocate memory --------------------------------------------------------------------
 	block_size = getblocksize();
 
 	input = (float *)malloc(sizeof(float)*block_size);
 	output1 = (float *)malloc(sizeof(float)*block_size);
-	output2 = (float *)malloc(sizeof(float)*block_size);
+	lpf_samples_output = (float *)malloc(sizeof(float)*block_size);
 
 	if (input == NULL || output1 == NULL || output2 == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
 	} 
-	// ----------------------------------------------------------------------
 
 
-	// setup delay impulse response / fir filter coefs
-	DELAY_T * D = init_delay(FS, 0.2, 0.25, block_size);
-	if(D == NULL) {
-		flagerror(MEMORY_ALLOCATION_ERROR);
-		while(1);
-	}
+	// initialize delay structure for delay routine ---------------------------------------
+	DELAY_T * D = init_delay(FS, 0.5, 0.5, block_size);
+	if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
 
-	// // setup state variable array used by arm_fir routine
-	// float * state = (float *)malloc(sizeof(float) * (D->sample_delay + block_size - 1));
 
-	// // initialize arm_fir struct
-	// arm_fir_instance_f32 S;
-	// arm_fir_init_f32(&S, D->sample_delay, &(D->delay_coefs[0]), state, block_size);
+	// initialize lowpass arm_fir filter to filter input guitar signal --------------------
+	// setup state variable array used by arm_fir routine
+	float * state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
+	// initialize arm_fir struct
+	arm_fir_instance_f32 S;
+	// ceofs found in fir_lowpass.h
+	arm_fir_init_f32(&S, BL, &(B[0]), state, block_size);
 
 
 	// process input data stream, "block_size" samples at a time
@@ -83,23 +80,19 @@ int main(int argc, char const *argv[]) {
 		// get input samples from adc
 		getblock(input);	// Wait here until the input buffer is filled... Then process	
 
-		// DIGITAL_IO_SET(); 	// Use a scope on PC4 to measure execution time
+    	// lowpass filter the input guitar signal
+    	arm_fir_f32(&S, input, lpf_samples_output, block_size);
 
-		// sprintf(outstr,"YAYAYYAYY"); // %d, %f seem to be buggy
-		// UART_putstr(outstr);
-
+    	// output the input samples
 		for (i = 0; i < block_size; ++i) {
-			output2[i] = input[i];
+			output1[i] = lpf_samples_output[i];
 		}
 
-    	// // Call the arm provided FIR filter routine
-    	// arm_fir_f32(&S, input, output2, block_size);
-		calc_delay(D, input);
-		
-		// DIGITAL_IO_RESET();	// (falling edge....  done processing data )
+		// delay the guitar signal by D->sample_delay samples
+		calc_delay(D, lpf_samples_output);
 
-		// pass buffer for output to the dac
-		putblockstereo(D->output, output2);
+		// pass buffers for output to the dac
+		putblockstereo(output1, D->output);
 	}
 
 }
