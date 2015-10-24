@@ -9,10 +9,13 @@
  * 
  */
 
-#include "delay.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "ece486.h"
+
+#include "delay.h"
+
+
 
 
 /**
@@ -88,6 +91,7 @@ void calc_delay(DELAY_T * D, float * input) {
 			// if Fs = 48000 then history index will go all the way to 23999 for a .5s delay
 			D->index++; // incremement index all the way through history array
 		}
+		
 	}
 
 }
