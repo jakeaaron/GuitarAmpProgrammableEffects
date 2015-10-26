@@ -60,10 +60,6 @@ y = zeros(length(x), 1);
 % sample
 factor = 1;
 for n=1:length(x) 
-%     if (n > m) floor(n / m) = factor
-%     if n < M then y(n) = x(n) + delayline(M)       % y(n) = x(n) + x(n-M)
-%     if n mod m / factor = 0 then factor = factor + 1;
-%     if n > M then y(n) = x(n) + delayline(M/(decay_factor * factor));
     y(n) = x(n) + (echo_volume * delayline(M));
     delayline = [x(n); delayline(1:M-1)]; % shift in the delayed sample
 end

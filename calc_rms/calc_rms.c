@@ -31,17 +31,19 @@
  */
 RMS_T * init_rms(int window_size, int block_size) {
 
+	int i, j;
+
 	// set up struct for rms calculation ----------------------------------
 	RMS_T * R = (RMS_T *)malloc(sizeof(RMS_T));	// allocate struct
 	if(R == NULL) return NULL;					// errcheck malloc
 
 	R->window_size = window_size;	// number of samples to average over
 	R->block_size = block_size;		// number of input and output samples
-	R->old_ms = 0.0;				// sum of previous mean-square values
-	R->index = 0;					// index through previous mean-square values
+	R->old_s = 0.0;					// sum of previous square values
+	R->index = 0;					// index through previous square values
 
 
-	// initialize history of old window_size samples ----------------------
+	// initialize history of old window_size square samples ---------------
 	R->history = (float *)malloc(sizeof(float) * window_size);	// sizeof window to average over
 	if(R->history == NULL) return NULL;
 	for(i = 0; i < window_size; i++) {
@@ -52,8 +54,8 @@ RMS_T * init_rms(int window_size, int block_size) {
 	// initialize output array --------------------------------------------
 	R->output = (float *)malloc(sizeof(float) * block_size);	// sizeof window to average over
 	if(R->output == NULL) return NULL;
-	for(i = 0; i < block_size; i++) {
-		R->output[i] = 0.0;
+	for(j = 0; j < block_size; j++) {
+		R->output[j] = 0.0;
 	}
 
 
@@ -67,8 +69,8 @@ RMS_T * init_rms(int window_size, int block_size) {
 
 /**
  * @brief [calculates the rms value of the last window_size input samples]
- * @details [Using a circular buffer to contain the last window_size samples
- * a running total is kept of the mean-square, so there is no need to re-calculate
+ * @details [Using a circular buffer to contain the last window_size samples,
+ * a running total is kept of the square, so there is no need to re-calculate
  * the new average by going through every old sample, instead there is only one new
  * sample to calculate]
  * 
@@ -81,19 +83,19 @@ void calc_rms(RMS_T * R, float * input) {
 
 	for(i = 0; i < R->block_size; i++) {
 
-		// new mean-square value is x[n]^2 / N
-		float new_ms = ((input[i] * input[i]) / R->window_size);
+		// new square value 
+		float new_s = (input[i] * input[i]);
 
 		// y[n] = sqrt( previous window_size samples squared / window_size)
-		R->output[i] = sqrt(R->old_ms + new_ms);
+		R->output[i] = sqrt((R->old_s + new_s) / R->window_size);
 
-		// subtract oldest value out of running mean square
-		R->old_ms =- R->history[R->index];
+		// subtract oldest value out of running square
+		R->old_s -= R->history[R->index];
 		// update running mean square
-		R->old_ms =+ new_ms;
+		R->old_s += new_s;
 
 		// put new value in history array
-		R->history[R->index] = new_ms;
+		R->history[R->index] = new_s;
 
 		// reset index if at the end of history buffer
 		if(R->index == (R->window_size - 1)) {

@@ -27,9 +27,9 @@
 typedef struct rms_struct {  
 	int window_size;    // number of samples to average over  		
 	int block_size;  	// number of input and output samples
-	float old_rms; 		// sum of previous mean-square values
-	float * history;   	// buffer containing previous mean-square values
-	int index;			// index through previous mean-square values
+	float old_s; 		// sum of previous square values
+	float * history;   	// buffer containing previous square values
+	int index;			// index through previous square values
 	float * output;  	// buffer for output rms values
 } RMS_T;
 

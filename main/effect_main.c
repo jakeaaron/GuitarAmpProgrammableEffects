@@ -28,6 +28,7 @@
 #include <math.h>
 
 #include "delay.h"
+#include "calc_rms.h"
 #include "fir_lowpass.h"
 
 // ---------------------------------------------------------------------
@@ -71,12 +72,20 @@ int main(int argc, char const *argv[]) {
 
 	// INIT EFFECTS -----------------------------------------------------------------------
 
+
 	// DELAY -----------------------------------------------------------------
+	
 	// initialize delay structure for delay routine 
 	DELAY_T * D = init_delay(FS, 0.5, 0.5, block_size);
 	if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
 
 	// COMPRESSOR ------------------------------------------------------------
+
+	// initialize rms detection
+	RMS_T * V = init_rms(64, block_size);
+	if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+
+
 
 
 	// process input data stream, "block_size" samples at a time
@@ -95,6 +104,7 @@ int main(int argc, char const *argv[]) {
 
 
 		// CALCULATE EFFECTS --------------------------------------------------------------
+
 
 		// DELAY --------------------------------------------------------------
 		

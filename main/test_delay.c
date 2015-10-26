@@ -1,10 +1,10 @@
 /**
- * @file effect_main.c
+ * @file test_delay.c
  *
  * @author Jacob Allenwood
- * @date September 1, 2015
+ * @date October 22, 2015
  *
- * @brief This file contains the main program to run the selected GAPE effect
+ * @brief This file contains the main program to test the delay effect.
  * 
  */
 
@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
 	float input[10] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 
 
-	// setup delay impulse response / fir filter coefs
+	// setup delay struct
 	DELAY_T * D = init_delay(FS, 0.1, 1.0, block_size);
 
 	calc_delay(D, input);
