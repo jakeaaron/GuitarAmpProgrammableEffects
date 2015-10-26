@@ -45,24 +45,19 @@ int main(int argc, char const *argv[]) {
 	initialize(FS_48K, MONO_IN, STEREO_OUT); 
 
 	int block_size, i;
-	float *input, *output1, *output2;
+	float * input, * output1, * lpf_samples_output;
 
 	// allocate memory --------------------------------------------------------------------
 	block_size = getblocksize();
 
-	input = (float *)malloc(sizeof(float)*block_size);
-	output1 = (float *)malloc(sizeof(float)*block_size);
-	lpf_samples_output = (float *)malloc(sizeof(float)*block_size);
+	input = (float *)malloc(sizeof(float) * block_size);
+	output1 = (float *)malloc(sizeof(float) * block_size);
+	lpf_samples_output = (float *)malloc(sizeof(float) * block_size);
 
-	if (input == NULL || output1 == NULL || output2 == NULL) {
+	if (input == NULL || output1 == NULL || lpf_samples_output == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
 	} 
-
-
-	// initialize delay structure for delay routine ---------------------------------------
-	DELAY_T * D = init_delay(FS, 0.5, 0.5, block_size);
-	if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
 
 
 	// initialize lowpass arm_fir filter to filter input guitar signal --------------------
@@ -72,6 +67,16 @@ int main(int argc, char const *argv[]) {
 	arm_fir_instance_f32 S;
 	// ceofs found in fir_lowpass.h
 	arm_fir_init_f32(&S, BL, &(B[0]), state, block_size);
+
+
+	// INIT EFFECTS -----------------------------------------------------------------------
+
+	// DELAY -----------------------------------------------------------------
+	// initialize delay structure for delay routine 
+	DELAY_T * D = init_delay(FS, 0.5, 0.5, block_size);
+	if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+
+	// COMPRESSOR ------------------------------------------------------------
 
 
 	// process input data stream, "block_size" samples at a time
@@ -88,8 +93,22 @@ int main(int argc, char const *argv[]) {
 			output1[i] = lpf_samples_output[i];
 		}
 
+
+		// CALCULATE EFFECTS --------------------------------------------------------------
+
+		// DELAY --------------------------------------------------------------
+		
 		// delay the guitar signal by D->sample_delay samples
-		calc_delay(D, lpf_samples_output);
+		// calc_delay(D, lpf_samples_output);
+
+		// COMPRESSOR ---------------------------------------------------------
+
+		// detect RMS level
+
+
+		// EQ -----------------------------------------------------------------
+
+
 
 		// pass buffers for output to the dac
 		putblockstereo(output1, D->output);

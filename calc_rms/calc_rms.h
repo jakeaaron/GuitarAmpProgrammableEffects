@@ -17,6 +17,9 @@
 
 #include <stdint.h>
 
+
+
+
 /**
  * @brief [structure containing necessary fields for the root mean square calculations]
  * 
