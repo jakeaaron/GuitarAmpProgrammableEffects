@@ -29,7 +29,7 @@ typedef struct rms_struct {
 	int block_size;  	// number of input and output samples
 	float old_s; 		// sum of previous square values
 	float * history;   	// buffer containing previous square values
-	int index;			// index through previous square values
+	int index;			// index through previous square values, will point to oldest sample
 	float * output;  	// buffer for output rms values
 } RMS_T;
 
