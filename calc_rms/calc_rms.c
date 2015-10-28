@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "arm_math.h"
 #include "ece486.h"
  
 #include "calc_rms.h"
@@ -34,33 +35,33 @@ RMS_T * init_rms(int window_size, int block_size) {
 	int i, j;
 
 	// set up struct for rms calculation ----------------------------------
-	RMS_T * R = (RMS_T *)malloc(sizeof(RMS_T));	// allocate struct
-	if(R == NULL) return NULL;					// errcheck malloc
+	RMS_T * V = (RMS_T *)malloc(sizeof(RMS_T));	// allocate struct
+	if(V == NULL) return NULL;					// errcheck malloc
 
-	R->window_size = window_size;	// number of samples to average over
-	R->block_size = block_size;		// number of input and output samples
-	R->old_s = 0.0;					// sum of previous square values
-	R->index = 0;					// index through previous square values
+	V->window_size = window_size;	// number of samples to average over
+	V->block_size = block_size;		// number of input and output samples
+	V->old_s = 0.0;					// sum of previous square values
+	V->index = 0;					// index through previous square values
 
 
 	// initialize history of old window_size square samples ---------------
-	R->history = (float *)malloc(sizeof(float) * window_size);	// sizeof window to average over
-	if(R->history == NULL) return NULL;
-	for(i = 0; i < window_size; i++) {
-		R->history[i] = 0.0;
+	V->history = (float *)malloc(sizeof(float) * (window_size - 1));	// sizeof window to average over - 1
+	if(V->history == NULL) return NULL;
+	for(i = 0; i < (window_size - 1); i++) {
+		V->history[i] = 0.0;
 	}
 
 
 	// initialize output array --------------------------------------------
-	R->output = (float *)malloc(sizeof(float) * block_size);	// sizeof window to average over
-	if(R->output == NULL) return NULL;
+	V->output = (float *)malloc(sizeof(float) * block_size);	// sizeof window to average over
+	if(V->output == NULL) return NULL;
 	for(j = 0; j < block_size; j++) {
-		R->output[j] = 0.0;
+		V->output[j] = 0.0;
 	}
 
 
 	// return pointer to the struct ---------------------------------------
-	return R;
+	return V;
 
 }
 
@@ -74,34 +75,35 @@ RMS_T * init_rms(int window_size, int block_size) {
  * the new average by going through every old sample, instead there is only one new
  * sample to calculate]
  * 
- * @param R [struct containing fields necessary for rms calculation]
+ * @param V [struct containing fields necessary for rms calculation]
  * @param input [buffer containing input samples to work on]
  */
-void calc_rms(RMS_T * R, float * input) {
+void calc_rms(RMS_T * V, float * input) {
 
 	int i;
 
-	for(i = 0; i < R->block_size; i++) {
+	for(i = 0; i < V->block_size; i++) {
 
 		// new square value 
 		float new_s = (input[i] * input[i]);
 
 		// y[n] = sqrt( previous window_size samples squared / window_size)
-		R->output[i] = sqrt((R->old_s + new_s) / R->window_size);
+		V->output[i] = 0.6667 * (sqrt((V->old_s + new_s) / V->window_size)) - 1.0;
+		// arm_sqrt_f32(((V->old_s + new_s) / V->window_size), V->output); 
 
 		// subtract oldest value out of running square
-		R->old_s -= R->history[R->index];
+		V->old_s -= V->history[V->index];
 		// update running mean square
-		R->old_s += new_s;
+		V->old_s += new_s;
 
 		// put new value in history array
-		R->history[R->index] = new_s;
+		V->history[V->index] = new_s;
 
 		// reset index if at the end of history buffer
-		if(R->index == (R->window_size - 1)) {
-			R->index = 0;
+		if(V->index == (V->window_size - 2)) {
+			V->index = 0;
 		} else {
-			R->index++;
+			V->index++;
 		}
 
 	}

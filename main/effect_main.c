@@ -39,6 +39,22 @@
 
 int main(int argc, char const *argv[]) {
 
+	// SELECTEFFECT -----------------------------------------------------------------------
+
+	// effect { effect, appropriate parameters for effect }
+	// delay = { 1, time_delay, delay_gain }
+	// compressor = { 2, threshold, ratio }
+	// equalizer = ?
+
+	float effects[3] = {2, .5, .5};
+	int effect = effects[0];
+
+	DELAY_T * D;
+	RMS_T * V;
+	float time_delay, delay_gain, threshold, ratio;
+
+	// ------------------------------------------------------------------------------------
+
 	// set up serial buffer
 	char outstr[100];
 
@@ -46,16 +62,17 @@ int main(int argc, char const *argv[]) {
 	initialize(FS_48K, MONO_IN, STEREO_OUT); 
 
 	int block_size, i;
-	float * input, * output1, * lpf_samples_output;
+	float * input, * output1, * output2, * lpf_samples_output;
 
 	// allocate memory --------------------------------------------------------------------
 	block_size = getblocksize();
 
 	input = (float *)malloc(sizeof(float) * block_size);
 	output1 = (float *)malloc(sizeof(float) * block_size);
+	output2 = (float *)malloc(sizeof(float) * block_size);
 	lpf_samples_output = (float *)malloc(sizeof(float) * block_size);
 
-	if (input == NULL || output1 == NULL || lpf_samples_output == NULL) {
+	if(input == NULL || output1 == NULL || output2 == NULL || lpf_samples_output == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
 	} 
@@ -70,20 +87,42 @@ int main(int argc, char const *argv[]) {
 	arm_fir_init_f32(&S, BL, &(B[0]), state, block_size);
 
 
+
 	// INIT EFFECTS -----------------------------------------------------------------------
 
+	switch(effect) {
+		case 1:
+			// DELAY ---------------------------------------------
+			
+			time_delay = effects[1];
+			delay_gain = effects[2];
+			// initialize delay structure for delay routine 
+			D = init_delay(FS, time_delay, delay_gain, block_size);
+			if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+			
+			break;
 
-	// DELAY -----------------------------------------------------------------
-	
-	// initialize delay structure for delay routine 
-	DELAY_T * D = init_delay(FS, 0.5, 0.5, block_size);
-	if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+ 		case 2:
+			// COMPRESSOR ------------------------------------------------------------
 
-	// COMPRESSOR ------------------------------------------------------------
+			// initialize rms detection
+			// V = init_rms(64, block_size);
+			// if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+			
+			// initialize compressor
 
-	// initialize rms detection
-	RMS_T * V = init_rms(64, block_size);
-	if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+			break;
+
+		case 3:
+			// EQ
+
+			break;
+
+		default:
+
+			break;
+	}
+
 
 
 
@@ -105,23 +144,49 @@ int main(int argc, char const *argv[]) {
 
 		// CALCULATE EFFECTS --------------------------------------------------------------
 
+		switch(effect) {
+			case 1:
+				// DELAY ---------------------------------------------
 
-		// DELAY --------------------------------------------------------------
-		
-		// delay the guitar signal by D->sample_delay samples
-		// calc_delay(D, lpf_samples_output);
+				// delay the guitar signal by D->sample_delay samples
+				calc_delay(D, lpf_samples_output);
 
-		// COMPRESSOR ---------------------------------------------------------
+				// pass buffers for output to the dac
+				putblockstereo(output1, D->output);
+				
+				break;
 
-		// detect RMS level
+	 		case 2:
+				// COMPRESSOR ------------------------------------------------------------
+
+				// detect RMS level
+				calc_rms(V, lpf_samples_output);
+	 		// 	for (i = 0; i < block_size; ++i) {
+				// 	output2[i] = (0.0 * 0.6667) - 1.0;
+				// }
+	 			// arm_rms_f32(lpf_samples_output, block_size, output2);
+				
+				// initialize compressor
 
 
-		// EQ -----------------------------------------------------------------
+				// pass buffers for output to the dac
+				putblockstereo(output1, V->output);
+				// putblockstereo(output1, output2);
+
+				break;
+
+			case 3:
+				// EQ
+
+				break;
+
+			default:
+
+				break;
+		}
 
 
 
-		// pass buffers for output to the dac
-		putblockstereo(output1, D->output);
 	}
 
 }
