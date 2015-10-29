@@ -23,21 +23,16 @@
 
 
 
-
-
-
-// void arm_scale_f32	(	float32_t * 	pSrc,
-// 		float32_t 	scale,
-// 		float32_t * 	pDst,
-// 		uint32_t 	blockSize 
-// )	
-
-
-
-
-
-
-
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param low_gain [description]
+ * @param mid_gain [description]
+ * @param high_gain [description]
+ * @param block_size [description]
+ * @return [description]
+ */
 EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) {
 	// function gain parameters are in db
 	// pow(dB / 20) = gain
@@ -72,25 +67,30 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) 
 }
 
 
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param Q [description]
+ * @param input [description]
+ */
 void calc_eq(EQ_T * Q, float * input) {
 
 	int i, j;
 
+	// set up output buffer for biquad routines
 	float * low_filter_out = (float *)malloc(sizeof(float) * Q->block_size);
 	float * mid_filter_out = (float *)malloc(sizeof(float) * Q->block_size);
 	float * high_filter_out = (float *)malloc(sizeof(float) * Q->block_size);
 	
+	// filter low, mid and high bands
 	arm_biquad_cascade_df2T_f32(&(Q->S_low), input, low_filter_out, Q->block_size);
 	arm_biquad_cascade_df2T_f32(&(Q->S_mid), input, mid_filter_out, Q->block_size);
 	arm_biquad_cascade_df2T_f32(&(Q->S_high), input, high_filter_out, Q->block_size);
 
-	// multiply gain from coef calculation
-	for(j = 0; ) {
-
-	}
-
+	// y[n] = low[n] + mid[n] + high[n]
 	for(i = 0; i < Q->block_size; i++) {
-		Q->output[i] = Q->low_scale * iir_low_gain[ceil(1 / 5)]
+		Q->output[i] = (Q->low_scale * low_filter_out[i]) + (Q->mid_scale * mid_filter_out[i]) + (Q->high_scale * high_filter_out[i]);
 	}
 	
 }
