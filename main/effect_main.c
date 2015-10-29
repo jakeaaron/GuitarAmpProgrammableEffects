@@ -49,11 +49,26 @@ int main(int argc, char const *argv[]) {
 	float effects[3] = {2, .5, .5};
 	int effect = effects[0];
 
+	// declare variables used for effects assigned in switch cases ----------
+	// cannot declare variables in switch case
+	
+	// switch delay --------------
 	DELAY_T * D;
+	float time_delay, delay_gain; 
+
+	// switch compressor ---------
 	RMS_T * V;
-	float time_delay, delay_gain, threshold, ratio;
+	float threshold, ratio;
+
+	// switch eq -----------------
+	float low_gain, mid_gain, high_gain;
+	// arm_biquad_cascade_df2T_instance_f32 S_low;
+	// arm_biquad_cascade_df2T_instance_f32 S_mid;
+	// arm_biquad_cascade_df2T_instance_f32 S_high;
+	// float * low_state, * mid_state, * high_state;
 
 	// ------------------------------------------------------------------------------------
+
 
 	// set up serial buffer
 	char outstr[100];
@@ -80,11 +95,11 @@ int main(int argc, char const *argv[]) {
 
 	// initialize lowpass arm_fir filter to filter input guitar signal --------------------
 	// setup state variable array used by arm_fir routine
-	float * state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
+	float * fir_state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
 	// initialize arm_fir struct
 	arm_fir_instance_f32 S;
 	// ceofs found in fir_lowpass.h
-	arm_fir_init_f32(&S, BL, &(B[0]), state, block_size);
+	arm_fir_init_f32(&S, BL, &(B[0]), fir_state, block_size);
 
 
 
@@ -115,6 +130,11 @@ int main(int argc, char const *argv[]) {
 
 		case 3:
 			// EQ
+
+		 	// // state buffer used by arm routine of size 2*NUM_SECTIONS
+		 	// low_state = (float *)malloc(sizeof(float) * (2 * LOW_MWSPT_NSEC));
+		 	// // arm biquad structure initialization
+		 	// arm_biquad_cascade_df2T_init_f32(&S_low, LOW_MWSPT_NSEC, &[0], low_state);
 
 			break;
 
