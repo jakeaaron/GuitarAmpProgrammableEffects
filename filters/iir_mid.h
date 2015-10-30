@@ -2,9 +2,11 @@
  * @brief [Filter was designed for stop band of 300, pass 400 to 1K, and stop by 1.1K]
  */
 
+#ifndef IIR_MID_H
+#define IIR_MID_H
 
 
-int MID_SECTIONS = 11;
+#define MID_SECTIONS 11
 
 
 float iir_mid_coefs[MID_SECTIONS * 5] = {
@@ -21,4 +23,4 @@ float iir_mid_coefs[MID_SECTIONS * 5] = {
 	0.048629, 0.000000, -0.048629, -1.973818, 0.979746
 };
 
-
+#endif

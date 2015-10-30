@@ -17,7 +17,7 @@
 
 /**
  * @brief [structure containing necessary fields for the eq]
- * dB = 20log10(RMS)
+ * 
  */
 typedef struct eq_struct {
 	float low_scale;		// scale to RMS to reach correct dB 
@@ -31,7 +31,15 @@ typedef struct eq_struct {
 } EQ_T;
 
 
-
+/**
+ * @brief [initialize eq struct for arm iir routines]
+ * 
+ * @param low_gain [bass gain in dB]
+ * @param mid_gain [mid gain in dB]
+ * @param high_gain [treble gain in dB]
+ * @param block_size [number of samples to work on]
+ * @return [pointer to the eq struct]
+ */
 EQ_T * init_eq(
 	float low_gain,		// scale in dB for low band
 	float mid_gain,		// scale in dB for mid band
@@ -40,7 +48,12 @@ EQ_T * init_eq(
 );
 
 
-
+/**
+ * @brief [calculate output for equalizer]
+ * 
+ * @param Q [pointer to the eq struct]
+ * @param input [buffer containing samples to work on]
+ */
 void calc_eq(
 	EQ_T * Q,		// pointer to struct 
 	float * input	// buffer of input samples to work on

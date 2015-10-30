@@ -2,10 +2,11 @@
  * @brief [Filter was designed for a stop of 20, pass 80 to 300 and stop by 400]
  */
 
+#ifndef IIR_LOW_H
+#define IIR_LOW_H
 
 
-
-int LOW_SECTIONS = 8;
+#define LOW_SECTIONS 8
 
 
 /**
@@ -23,3 +24,4 @@ float iir_low_coefs[LOW_SECTIONS * 5] = {
   0.063021, -0.126040, 0.063021, -1.999697, 0.999759
 };
 
+#endif

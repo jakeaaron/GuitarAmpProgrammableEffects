@@ -29,6 +29,8 @@
 
 #include "delay.h"
 #include "calc_rms.h"
+#include "eq.h"
+
 #include "fir_lowpass.h"
 
 // ---------------------------------------------------------------------
@@ -46,7 +48,7 @@ int main(int argc, char const *argv[]) {
 	// compressor = { 2, threshold, ratio }
 	// equalizer = ?
 
-	float effects[3] = {2, .5, .5};
+	float effects[4] = {3, 0, 0, 0};
 	int effect = effects[0];
 
 	// declare variables used for effects assigned in switch cases ----------
@@ -61,11 +63,9 @@ int main(int argc, char const *argv[]) {
 	float threshold, ratio;
 
 	// switch eq -----------------
+	EQ_T * Q;
 	float low_gain, mid_gain, high_gain;
-	// arm_biquad_cascade_df2T_instance_f32 S_low;
-	// arm_biquad_cascade_df2T_instance_f32 S_mid;
-	// arm_biquad_cascade_df2T_instance_f32 S_high;
-	// float * low_state, * mid_state, * high_state;
+
 
 	// ------------------------------------------------------------------------------------
 
@@ -121,8 +121,8 @@ int main(int argc, char const *argv[]) {
 			// COMPRESSOR ------------------------------------------------------------
 
 			// initialize rms detection
-			// V = init_rms(64, block_size);
-			// if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+			V = init_rms(64, block_size);
+			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
 			
 			// initialize compressor
 
@@ -131,10 +131,12 @@ int main(int argc, char const *argv[]) {
 		case 3:
 			// EQ
 
-		 	// // state buffer used by arm routine of size 2*NUM_SECTIONS
-		 	// low_state = (float *)malloc(sizeof(float) * (2 * LOW_MWSPT_NSEC));
-		 	// // arm biquad structure initialization
-		 	// arm_biquad_cascade_df2T_init_f32(&S_low, LOW_MWSPT_NSEC, &[0], low_state);
+			low_gain = effects[1];
+			mid_gain = effects[2];
+			high_gain = effects[3];
+			// initialize eq
+			Q = init_eq(low_gain, mid_gain, high_gain, block_size);
+			if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }
 
 			break;
 
@@ -181,12 +183,13 @@ int main(int argc, char const *argv[]) {
 
 				// detect RMS level
 				calc_rms(V, lpf_samples_output);
+
 	 		// 	for (i = 0; i < block_size; ++i) {
 				// 	output2[i] = (0.0 * 0.6667) - 1.0;
 				// }
 	 			// arm_rms_f32(lpf_samples_output, block_size, output2);
 				
-				// initialize compressor
+				// compress
 
 
 				// pass buffers for output to the dac
@@ -197,6 +200,12 @@ int main(int argc, char const *argv[]) {
 
 			case 3:
 				// EQ
+
+				// adjust freq bands with equalizer
+				calc_eq(Q, lpf_samples_output);
+
+				// pass buffers for output to the dac
+				putblockstereo(output1, Q->output);
 
 				break;
 

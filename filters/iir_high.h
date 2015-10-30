@@ -2,11 +2,14 @@
  * @brief [Filter was designed for a stop of 1K, pass 1.1K to 5K and stop by 5.1K]
  */
 
+#ifndef IIR_HIGH_H
+#define IIR_HIGH_H
 
 
-int HIGH_SECTIONS = 12;
+#define HIGH_SECTIONS 12
 
-float iir_high_coefs[SECTIONS * 5] = {
+
+float iir_high_coefs[HIGH_SECTIONS * 5] = {
 	0.905280, -1.399233, 0.905280, -1.578551, 0.988842,
 	0.905280, -1.794869, 0.905280, -1.978167, 0.997447,
 	0.927065, -1.404531, 0.927065, -1.588797, 0.973157,
@@ -21,3 +24,4 @@ float iir_high_coefs[SECTIONS * 5] = {
 	0.063648, -0.126164, 0.063648, -1.980471, 0.999332
 };
 
+#endif
