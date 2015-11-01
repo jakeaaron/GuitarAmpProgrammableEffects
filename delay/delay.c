@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "ece486.h"
 
 #include "delay.h"
 

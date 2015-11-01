@@ -9,11 +9,10 @@
  * 
  */
 
-#include "arm_math.h"
-#include "ece486.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "arm_math.h"
 
 #include "eq.h"
 
@@ -84,13 +83,15 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) 
 	if(Q->low_filter_out == NULL || Q->mid_filter_out == NULL || Q->high_filter_out == NULL) {
 		return NULL;
 	} 
+	// initialize filter output buffers
 	for(j = 0; j < block_size; j++) {
 		Q->low_filter_out[j] = 0.0;
 		Q->mid_filter_out[j] = 0.0;
 		Q->high_filter_out[j] = 0.0;
 	}
 
-	// initialize output buffer
+
+	// initialize eq output buffer
 	Q->output = (float *)malloc(sizeof(float) * block_size);
 	for(i = 0; i < block_size; i++) {
 		Q->output[i] = 0.0;

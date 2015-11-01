@@ -58,15 +58,16 @@ int main(int argc, char const *argv[]) {
 	// cannot declare variables in switch case
 	
 	// switch delay --------------
-	DELAY_T * D;
+	DELAY_T * D; 	// delay struct
 	float time_delay, delay_gain; 
 
 	// switch compressor ---------
-	RMS_T * V;
+	RMS_T * V; 		// rms struct
 	float threshold, ratio;
+	COMP_T * C;		// comp struct
 
 	// switch eq -----------------
-	EQ_T * Q;
+	EQ_T * Q;		// eq struct
 	float low_gain, mid_gain, high_gain;
 
 
@@ -138,6 +139,7 @@ int main(int argc, char const *argv[]) {
 			
 			// initialize compressor
 
+
 			break;
 
 		case 3:
@@ -202,7 +204,7 @@ int main(int argc, char const *argv[]) {
 	 			// arm_rms_f32(lpf_samples_output, block_size, output2);
 				
 				// compress
-
+				// calc_compressor(C, V->output, lpf_samples_output);
 
 				// pass buffers for output to the dac
 				putblockstereo(output1, V->output);
