@@ -37,7 +37,7 @@
  */
 EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) {
 
-	int i;
+	int i, j, k;
 
 	// set up struct for eq --------------------------------
 	EQ_T * Q = (EQ_T *)malloc(sizeof(EQ_T));	// allocate struct
@@ -49,11 +49,6 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) 
 	Q->low_scale = pow(10, (low_gain / 20.0));
 	Q->mid_scale = pow(10, (mid_gain / 20.0));
 	Q->high_scale = pow(10, (high_gain / 20.0));
-	
-	// declare arm biquad struct
-	arm_biquad_cascade_df2T_instance_f32 S_low;
-	arm_biquad_cascade_df2T_instance_f32 S_mid;
- 	arm_biquad_cascade_df2T_instance_f32 S_high;
 
 	// declare state buffers for arm routine
 	float * low_state = (float *)malloc(sizeof(float) * (2 * LOW_SECTIONS));
@@ -62,22 +57,45 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) 
 	if(low_state == NULL || mid_state == NULL || high_state == NULL) {
 		return NULL;
 	} 
-	
+	// for(j = 0; j < block_size; j++) {
+	// 	low_state[j] = 0.0;
+	// 	mid_state[j] = 0.0;
+	// 	high_state[j] = 0.0;
+	// }
+
+	// declare and initialize arm structs -----------------------------------------------------------------------
+	arm_biquad_cascade_df2T_instance_f32 S_low /*= { LOW_SECTIONS, low_state, &iir_low_coefs[0] }*/;
+	arm_biquad_cascade_df2T_instance_f32 S_mid /*= { MID_SECTIONS, mid_state, &iir_mid_coefs[0] }*/;
+ 	arm_biquad_cascade_df2T_instance_f32 S_high /*= { HIGH_SECTIONS, high_state, &iir_high_coefs[0] }*/;
+
+	// initialize arm biquad struct
+	arm_biquad_cascade_df2T_init_f32(&S_low, LOW_SECTIONS, &(iir_low_coefs[0]), low_state);
+	arm_biquad_cascade_df2T_init_f32(&S_mid, MID_SECTIONS, &(iir_mid_coefs[0]), mid_state);
+	arm_biquad_cascade_df2T_init_f32(&S_high, LOW_SECTIONS, &(iir_high_coefs[0]), high_state);
+
+	Q->S_low = S_low;
+	Q->S_mid = S_mid;
+	Q->S_high = S_high;
+
+	// set up output buffer for biquad routines -----------------------------------------------------------------
+	Q->low_filter_out = (float *)malloc(sizeof(float) * block_size);
+	Q->mid_filter_out = (float *)malloc(sizeof(float) * block_size);
+	Q->high_filter_out = (float *)malloc(sizeof(float) * block_size);
+	if(Q->low_filter_out == NULL || Q->mid_filter_out == NULL || Q->high_filter_out == NULL) {
+		return NULL;
+	} 
+	for(j = 0; j < block_size; j++) {
+		Q->low_filter_out[j] = 0.0;
+		Q->mid_filter_out[j] = 0.0;
+		Q->high_filter_out[j] = 0.0;
+	}
+
 	// initialize output buffer
 	Q->output = (float *)malloc(sizeof(float) * block_size);
 	for(i = 0; i < block_size; i++) {
 		Q->output[i] = 0.0;
 	}
 
-
-	// initialize arm biquad struct
-	arm_biquad_cascade_df2T_init_f32(&S_low, LOW_SECTIONS, &iir_low_coefs[0], low_state);
-	arm_biquad_cascade_df2T_init_f32(&S_mid, MID_SECTIONS, &iir_mid_coefs[0], mid_state);
-	arm_biquad_cascade_df2T_init_f32(&S_high, LOW_SECTIONS, &iir_high_coefs[0], high_state);
-
-	Q->S_low = S_low;
-	Q->S_mid = S_mid;
-	Q->S_high = S_high;
 
 	// return pointer to struct
 	return Q;
@@ -95,19 +113,21 @@ void calc_eq(EQ_T * Q, float * input) {
 
 	int i;
 
-	// set up output buffer for biquad routines
-	float * low_filter_out = (float *)malloc(sizeof(float) * Q->block_size);
-	float * mid_filter_out = (float *)malloc(sizeof(float) * Q->block_size);
-	float * high_filter_out = (float *)malloc(sizeof(float) * Q->block_size);
-	
-	// filter low, mid and high bands
-	arm_biquad_cascade_df2T_f32(&(Q->S_low), input, low_filter_out, Q->block_size);
-	// arm_biquad_cascade_df2T_f32(&(Q->S_mid), input, mid_filter_out, Q->block_size);
-	// arm_biquad_cascade_df2T_f32(&(Q->S_high), input, high_filter_out, Q->block_size);
 
-	// y[n] = low[n] + mid[n] + high[n]
+	// filter low, mid and high bands
+	arm_biquad_cascade_df2T_f32(&(Q->S_low), input, Q->low_filter_out, Q->block_size);
+	// arm_biquad_cascade_df2T_f32(&(Q->S_mid), input, Q->mid_filter_out, Q->block_size);
+	// arm_biquad_cascade_df2T_f32(&(Q->S_high), input, Q->high_filter_out, Q->block_size);
+
 	for(i = 0; i < Q->block_size; i++) {
-		Q->output[i] = (Q->low_scale * low_filter_out[i]) /*+ (Q->mid_scale * mid_filter_out[i]) + (Q->high_scale * high_filter_out[i])*/;
+		// multiply by gain factor for output
+		Q->low_filter_out[i] = Q->low_filter_out[i] * 0.01718740;
+		Q->mid_filter_out[i] = Q->mid_filter_out[i] * 0.01718740;
+		Q->high_filter_out[i] = Q->high_filter_out[i] * 0.01718740;
+
+		// y[n] = low[n] + mid[n] + high[n]
+		Q->output[i] = (Q->low_scale * Q->low_filter_out[i]) /*+ (Q->mid_scale * mid_filter_out[i]) + (Q->high_scale * high_filter_out[i])*/;
+		
 		// Q->output[i] = 0.0;
 	}
 	

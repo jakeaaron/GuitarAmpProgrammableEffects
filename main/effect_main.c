@@ -32,6 +32,9 @@
 #include "eq.h"
 
 #include "fir_lowpass.h"
+// #include "iir_low.h"
+// #include "iir_mid.h"
+// #include "iir_high.h"
 
 // ---------------------------------------------------------------------
 
@@ -101,7 +104,16 @@ int main(int argc, char const *argv[]) {
 	// ceofs found in fir_lowpass.h
 	arm_fir_init_f32(&S, BL, &(B[0]), fir_state, block_size);
 
+	
+	
+ 	// float coef[10] = {2.2044, 0.0, 2.2044, 0.6088, -0.9702,
+ 	// 						2.9658, -3.4865, 2.9658, 0.3500, 0.4250};
 
+ 	// // state buffer used by arm routine of size 2*NUM_SECTIONS
+ 	// float *state = (float *)malloc(sizeof(float)*(2*2));
+ 	// // arm biquad structure initialization
+ 	// arm_biquad_cascade_df2T_instance_f32 f1;
+ 	// arm_biquad_cascade_df2T_init_f32(&f1,2,&coef[0],state);
 
 	// INIT EFFECTS -----------------------------------------------------------------------
 
@@ -204,8 +216,11 @@ int main(int argc, char const *argv[]) {
 				// adjust freq bands with equalizer
 				calc_eq(Q, lpf_samples_output);
 
+		    	// arm_biquad_cascade_df2T_f32(&f1, input, output2, block_size);
+
 				// pass buffers for output to the dac
 				putblockstereo(output1, Q->output);
+				// putblockstereo(output1, output2);
 
 				break;
 

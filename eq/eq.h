@@ -27,6 +27,9 @@ typedef struct eq_struct {
 	arm_biquad_cascade_df2T_instance_f32 S_low;
 	arm_biquad_cascade_df2T_instance_f32 S_mid;
 	arm_biquad_cascade_df2T_instance_f32 S_high;
+	float * low_filter_out;
+	float * mid_filter_out;
+	float * high_filter_out;
 	float * output;
 } EQ_T;
 
