@@ -49,7 +49,7 @@ int main(int argc, char const *argv[]) {
 	// effect { effect, appropriate parameters for effect }
 	// delay = { 1, time_delay, delay_gain }
 	// compressor = { 2, threshold, ratio }
-	// equalizer = ?
+	// equalizer = { 3, lowband_gain, midband_gain, highband_gain }
 
 	float effects[4] = {3, 0, 0, 0};
 	int effect = effects[0];
@@ -64,12 +64,11 @@ int main(int argc, char const *argv[]) {
 	// switch compressor ---------
 	RMS_T * V; 		// rms struct
 	float threshold, ratio;
-	COMP_T * C;		// comp struct
+	// COMP_T * C;		// comp struct
 
 	// switch eq -----------------
 	EQ_T * Q;		// eq struct
 	float low_gain, mid_gain, high_gain;
-
 
 	// ------------------------------------------------------------------------------------
 
@@ -131,7 +130,7 @@ int main(int argc, char const *argv[]) {
 			break;
 
  		case 2:
-			// COMPRESSOR ------------------------------------------------------------
+			// COMPRESSOR ----------------------------------------
 
 			// initialize rms detection
 			V = init_rms(64, block_size);
@@ -143,7 +142,7 @@ int main(int argc, char const *argv[]) {
 			break;
 
 		case 3:
-			// EQ
+			// EQ ------------------------------------------------
 
 			low_gain = effects[1];
 			mid_gain = effects[2];
@@ -219,7 +218,9 @@ int main(int argc, char const *argv[]) {
 				calc_eq(Q, lpf_samples_output);
 
 		    	// arm_biquad_cascade_df2T_f32(&f1, input, output2, block_size);
-
+		    	// for(i=0;i<block_size;i++) {
+		    	// 	output2[i] = output2[i] * 0.01718740;
+		    	// }
 				// pass buffers for output to the dac
 				putblockstereo(output1, Q->output);
 				// putblockstereo(output1, output2);
