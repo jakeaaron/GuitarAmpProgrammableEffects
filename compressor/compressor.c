@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include "ece486.h"
  
 #include "compressor.h"
 
@@ -48,13 +50,16 @@
  void calc_compressor(COMP_T * C, float * rms_vals, float * input) {
 
  	int i;
+ 	
 
  	// for every sample, compress if rms value breaches threshold
  	for(i = 0; i < C->block_size; i++) {
  		if(rms_vals[i] > C->threshold_rms) {
- 			C->output[i] = input[i] * C->ratio;
+ 			C->output[i] = C->threshold_rms + ((input[i] - C->threshold_rms) / C->ratio);
+ 			// C->output[i] = 0;
  		} else {
  			C->output[i] = input[i];
+ 			// C->output[i] = 0;
  		}
  	}
 

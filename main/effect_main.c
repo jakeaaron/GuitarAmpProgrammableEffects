@@ -29,12 +29,12 @@
 
 #include "delay.h"
 #include "calc_rms.h"
+#include "compressor.h"
 #include "eq.h"
 
+
 #include "fir_lowpass.h"
-// #include "iir_low.h"
-// #include "iir_mid.h"
-// #include "iir_high.h"
+
 
 // ---------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[]) {
 	// compressor = { 2, threshold, ratio }
 	// equalizer = { 3, lowband_gain, midband_gain, highband_gain }
 
-	float effects[4] = {3, 0, 0, 0};
+	float effects[4] = {2, 0, 0, 0};
 	int effect = effects[0];
 
 	// declare variables used for effects assigned in switch cases ----------
@@ -106,14 +106,6 @@ int main(int argc, char const *argv[]) {
 
 	
 	
- 	// float coef[10] = {2.2044, 0.0, 2.2044, 0.6088, -0.9702,
- 	// 						2.9658, -3.4865, 2.9658, 0.3500, 0.4250};
-
- 	// // state buffer used by arm routine of size 2*NUM_SECTIONS
- 	// float *state = (float *)malloc(sizeof(float)*(2*2));
- 	// // arm biquad structure initialization
- 	// arm_biquad_cascade_df2T_instance_f32 f1;
- 	// arm_biquad_cascade_df2T_init_f32(&f1,2,&coef[0],state);
 
 	// INIT EFFECTS -----------------------------------------------------------------------
 
@@ -133,11 +125,13 @@ int main(int argc, char const *argv[]) {
 			// COMPRESSOR ----------------------------------------
 
 			// initialize rms detection
-			V = init_rms(64, block_size);
+			V = init_rms(128, block_size);
 			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
 			
 			// initialize compressor
-			C = init_compressor();
+			threshold = -8;	// 0 is 1VRMS
+			ratio = 20;
+			C = init_compressor(threshold, ratio, block_size);
 
 			break;
 
@@ -204,9 +198,11 @@ int main(int argc, char const *argv[]) {
 				
 				// compress
 				calc_compressor(C, V->output, lpf_samples_output);
+			
 
+				
 				// pass buffers for output to the dac
-				putblockstereo(output1, V->output);
+				putblockstereo(V->output, C->output);
 				// putblockstereo(output1, output2);
 
 				break;
