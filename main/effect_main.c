@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]) {
 	// switch compressor ---------
 	RMS_T * V; 		// rms struct
 	float threshold, ratio;
-	// COMP_T * C;		// comp struct
+	COMP_T * C;		// comp struct
 
 	// switch eq -----------------
 	EQ_T * Q;		// eq struct
@@ -137,7 +137,7 @@ int main(int argc, char const *argv[]) {
 			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
 			
 			// initialize compressor
-
+			C = init_compressor();
 
 			break;
 
@@ -203,7 +203,7 @@ int main(int argc, char const *argv[]) {
 	 			// arm_rms_f32(lpf_samples_output, block_size, output2);
 				
 				// compress
-				// calc_compressor(C, V->output, lpf_samples_output);
+				calc_compressor(C, V->output, lpf_samples_output);
 
 				// pass buffers for output to the dac
 				putblockstereo(output1, V->output);

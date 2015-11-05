@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "arm_math.h"
-#include "ece486.h"
+// #include "arm_math.h"
+// #include "ece486.h"
  
 #include "calc_rms.h"
 
@@ -89,7 +89,6 @@ void calc_rms(RMS_T * V, float * input) {
 
 		// y[n] = sqrt( previous window_size samples squared / window_size)
 		V->output[i] = 0.6667 * (sqrt((V->old_s + new_s) / V->window_size)) - 1.0;
-		// arm_sqrt_f32(((V->old_s + new_s) / V->window_size), V->output); 
 
 		// subtract oldest value out of running square
 		V->old_s -= V->history[V->index];
@@ -98,6 +97,7 @@ void calc_rms(RMS_T * V, float * input) {
 
 		// put new value in history array
 		V->history[V->index] = new_s;
+
 
 		// reset index if at the end of history buffer
 		if(V->index == (V->window_size - 2)) {
