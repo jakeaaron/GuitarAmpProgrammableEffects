@@ -55,7 +55,8 @@
  	// for every sample, compress if rms value breaches threshold
  	for(i = 0; i < C->block_size; i++) {
  		if(rms_vals[i] > C->threshold_rms) {
- 			C->output[i] = C->threshold_rms + ((input[i] - C->threshold_rms) / C->ratio);
+ 			// C->output[i] = 20 * log10((C->threshold_rms + ((input[i] - C->threshold_rms) / C->ratio)));
+ 			C->output[i] = input[i] * 0.75;
  			// C->output[i] = 0;
  		} else {
  			C->output[i] = input[i];

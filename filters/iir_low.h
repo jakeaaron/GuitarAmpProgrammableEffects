@@ -8,7 +8,8 @@
 
 #define LOW_SECTIONS 4
 // #define LOW_GAIN 0.000099511
- #define LOW_GAIN 0.01718740 
+ // #define LOW_GAIN 0.01718740 
+ #define LOW_GAIN 0.0343748
  // #define LOW_GAIN 0.000077032
  // #define LOW_GAIN 0.000030253
 

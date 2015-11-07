@@ -40,7 +40,8 @@ typedef struct delay_struct {
  * @return [description]
  */
 DELAY_T * init_delay(
-	int FS,			// sampling frequency
+	int delay_units,	// 0 is delay in samples, 1 is delay in seconds
+	int FS,				// sampling frequency
 	float time_delay,	// amount of delay 
 	float delay_gain,	// volume of delayed signal
 	int block_size		// amount of samples to work on
@@ -54,6 +55,7 @@ DELAY_T * init_delay(
  * @param input [buffer containing samples to work on of size block_size]
  */
 void calc_delay(
+	int input_toggle,	// 0 is just delay signal, 1 is add delayed signal back to input
 	DELAY_T * D,		// pointer to struct 
 	float * input		// buffer of input samples to work on
 );

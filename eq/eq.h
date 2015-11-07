@@ -24,12 +24,11 @@ typedef struct eq_struct {
 	float mid_scale;
 	float high_scale;
 	int block_size;
-	arm_biquad_cascade_df2T_instance_f32 S_low;
-	arm_biquad_cascade_df2T_instance_f32 S_mid;
-	arm_biquad_cascade_df2T_instance_f32 S_high;
-	float * low_filter_out;
-	float * mid_filter_out;
-	float * high_filter_out;
+	arm_fir_instance_f32 S_low;
+	arm_fir_instance_f32 S_high;
+	float * low_band_out;
+	float * mid_band_out;
+	float * high_band_out;
 	float * output;
 } EQ_T;
 
@@ -47,7 +46,8 @@ EQ_T * init_eq(
 	float low_gain,		// scale in dB for low band
 	float mid_gain,		// scale in dB for mid band
 	float high_gain,	// scale in dB for high band
-	int block_size
+	int block_size,		// number of samples to work on
+	int FS 				// sampling frequency necessary for delay
 );
 
 
@@ -58,9 +58,12 @@ EQ_T * init_eq(
  * @param input [buffer containing samples to work on]
  */
 void calc_eq(
-	EQ_T * Q,		// pointer to struct 
+	DELAY_T * D,	// pointer to delay struct
+	EQ_T * Q,		// pointer to eq struct 
 	float * input	// buffer of input samples to work on
 );
+
+
 
 
 #endif

@@ -7,6 +7,25 @@
  * @brief This file contains the functions for the 3 band equalizer portion 
  * of the GAPE suite.
  * 
+ * @description [the low band is 0 to 350 Hz, the mid band is 350 to 1050 Hz
+ * and the high band is 1050 to 10K (might need to add another filter to cut at 5K).
+ * The idea is to use two fir filters to split the bands into bands below and above the cutoff
+ * frequencies for the filters. By subtracting the input samples by the filtered samples, we access
+ * all the info in the rest of the frequency spectrum that isn't being filtered by that filter. 
+ * The low band filter sections off the low band, and subtracting the input to the filter by those filtered 
+ * samples gives the rest of the spectrum (350Hz to 10Khz). Then by adding another lowpass filter that cuts off 
+ * at 1050Hz it allows us to manipulate the samples between 350 and 1050Hz. Subtracting the input to the filter by 
+ * this filter's output then gives the rest of the frequency band (1050Hz to 10Khz: 10K because of the fir already 
+ * filtering the input guitar signal).
+ * Every time the samples go through a filter, the input to the filter also goes through a delay equal to the 
+ * amount of delay caused by the filtering routine. This makes it so that when we subtract the input samples by the 
+ * filtered samples to get the high band for that filter, the signals are still in phase with each other.
+ * 
+ * Implementing the equalizer with fir filters rather than iir filters allows for "perfect reconstruction", where
+ * when the bands are put back together there is no distortion or odd constructive or destructive interference in
+ * the transition bands. Basically, when all bands are set to a flat response, it should output an 
+ * untainted and undistorted flat response because each band was calculated from the other bands.]
+ * 
  */
 
 #include <stdlib.h>
@@ -14,6 +33,7 @@
 #include <math.h>
 #include "arm_math.h"
 
+#include "delay.h"
 #include "eq.h"
 
 #include "iir_low.h"
@@ -34,9 +54,10 @@
  * @param block_size [number of samples to work on]
  * @return [pointer to the eq struct]
  */
-EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) {
+EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, int FS) {
 
 	int i, j;
+
 
 	// set up struct for eq -------------------------------------------------------------------------------------
 	EQ_T * Q = (EQ_T *)malloc(sizeof(EQ_T));	// allocate struct
@@ -49,47 +70,35 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) 
 	Q->mid_scale = pow(10, (mid_gain / 20.0));
 	Q->high_scale = pow(10, (high_gain / 20.0));
 
-	// declare state buffers for arm routine --------------------------------------------------------------------
-	float * low_state = (float *)malloc(sizeof(float) * (2 * LOW_SECTIONS));
-	// float * mid_state = (float *)malloc(sizeof(float) * (2 * MID_SECTIONS));
-	// float * high_state = (float *)malloc(sizeof(float) * (2 * HIGH_SECTIONS));
-	// float * low_state = (float *)malloc(sizeof(float) * (2 * 2));
-	// float * mid_state = (float *)malloc(sizeof(float) * (2 * 2));
-	// float * high_state = (float *)malloc(sizeof(float) * (2 * 2));
-	// if(low_state == NULL || mid_state == NULL || high_state == NULL) {
-	// 	return NULL;
-	// } 
+
+	// initialize delays for keeping the outputs in phase with each other ---------------------------------------
+	// transition bands are the same for both filters so I made the number 
+	// of coefs the same for both filters so the delay is the same for both filters
+	int sample_delay = (n_coefs_low - 1) / 2;	// delay for fir is (M-1)/2
+	DELAY_T * D = init_delay(0, FS, sample_delay, 1, block_size);
 
 
-	// declare and initialize arm structs -----------------------------------------------------------------------
-	arm_biquad_cascade_df2T_instance_f32 S_low /*= { LOW_SECTIONS, low_state, &iir_low_coefs[0] }*/;
-	arm_biquad_cascade_df2T_instance_f32 S_mid /*= { MID_SECTIONS, mid_state, &iir_mid_coefs[0] }*/;
- 	arm_biquad_cascade_df2T_instance_f32 S_high /*= { HIGH_SECTIONS, high_state, &iir_high_coefs[0] }*/;
+	// declare and initialize variables necessary for arm fir routines ------------------------------------------
+	float * low_state = (float *)malloc(sizeof(float) * (n_coefs_low + block_size - 1));
+	float * mid_state = (float *)malloc(sizeof(float) * (n_coefs_mid + block_size - 1));
 
-	// initialize arm biquad struct
-	// arm_biquad_cascade_df2T_init_f32(&S_low, LOW_SECTIONS, &(iir_low_coefs[0]), low_state);
-	// arm_biquad_cascade_df2T_init_f32(&S_mid, MID_SECTIONS, &(iir_mid_coefs[0]), mid_state);
-	// arm_biquad_cascade_df2T_init_f32(&S_high, LOW_SECTIONS, &(iir_high_coefs[0]), high_state);
-	arm_biquad_cascade_df2T_init_f32(&S_low, LOW_SECTIONS, &(coef[0]), low_state);
-	// arm_biquad_cascade_df2T_init_f32(&S_mid, 2, &(coef[0]), mid_state);
-	// arm_biquad_cascade_df2T_init_f32(&S_high, 2, &(coef[0]), high_state);
+	// declare arm struct
+	arm_fir_instance_f32 S_low;
+	arm_fir_instance_f32 S_mid;
 
-	Q->S_low = S_low;
-	Q->S_mid = S_mid;
-	Q->S_high = S_high;
+	// initialize arm struct
+	arm_fir_init_f32(&S_low, n_coefs_low, &(eq_low_coefs[0]), low_state, block_size);
+	arm_fir_init_f32(&S_mid, n_coefs_mid, &(eq_mid_coefs[0]), mid_state, block_size);
 
-	// set up output buffer for biquad routines -----------------------------------------------------------------
-	Q->low_filter_out = (float *)malloc(sizeof(float) * block_size);
-	Q->mid_filter_out = (float *)malloc(sizeof(float) * block_size);
-	Q->high_filter_out = (float *)malloc(sizeof(float) * block_size);
-	if(Q->low_filter_out == NULL || Q->mid_filter_out == NULL || Q->high_filter_out == NULL) {
-		return NULL;
-	} 
-	// initialize filter output buffers
-	for(j = 0; j < block_size; j++) {
-		Q->low_filter_out[j] = 0.0;
-		Q->mid_filter_out[j] = 0.0;
-		Q->high_filter_out[j] = 0.0;
+
+	// initialize band output buffers --------------------------------------------------------------------------
+	Q->low_band_out = (float *)malloc(sizeof(float) * block_size);
+	Q->mid_band_out = (float *)malloc(sizeof(float) * block_size);
+	Q->high_band_out = (float *)malloc(sizeof(float) * block_size);
+	for(i = 0; i < block_size; i++) {
+		Q->low_band_out[i] = 0.0;
+		Q->mid_band_out[i] = 0.0;
+		Q->high_band_out[i] = 0.0;
 	}
 
 
@@ -107,42 +116,63 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size) 
 
 
 /**
- * @brief [calculate output for equalizer]
+ * @brief [calculate equalized output samples]
  * 
+ * @description [this routine uses fir lowpass filters and delays to split off the spectrum
+ * into the specified bands. 
+ * The input signal is low pass filtered to split the spectrum, and also separately delayed to 
+ * keep the input in phase with the output of the filters. This delayed input is used to find the 
+ * rest of the spectrum not being filtered, by subtracting the input by the filtered samples. So using
+ * two filters allows us to split off 3 different bands: the band below and the band above the first lowpass 
+ * filter, and the band below and the band above the second lowpass filter. The band above the first lowpass
+ * and the band below the second lowpass is the same band.]
+ * 
+ * @param D [pointer to the delay struct]
  * @param Q [pointer to the eq struct]
  * @param input [buffer containing samples to work on]
  */
-void calc_eq(EQ_T * Q, float * input) {
+void calc_eq(DELAY_T * D, EQ_T * Q, float * input) {
 
-	int i;
+	int i, j, k;
+
+	// LOW BAND ------------------------------------------------------------------------------------------------
+	// calculate low band output with no gain
+	// lowpass with cutoff of 350Hz
+	arm_fir_f32(&(Q->S_low), input, Q->low_band_out, Q->block_size);
 
 
-	// filter low, mid and high bands
-	arm_biquad_cascade_df2T_f32(&(Q->S_low), input, Q->low_filter_out, Q->block_size);
-	// arm_biquad_cascade_df2T_f32(&(Q->S_mid), input, Q->mid_filter_out, Q->block_size);
-	// arm_biquad_cascade_df2T_f32(&(Q->S_high), input, Q->high_filter_out, Q->block_size);
+	// MID BAND ------------------------------------------------------------------------------------------------
+	// delay signal to stay in phase for mid band calculation
+	calc_delay(0, D, input);	// 0 is to output just the delayed signal
 
-	for(i=0;i<Q->block_size;i++) {
-		Q->low_filter_out[i] = Q->low_filter_out[i] * LOW_GAIN;
+	// input for mid band is the delayed signal minus the low band
+	// this gives the samples for the rest of the spectrum that the low band doesn't cover
+	for(j = 0; j < block_size; j++) {
+		input[j] = D->output[j] - Q->low_band_out[j];
+	}
+	// lowpass with cutoff of 1050Hz
+	// this contains the band from the cutoff of the low band, to 1050Hz
+	arm_fir_f32(&(Q->S_mid), input, Q->mid_band_out, Q->block_size);
+
+
+	// HIGH BAND -----------------------------------------------------------------------------------------------
+	// delay signal to stay in phase for high band calculation (note the input was already delayed once for the mid calc)
+	calc_delay(0, D, input);	// 0 is to output just the delayed signal
+
+	// the high band is the input going into the high filter delayed, and then subtracted from the high filter output
+	// this gives the samples for the rest of the spectrum that the low and mid band doesn't cover
+	for(k = 0; k < block_size; k++) {
+		Q->high_band_out[k] = D->output[k] - Q->mid_band_out[k];
 	}
 
+
+	// calculate block of equalized output samples -------------------------------------------------------------
 	for(i = 0; i < Q->block_size; i++) {
-		// multiply by gain factor for output
-		// Q->low_filter_out[i] = Q->low_filter_out[i] * 0.01718740;
-		// Q->mid_filter_out[i] = Q->mid_filter_out[i] * 0.01718740;
-		// Q->high_filter_out[i] = Q->high_filter_out[i] * 0.01718740;
-		
-		// y[n] = low[n] + mid[n] + high[n]
-		Q->output[i] = (Q->low_scale * Q->low_filter_out[i]) /*+ (Q->mid_scale * Q->mid_filter_out[i]) + (Q->high_scale * Q->high_filter_out[i])*/;
-		
-		// Q->output[i] = 0.0;
+		// output is the output of each band scaled by the band gain and added together 
+		Q->output[i] = (Q->low_scale * Q->low_band_out[i]) + (Q->mid_scale * Q->mid_band_out[i]) + (Q->high_scale * Q->high_band_out[i]);
 	}
 	
 }
-
-
-
-
 
 
 

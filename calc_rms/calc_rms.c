@@ -81,11 +81,12 @@ RMS_T * init_rms(int window_size, int block_size) {
 void calc_rms(RMS_T * V, float * input) {
 
 	int i;
+	float new_s;
 
 	for(i = 0; i < V->block_size; i++) {
 
 		// new square value 
-		float new_s = (input[i] * input[i]);
+		new_s = (input[i] * input[i]);
 
 		// y[n] = sqrt( previous window_size samples squared / window_size)
 		V->output[i] = /*0.6667 */ (sqrt((V->old_s + new_s) / V->window_size)) /*- 1.0*/;
@@ -106,19 +107,6 @@ void calc_rms(RMS_T * V, float * input) {
 			V->index++;
 		}
 
-		// //Store the output value
-		// V->output[i] = 0.6667 * (sqrt((V->old_s + input[i]*input[i]) / V->window_size)) - 1.0;
-
-		// //Update the circular buffer and history variable
-		// V->old_s -= (V->history[V->index])*(V->history[V->index]);
-		// V->old_s += input[i]*input[i];
-		// V->history[V->index] = input[i];
-		// V->index += 1;
-
-		// //Check to see if index is at end of circular buffer
-		// if(V->index == (V->window_size-1)){
-		// 	V->index -= (V->window_size-1);
-		// }
 
 	}
 

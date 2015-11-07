@@ -59,7 +59,7 @@ int main(int argc, char const *argv[]) {
 	
 	// switch delay --------------
 	DELAY_T * D; 	// delay struct
-	float time_delay, delay_gain; 
+	float delay, delay_gain; 
 
 	// switch compressor ---------
 	RMS_T * V; 		// rms struct
@@ -107,16 +107,16 @@ int main(int argc, char const *argv[]) {
 	
 	
 
-	// INIT EFFECTS -----------------------------------------------------------------------
+	// INIT EFFECTS ---------------------------------------------------------------------------------------------------------------
 
 	switch(effect) {
 		case 1:
 			// DELAY ---------------------------------------------
 			
-			time_delay = effects[1];
+			delay = effects[1];												// this is delay in seconds
 			delay_gain = effects[2];
 			// initialize delay structure for delay routine 
-			D = init_delay(FS, time_delay, delay_gain, block_size);
+			D = init_delay(1, FS, delay, delay_gain, block_size);			// 1 means delay is in seconds
 			if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
 			
 			break;
@@ -125,7 +125,7 @@ int main(int argc, char const *argv[]) {
 			// COMPRESSOR ----------------------------------------
 
 			// initialize rms detection
-			V = init_rms(128, block_size);
+			V = init_rms(block_size, block_size);
 			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
 			
 			// initialize compressor
@@ -142,7 +142,7 @@ int main(int argc, char const *argv[]) {
 			mid_gain = effects[2];
 			high_gain = effects[3];
 			// initialize eq
-			Q = init_eq(low_gain, mid_gain, high_gain, block_size);
+			Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
 			if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }
 
 			break;
@@ -171,55 +171,48 @@ int main(int argc, char const *argv[]) {
 		}
 
 
-		// CALCULATE EFFECTS --------------------------------------------------------------
+		// CALCULATE EFFECTS -------------------------------------------------------------------------------------------
 
 		switch(effect) {
-			case 1:
-				// DELAY ---------------------------------------------
+			case 1: // DELAY -----------------------------------------------------------------
+				
 
 				// delay the guitar signal by D->sample_delay samples
-				calc_delay(D, lpf_samples_output);
+				calc_delay(1, D, lpf_samples_output);	// 1 is to add delay to input signal
 
 				// pass buffers for output to the dac
 				putblockstereo(output1, D->output);
 				
 				break;
 
-	 		case 2:
-				// COMPRESSOR ------------------------------------------------------------
+	 		case 2:	// COMPRESSOR ------------------------------------------------------------
 
+			
 				// detect RMS level
 				calc_rms(V, lpf_samples_output);
 
-	 		// 	for (i = 0; i < block_size; ++i) {
-				// 	output2[i] = (0.0 * 0.6667) - 1.0;
-				// }
-	 			// arm_rms_f32(lpf_samples_output, block_size, output2);
-				
 				// compress
 				calc_compressor(C, V->output, lpf_samples_output);
 			
 
 				
+	 			for (i = 0; i < block_size; ++i) {
+					output1[i] = (V->output[i] * 0.6667) - 1.0;
+				}
 				// pass buffers for output to the dac
-				putblockstereo(V->output, C->output);
+				putblockstereo(output1, C->output);
 				// putblockstereo(output1, output2);
 
 				break;
 
-			case 3:
-				// EQ
+			case 3:	// EQ -------------------------------------------------------------------
+				
 
 				// adjust freq bands with equalizer
 				calc_eq(Q, lpf_samples_output);
 
-		    	// arm_biquad_cascade_df2T_f32(&f1, input, output2, block_size);
-		    	// for(i=0;i<block_size;i++) {
-		    	// 	output2[i] = output2[i] * 0.01718740;
-		    	// }
 				// pass buffers for output to the dac
-				putblockstereo(output1, Q->output);
-				// putblockstereo(output1, output2);
+				putblockstereo(lpf_samples_output, Q->output);
 
 				break;
 

@@ -26,28 +26,32 @@
  * @param block_size [amount of samples to work on]
  * @return [pointer to the delay_struct]
  */
-DELAY_T * init_delay(int FS, float time_delay, float delay_gain, int block_size) {
+DELAY_T * init_delay(int delay_units, int FS, float delay, float delay_gain, int block_size) {
 
 	// initialize variables --------------------------------------------
 	int i, j;								// incremental counters		
 	int index = 0;							// index through history array
-	int sample_delay = (FS * time_delay);	// number of samples to delay by
+	// if delay entered is in time, then figure out the delay in samples
+	// otherwise the delay was already entered in samples
+	if(delay_units == 1) {
+		int delay = (FS * delay);			// number of samples to delay by
+	}
 
 
 	// set up struct for delay function --------------------------------
 	DELAY_T * D = (DELAY_T *)malloc(sizeof(DELAY_T));	// allocate struct
 	if(D == NULL) return NULL;							// errcheck malloc call
 	
-	D->sample_delay = sample_delay;
+	D->sample_delay = (int)delay;	// amount to delay by in samples
 	D->block_size = block_size;
 	D->delay_gain = delay_gain;
 	D->index = index;
 
 
 	// initialize array of history of old samples ----------------------
-	D->history = (float *)malloc(sizeof(float) * sample_delay);	// sizeof delay
+	D->history = (float *)malloc(sizeof(float) * delay);	// sizeof delay
 	if(D->history == NULL) return NULL;
-	for(i = 0; i < sample_delay; i++) {
+	for(i = 0; i < delay; i++) {
 		D->history[i] = 0.0;
 	}
 
@@ -71,16 +75,24 @@ DELAY_T * init_delay(int FS, float time_delay, float delay_gain, int block_size)
  * @param D [pointer to delay_struct]
  * @param input [buffer containing samples to work on of size block_size]
  */
-void calc_delay(DELAY_T * D, float * input) {
+void calc_delay(int input_toggle, DELAY_T * D, float * input) {
 
 	int i;
 
 	// calculate block of output
 	for(i = 0; i < D->block_size; i++) {
 
-		// y[n] = x[n] + (G * x[n - D])
-		// output is input plus scaled sample from sample_delay samples ago
-		D->output[i] = input[i] + (D->delay_gain * (D->history[D->index])); 
+		// output is either current input and delayed signal or just delayed signal
+		if(input_toggle) {	// used for delay effect, want input signal and delayed signal
+			// y[n] = x[n] + (G * x[n - D])
+			// output is input plus scaled sample from sample_delay samples ago
+			D->output[i] = input[i] + (D->delay_gain * (D->history[D->index])); 
+		} else {	// used for eq, need to delay signal to keep each band signal in phase with each other
+			// this is just the delayed sample from sample_delay samples ago
+			D->output[i] = (D->delay_gain * (D->history[D->index]))
+		}
+
+		// place new sample in history array
 		D->history[D->index] = input[i];
 
 		// reset index if at the end of history buffer
