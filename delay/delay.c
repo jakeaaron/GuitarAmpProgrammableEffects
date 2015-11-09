@@ -7,12 +7,19 @@
  * @brief This file contains the functions for the delay effect portion 
  * of the GAPE suite.
  * 
+ * @details
+ * 
  */
+
+
+// INCLUDE ------------------------------------------------------------
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "delay.h"
+
+// --------------------------------------------------------------------
 
 
 
@@ -33,25 +40,30 @@ DELAY_T * init_delay(int delay_units, int FS, float delay, float delay_gain, int
 	int index = 0;							// index through history array
 	// if delay entered is in time, then figure out the delay in samples
 	// otherwise the delay was already entered in samples
-	if(delay_units == 1) {
-		int delay = (FS * delay);			// number of samples to delay by
+	if(delay_units) {
+		int delay_samples = (FS * delay);			// convert to samples
+	} else {
+		int delay_samples = (int)delay;				// convert float samples to int samples
 	}
+	// delay is entered as a float for the case where it is in seconds (0.4s for example)
+	// from here on, delay will be in samples, either from the previous 
+	// converion, or because it was entered in as such
 
 
 	// set up struct for delay function --------------------------------
 	DELAY_T * D = (DELAY_T *)malloc(sizeof(DELAY_T));	// allocate struct
 	if(D == NULL) return NULL;							// errcheck malloc call
 	
-	D->sample_delay = (int)delay;	// amount to delay by in samples
+	D->sample_delay = delay_samples;	// amount to delay by in samples
 	D->block_size = block_size;
 	D->delay_gain = delay_gain;
 	D->index = index;
 
 
 	// initialize array of history of old samples ----------------------
-	D->history = (float *)malloc(sizeof(float) * delay);	// sizeof delay
+	D->history = (float *)malloc(sizeof(float) * delay_samples);	// sizeof delay
 	if(D->history == NULL) return NULL;
-	for(i = 0; i < delay; i++) {
+	for(i = 0; i < delay_samples; i++) {
 		D->history[i] = 0.0;
 	}
 
@@ -89,7 +101,8 @@ void calc_delay(int input_toggle, DELAY_T * D, float * input) {
 			D->output[i] = input[i] + (D->delay_gain * (D->history[D->index])); 
 		} else {	// used for eq, need to delay signal to keep each band signal in phase with each other
 			// this is just the delayed sample from sample_delay samples ago
-			D->output[i] = (D->delay_gain * (D->history[D->index]))
+			// y[n] = G * x[n - D]
+			D->output[i] = (D->delay_gain * (D->history[D->index]));
 		}
 
 		// place new sample in history array
@@ -106,5 +119,3 @@ void calc_delay(int input_toggle, DELAY_T * D, float * input) {
 	}
 
 }
-
-

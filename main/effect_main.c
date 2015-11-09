@@ -6,20 +6,15 @@
  *
  * @brief This file contains the main program to run the selected GAPE effect
  * 
+ * @details
+ * 
  */
 
-// include files -------------------------------------------------------
+
+// INCLUDE -------------------------------------------------------
 
 #include "stm32f4xx_hal.h"
-
-#ifdef STM32F407xx
 #include "stm32f4_discovery.h"
-#endif /* STM32F407xx */
-
-#ifdef STM32F429xx
-#include "stm32f429i_discovery.h"
-#include "stm32f429i_discovery_lcd.h"
-#endif /* STM32F429xx */
 
 #include "arm_math.h"
 #include "ece486.h"
@@ -32,19 +27,23 @@
 #include "compressor.h"
 #include "eq.h"
 
-
 #include "fir_lowpass.h"
-
 
 // ---------------------------------------------------------------------
 
+
+// DEFINES -------------------------------------------------------------
+
 #define FS 48000
 
+// ---------------------------------------------------------------------
 
+
+ 
 
 int main(int argc, char const *argv[]) {
 
-	// SELECTEFFECT -----------------------------------------------------------------------
+	// SELECTEFFECT ------------------------------------------------------------------------------------
 
 	// effect { effect, appropriate parameters for effect }
 	// delay = { 1, time_delay, delay_gain }
@@ -70,26 +69,24 @@ int main(int argc, char const *argv[]) {
 	EQ_T * Q;		// eq struct
 	float low_gain, mid_gain, high_gain;
 
-	// ------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------
 
 
 	// set up serial buffer
 	char outstr[100];
+	int block_size, i;
 
 	// Set up the DAC/ADC interface
 	initialize(FS_48K, MONO_IN, STEREO_OUT); 
 
-	int block_size, i;
-	float * input, * output1, * output2, * lpf_samples_output;
-
-	// allocate memory --------------------------------------------------------------------
 	block_size = getblocksize();
 
-	input = (float *)malloc(sizeof(float) * block_size);
-	output1 = (float *)malloc(sizeof(float) * block_size);
-	output2 = (float *)malloc(sizeof(float) * block_size);
-	lpf_samples_output = (float *)malloc(sizeof(float) * block_size);
 
+	// allocate memory --------------------------------------------------------------------
+	float * input = (float *)malloc(sizeof(float) * block_size);
+	float * output1 = (float *)malloc(sizeof(float) * block_size);
+	float * output2 = (float *)malloc(sizeof(float) * block_size);
+	float * lpf_samples_output = (float *)malloc(sizeof(float) * block_size);
 	if(input == NULL || output1 == NULL || output2 == NULL || lpf_samples_output == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
@@ -110,8 +107,7 @@ int main(int argc, char const *argv[]) {
 	// INIT EFFECTS ---------------------------------------------------------------------------------------------------------------
 
 	switch(effect) {
-		case 1:
-			// DELAY ---------------------------------------------
+		case 1: // DELAY ---------------------------------------------
 			
 			delay = effects[1];												// this is delay in seconds
 			delay_gain = effects[2];
@@ -121,8 +117,7 @@ int main(int argc, char const *argv[]) {
 			
 			break;
 
- 		case 2:
-			// COMPRESSOR ----------------------------------------
+ 		case 2: // COMPRESSOR ----------------------------------------
 
 			// initialize rms detection
 			V = init_rms(block_size, block_size);
@@ -135,8 +130,7 @@ int main(int argc, char const *argv[]) {
 
 			break;
 
-		case 3:
-			// EQ ------------------------------------------------
+		case 3: // EQ ------------------------------------------------
 
 			low_gain = effects[1];
 			mid_gain = effects[2];
@@ -152,7 +146,7 @@ int main(int argc, char const *argv[]) {
 			break;
 	}
 
-
+	// --------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -209,7 +203,7 @@ int main(int argc, char const *argv[]) {
 				
 
 				// adjust freq bands with equalizer
-				calc_eq(Q, lpf_samples_output);
+				calc_eq(Q->D, Q, lpf_samples_output);
 
 				// pass buffers for output to the dac
 				putblockstereo(lpf_samples_output, Q->output);
@@ -221,12 +215,9 @@ int main(int argc, char const *argv[]) {
 				break;
 		}
 
+		// -------------------------------------------------------------------------------------------------------------
 
 
 	}
 
 }
-
-
-
-

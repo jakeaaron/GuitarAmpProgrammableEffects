@@ -7,15 +7,20 @@
  * @brief This file contains the functions for calculating the rms value of the input signal.
  * RMS values are needed for the compressor. 
  * 
+ * @details
+ * 
  */
+
+
+// INCLUDE --------------------------------------------------
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-// #include "arm_math.h"
-// #include "ece486.h"
  
 #include "calc_rms.h"
+
+// ----------------------------------------------------------
 
 
 
@@ -66,8 +71,6 @@ RMS_T * init_rms(int window_size, int block_size) {
 }
 
 
-
-
 /**
  * @brief [calculates the rms value of the last window_size input samples]
  * @details [Using a circular buffer to contain the last window_size samples,
@@ -111,5 +114,3 @@ void calc_rms(RMS_T * V, float * input) {
 	}
 
 }
-
-

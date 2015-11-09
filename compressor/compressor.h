@@ -9,10 +9,22 @@
  * 
  */
 
+
+// HEADER DEFINITION -------------------------------------------------
+
 #ifndef COMPRESSOR
 #define COMPRESSOR
  
+// -------------------------------------------------------------------
+
+
+// INCLUDE -----------------------------------------------------------
+
 #include <stdint.h>
+
+// -------------------------------------------------------------------
+
+
 
 
 /**
@@ -27,7 +39,15 @@ typedef struct comp_struct {
 } COMP_T;
 
 
-
+/**
+ * @brief [initialize compressor structure necessary for compressor calculation]
+ * @details [long description]
+ * 
+ * @param threshold_db [level in db to pass for compressor to kick in]
+ * @param ratio [amount to compress by once the threshold is passed]
+ * @param block_size [amount of samples to work on]
+ * @return [pointer to the compressor struct]
+ */
 COMP_T * init_compressor(
 	float threshold_dB,		// level in dB 
 	float ratio,			// amount to compress by
@@ -35,7 +55,14 @@ COMP_T * init_compressor(
 );
 
 
-
+/**
+ * @brief [compresses the input signal once the rms level passes the threshold entered into the initialize function]
+ * @details [long description]
+ * 
+ * @param C [pointer to the compressor struct]
+ * @param rms_vals [the rms values of the input, to check and see if the input needs to be compressed]
+ * @param input [buffer containing samples to work on]
+ */
 void calc_compressor(
 	COMP_T * C,				// pointer to comp struct
 	float * rms_vals,		// block_size number of rms values from rms routine

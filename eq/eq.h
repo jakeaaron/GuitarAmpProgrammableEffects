@@ -9,10 +9,22 @@
  * 
  */
 
+
+// HEADER DEFINITION --------------------------------------------------
+
 #ifndef EQ
 #define EQ
  
+// --------------------------------------------------------------------
+
+
+// INCLUDE ------------------------------------------------------------
+
 #include <stdint.h>
+
+// --------------------------------------------------------------------
+
+
 
 
 /**
@@ -20,16 +32,17 @@
  * 
  */
 typedef struct eq_struct {
-	float low_scale;		// scale to RMS to reach correct dB 
-	float mid_scale;
-	float high_scale;
-	int block_size;
-	arm_fir_instance_f32 S_low;
-	arm_fir_instance_f32 S_high;
-	float * low_band_out;
-	float * mid_band_out;
-	float * high_band_out;
-	float * output;
+	float low_scale;			// scale to RMS val to reach correct dB for the low frequency band
+	float mid_scale;			// scale to RMS val to reach correct dB for the mid frequency band
+	float high_scale;			// scale to RMS val to reach correct dB for the high frequency band
+	int block_size;				// number of samples to work on
+	arm_fir_instance_f32 S_low;	// arm fir struct for the low band lowpass filter
+	arm_fir_instance_f32 S_mid;	// arm fir struct for the mid band lowpass filter
+	DELAY_T * D;				// pointer to the delay struct
+	float * low_band_out;		// output buffer for the low band calculation		
+	float * mid_band_out;		// output buffer for the mid band calculation
+	float * high_band_out;		// output buffer for the high band calculation
+	float * output;				// buffer containing the equalized output samples
 } EQ_T;
 
 
@@ -62,8 +75,6 @@ void calc_eq(
 	EQ_T * Q,		// pointer to eq struct 
 	float * input	// buffer of input samples to work on
 );
-
-
 
 
 #endif
