@@ -78,7 +78,8 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 	// delay the same amount as the delay caused by the fir routine
 	// both filters have the same number of coefs, so the delays will be the same
 	int sample_delay = (eq_low_num - 1) / 2;	// delay for fir is (M-1)/2
-	Q->D = init_delay(0, FS, sample_delay, 1, block_size); // 0 is delay in samples instead of in seconds
+	Q->D1 = init_delay(0, FS, sample_delay, 1, block_size); // 0 is delay in samples instead of in seconds
+	Q->D2 = init_delay(0, FS, sample_delay, 1, block_size);
 
 
 	// declare and initialize variables necessary for arm fir routines ------------------------------------------
@@ -92,6 +93,9 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 	// initialize arm struct
 	arm_fir_init_f32(&S_low, eq_low_num, &(eq_low_coefs[0]), low_state, block_size);
 	arm_fir_init_f32(&S_mid, eq_mid_num, &(eq_mid_coefs[0]), mid_state, block_size);
+
+	Q->S_low = S_low;
+	Q->S_mid = S_mid;
 
 
 	// initialize band output buffers --------------------------------------------------------------------------
@@ -133,9 +137,10 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
  * @param Q [pointer to the eq struct]
  * @param input [buffer containing samples to work on]
  */
-void calc_eq(DELAY_T * D, EQ_T * Q, float * input) {
+void calc_eq(DELAY_T * D1, DELAY_T * D2, EQ_T * Q, float * input) {
 
 	int i, j, k;
+
 
 	// LOW BAND ------------------------------------------------------------------------------------------------
 	// calculate low band output with no gain
@@ -145,26 +150,26 @@ void calc_eq(DELAY_T * D, EQ_T * Q, float * input) {
 
 	// MID BAND ------------------------------------------------------------------------------------------------
 	// delay signal to stay in phase for mid band calculation
-	calc_delay(0, D, input);	// 0 is to output just the delayed signal
+	calc_delay(0, D1, input);	// 0 is to output just the delayed signal
 
 	// input for mid band is the delayed signal minus the low band
 	// this gives the samples for the rest of the spectrum that the low band doesn't cover
 	for(j = 0; j < Q->block_size; j++) {
-		input[j] = D->output[j] - Q->low_band_out[j];
+		D1->output[j] = D1->output[j] - Q->low_band_out[j];
 	}
 	// lowpass with cutoff of 1050Hz
 	// this contains the band from the cutoff of the low band, to 1050Hz
-	arm_fir_f32(&(Q->S_mid), input, Q->mid_band_out, Q->block_size);
+	arm_fir_f32(&(Q->S_mid), D1->output, Q->mid_band_out, Q->block_size);
 
 
 	// HIGH BAND -----------------------------------------------------------------------------------------------
 	// delay signal to stay in phase for high band calculation (note the input was already delayed once for the mid band calc)
-	calc_delay(0, D, input);	// 0 is to output just the delayed signal
+	calc_delay(0, D2, D1->output);	// 0 is to output just the delayed signal
 
 	// the high band is the input going into the mid filter delayed, and then subtracted from the mid filter output
 	// this gives the samples for the rest of the spectrum that the low and mid band doesn't cover
 	for(k = 0; k < Q->block_size; k++) {
-		Q->high_band_out[k] = D->output[k] - Q->mid_band_out[k];
+		Q->high_band_out[k] = D2->output[k] - Q->mid_band_out[k];
 	}
 
 
@@ -172,6 +177,9 @@ void calc_eq(DELAY_T * D, EQ_T * Q, float * input) {
 	for(i = 0; i < Q->block_size; i++) {
 		// output is the output of each band scaled by the band gain and added together 
 		Q->output[i] = (Q->low_scale * Q->low_band_out[i]) + (Q->mid_scale * Q->mid_band_out[i]) + (Q->high_scale * Q->high_band_out[i]);
+		// Q->output[i] = input[i];
+		// Q->output[i] = D2->output[i];
+		// Q->output[i] = Q->mid_band_out[i];
 	}
 	
 }

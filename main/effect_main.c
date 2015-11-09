@@ -50,7 +50,7 @@ int main(int argc, char const *argv[]) {
 	// compressor = { 2, threshold, ratio }
 	// equalizer = { 3, lowband_gain, midband_gain, highband_gain }
 
-	float effects[4] = {2, 0, 0, 0};
+	float effects[4] = {3, 0, 0, 0};
 	int effect = effects[0];
 
 	// declare variables used for effects assigned in switch cases ----------
@@ -156,7 +156,7 @@ int main(int argc, char const *argv[]) {
 		// get input samples from adc
 		getblock(input);	// Wait here until the input buffer is filled... Then process	
 
-    	// lowpass filter the input guitar signal
+    	// // lowpass filter the input guitar signal
     	arm_fir_f32(&S, input, lpf_samples_output, block_size);
 
     	// output the input samples
@@ -172,7 +172,7 @@ int main(int argc, char const *argv[]) {
 				
 
 				// delay the guitar signal by D->sample_delay samples
-				calc_delay(1, D, lpf_samples_output);	// 1 is to add delay to input signal
+				calc_delay(0, D, lpf_samples_output);	// 1 is to add delay to input signal
 
 				// pass buffers for output to the dac
 				putblockstereo(output1, D->output);
@@ -203,10 +203,10 @@ int main(int argc, char const *argv[]) {
 				
 
 				// adjust freq bands with equalizer
-				calc_eq(Q->D, Q, lpf_samples_output);
+				calc_eq(Q->D1, Q->D2, Q, lpf_samples_output);
 
 				// pass buffers for output to the dac
-				putblockstereo(lpf_samples_output, Q->output);
+				putblockstereo(output1, Q->output);
 
 				break;
 

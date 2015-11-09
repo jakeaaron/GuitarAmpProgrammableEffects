@@ -38,12 +38,13 @@ DELAY_T * init_delay(int delay_units, int FS, float delay, float delay_gain, int
 	// initialize variables --------------------------------------------
 	int i, j;								// incremental counters		
 	int index = 0;							// index through history array
+	int delay_samples;
 	// if delay entered is in time, then figure out the delay in samples
 	// otherwise the delay was already entered in samples
 	if(delay_units) {
-		int delay_samples = (FS * delay);			// convert to samples
+		delay_samples = (FS * delay);			// convert to samples
 	} else {
-		int delay_samples = (int)delay;				// convert float samples to int samples
+		delay_samples = (int)delay;				// convert float samples to int samples
 	}
 	// delay is entered as a float for the case where it is in seconds (0.4s for example)
 	// from here on, delay will be in samples, either from the previous 
@@ -84,6 +85,7 @@ DELAY_T * init_delay(int delay_units, int FS, float delay, float delay_gain, int
 /**
  * @brief [calculates a block_size of delayed samples for output]
  * 
+ * @param input_toggle [1 is to output the delay and the input, 0 is to output just the delay]
  * @param D [pointer to delay_struct]
  * @param input [buffer containing samples to work on of size block_size]
  */
