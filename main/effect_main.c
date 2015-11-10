@@ -35,6 +35,8 @@
 // DEFINES -------------------------------------------------------------
 
 #define FS 48000
+#define FS_DECIMATION 24000
+#define M 2
 
 // ---------------------------------------------------------------------
 
@@ -94,12 +96,18 @@ int main(int argc, char const *argv[]) {
 
 
 	// initialize lowpass arm_fir filter to filter input guitar signal --------------------
-	// setup state variable array used by arm_fir routine
-	float * fir_state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
-	// initialize arm_fir struct
-	arm_fir_instance_f32 S;
-	// ceofs found in fir_lowpass.h
-	arm_fir_init_f32(&S, BL, &(B[0]), fir_state, block_size);
+
+		// setup state variable array used by arm_fir routine
+		float * fir_state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
+		// initialize arm_fir struct
+		arm_fir_instance_f32 S;
+		// ceofs found in fir_lowpass.h
+		arm_fir_init_f32(&S, BL, &(B[0]), fir_state, block_size);	
+
+		// float * decimate_state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
+		// arm_fir_decimate_instance_f32 S_decimate;
+		// // arm_fir_decimate_init_f32(&S_decimate, BL, M, &(B[0]), decimate_state, block_size);
+
 
 	
 	
@@ -131,12 +139,14 @@ int main(int argc, char const *argv[]) {
 			break;
 
 		case 3: // EQ ------------------------------------------------
+			// arm_fir_decimate_init_f32(&S_decimate, BL, M, &(B[0]), decimate_state, block_size);
 
 			low_gain = effects[1];
 			mid_gain = effects[2];
 			high_gain = effects[3];
 			// initialize eq
 			Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
+			// Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS_DECIMATION);
 			if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }
 
 			break;
@@ -156,7 +166,7 @@ int main(int argc, char const *argv[]) {
 		// get input samples from adc
 		getblock(input);	// Wait here until the input buffer is filled... Then process	
 
-    	// // lowpass filter the input guitar signal
+    	// lowpass filter the input guitar signal
     	arm_fir_f32(&S, input, lpf_samples_output, block_size);
 
     	// output the input samples
@@ -169,7 +179,8 @@ int main(int argc, char const *argv[]) {
 
 		switch(effect) {
 			case 1: // DELAY -----------------------------------------------------------------
-				
+				// lowpass filter the input guitar signal
+    			// arm_fir_f32(&S, input, lpf_samples_output, block_size);
 
 				// delay the guitar signal by D->sample_delay samples
 				calc_delay(0, D, lpf_samples_output);	// 1 is to add delay to input signal
@@ -180,7 +191,8 @@ int main(int argc, char const *argv[]) {
 				break;
 
 	 		case 2:	// COMPRESSOR ------------------------------------------------------------
-
+				// lowpass filter the input guitar signal
+    			// arm_fir_f32(&S, input, lpf_samples_output, block_size);
 			
 				// detect RMS level
 				calc_rms(V, lpf_samples_output);
@@ -200,7 +212,7 @@ int main(int argc, char const *argv[]) {
 				break;
 
 			case 3:	// EQ -------------------------------------------------------------------
-				
+				// arm_fir_decimate_f32(&S_decimate, input, lpf_samples_output, block_size);
 
 				// adjust freq bands with equalizer
 				calc_eq(Q->D1, Q->D2, Q, lpf_samples_output);
