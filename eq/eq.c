@@ -77,14 +77,17 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 	// initialize delays for keeping the outputs in phase with each other ---------------------------------------
 	// delay the same amount as the delay caused by the fir routine
 	// both filters have the same number of coefs, so the delays will be the same
-	int sample_delay = (eq_low_num - 1) / 2;	// delay for fir is (M-1)/2
+	int sample_delay = ((eq_low_num - 1) / 2) - 3;	// delay for fir is (M-1)/2
 	Q->D1 = init_delay(0, FS, sample_delay, 1, block_size); // 0 is delay in samples instead of in seconds
 	Q->D2 = init_delay(0, FS, sample_delay, 1, block_size);
+	if(Q->D1 == NULL || Q->D2 == NULL) return NULL; 
+
 
 
 	// declare and initialize variables necessary for arm fir routines ------------------------------------------
 	float * low_state = (float *)malloc(sizeof(float) * (eq_low_num + block_size - 1));
 	float * mid_state = (float *)malloc(sizeof(float) * (eq_mid_num + block_size - 1));
+	if(low_state == NULL || mid_state == NULL) return NULL; 
 
 	// declare arm struct
 	arm_fir_instance_f32 S_low;
@@ -102,6 +105,7 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 	Q->low_band_out = (float *)malloc(sizeof(float) * block_size);
 	Q->mid_band_out = (float *)malloc(sizeof(float) * block_size);
 	Q->high_band_out = (float *)malloc(sizeof(float) * block_size);
+	if(Q->low_band_out == NULL || Q->mid_band_out == NULL || Q->high_band_out == NULL) return NULL; 
 	for(i = 0; i < block_size; i++) {
 		Q->low_band_out[i] = 0.0;
 		Q->mid_band_out[i] = 0.0;
@@ -111,6 +115,7 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 
 	// initialize eq output buffer -----------------------------------------------------------------------------
 	Q->output = (float *)malloc(sizeof(float) * block_size);
+	if(Q->output == NULL) return NULL;
 	for(j = 0; j < block_size; j++) {
 		Q->output[j] = 0.0;
 	}
@@ -176,7 +181,7 @@ void calc_eq(DELAY_T * D1, DELAY_T * D2, EQ_T * Q, float * input) {
 	// calculate block of equalized output samples -------------------------------------------------------------
 	for(i = 0; i < Q->block_size; i++) {
 		// output is the output of each band scaled by the band gain and added together 
-		Q->output[i] = (Q->low_scale * Q->low_band_out[i]) + (Q->mid_scale * Q->mid_band_out[i]) + (Q->high_scale * Q->high_band_out[i]);
+		Q->output[i] = 0.3 * ((Q->low_scale * Q->low_band_out[i]) + (Q->mid_scale * Q->mid_band_out[i]) + (Q->high_scale * Q->high_band_out[i]));
 	}
 	
 }

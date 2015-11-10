@@ -71,6 +71,7 @@ DELAY_T * init_delay(int delay_units, int FS, float delay, float delay_gain, int
 
 	// initialize output array -----------------------------------------
 	D->output = (float *)malloc(sizeof(float) * block_size);
+	if(D->output == NULL) return NULL;
 	for(j = 0; j < block_size; j++) {
 		D->output[j] = 0.0;
 	}

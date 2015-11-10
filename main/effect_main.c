@@ -52,7 +52,7 @@ int main(int argc, char const *argv[]) {
 	// compressor = { 2, threshold, ratio }
 	// equalizer = { 3, lowband_gain, midband_gain, highband_gain }
 
-	float effects[4] = {3, 0, 0, 0};
+	float effects[4] = {3, 0, 0, -10};
 	int effect = effects[0];
 
 	// declare variables used for effects assigned in switch cases ----------
@@ -76,7 +76,7 @@ int main(int argc, char const *argv[]) {
 
 	// set up serial buffer
 	char outstr[100];
-	int block_size, i;
+	int block_size, i, j, k;
 
 	// Set up the DAC/ADC interface
 	initialize(FS_48K, MONO_IN, STEREO_OUT); 
@@ -89,26 +89,20 @@ int main(int argc, char const *argv[]) {
 	float * output1 = (float *)malloc(sizeof(float) * block_size);
 	float * output2 = (float *)malloc(sizeof(float) * block_size);
 	float * lpf_samples_output = (float *)malloc(sizeof(float) * block_size);
-	if(input == NULL || output1 == NULL || output2 == NULL || lpf_samples_output == NULL) {
+	float * decimation_buffer = (float *)malloc(sizeof(float) * block_size / M);
+	if(input == NULL || output1 == NULL || output2 == NULL || lpf_samples_output == NULL || decimation_buffer == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
 	} 
 
 
 	// initialize lowpass arm_fir filter to filter input guitar signal --------------------
-
-		// setup state variable array used by arm_fir routine
-		float * fir_state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
-		// initialize arm_fir struct
-		arm_fir_instance_f32 S;
-		// ceofs found in fir_lowpass.h
-		arm_fir_init_f32(&S, BL, &(B[0]), fir_state, block_size);	
-
-		// float * decimate_state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
-		// arm_fir_decimate_instance_f32 S_decimate;
-		// // arm_fir_decimate_init_f32(&S_decimate, BL, M, &(B[0]), decimate_state, block_size);
-
-
+	// setup state variable array used by arm_fir routine
+	float * fir_state = (float *)malloc(sizeof(float) * (BL + block_size - 1));
+	// initialize arm_fir struct
+	arm_fir_instance_f32 S;
+	// ceofs found in fir_lowpass.h
+	arm_fir_init_f32(&S, BL, &(B[0]), fir_state, block_size);	
 	
 	
 
@@ -121,7 +115,7 @@ int main(int argc, char const *argv[]) {
 			delay_gain = effects[2];
 			// initialize delay structure for delay routine 
 			D = init_delay(1, FS, delay, delay_gain, block_size);			// 1 means delay is in seconds
-			if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+			if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	
 			
 			break;
 
@@ -129,24 +123,23 @@ int main(int argc, char const *argv[]) {
 
 			// initialize rms detection
 			V = init_rms(block_size, block_size);
-			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }	// errcheck malloc
+			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }
 			
 			// initialize compressor
 			threshold = -8;	// 0 is 1VRMS
 			ratio = 20;
 			C = init_compressor(threshold, ratio, block_size);
+			if(C == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }
 
 			break;
 
 		case 3: // EQ ------------------------------------------------
-			// arm_fir_decimate_init_f32(&S_decimate, BL, M, &(B[0]), decimate_state, block_size);
 
 			low_gain = effects[1];
 			mid_gain = effects[2];
 			high_gain = effects[3];
 			// initialize eq
 			Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
-			// Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS_DECIMATION);
 			if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }
 
 			break;
@@ -165,7 +158,7 @@ int main(int argc, char const *argv[]) {
 
 		// get input samples from adc
 		getblock(input);	// Wait here until the input buffer is filled... Then process	
-
+  
     	// lowpass filter the input guitar signal
     	arm_fir_f32(&S, input, lpf_samples_output, block_size);
 
@@ -212,12 +205,24 @@ int main(int argc, char const *argv[]) {
 				break;
 
 			case 3:	// EQ -------------------------------------------------------------------
-				// arm_fir_decimate_f32(&S_decimate, input, lpf_samples_output, block_size);
+				// // decimate by M
+				// for(i = 0; i < block_size / M; i++) {
+				// 	decimation_buffer[i] = lpf_samples_output[i * M];
+				// } 
 
 				// adjust freq bands with equalizer
 				calc_eq(Q->D1, Q->D2, Q, lpf_samples_output);
+				// calc_eq(Q->D1, Q->D2, Q, decimation_buffer);
+
+				// for (k = 0; k < block_size / M; k++) {
+    // 	  			// Every stage-3 output should be written to D1 output samples!
+    // 	  			for (j = 0; j < M; j++) {
+				// 		output2[k * M + j] = Q->output[k];
+    // 				}
+    // 			}
 
 				// pass buffers for output to the dac
+				// putblockstereo(output1, output2);
 				putblockstereo(output1, Q->output);
 
 				break;
