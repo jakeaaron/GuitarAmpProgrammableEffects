@@ -35,8 +35,6 @@
 // DEFINES -------------------------------------------------------------
 
 #define FS 48000
-#define FS_DECIMATION 24000
-#define M 2
 
 // ---------------------------------------------------------------------
 
@@ -64,6 +62,7 @@ int main(int argc, char const *argv[]) {
 
 	// switch compressor ---------
 	RMS_T * V; 		// rms struct
+	int window;
 	float threshold, ratio;
 	COMP_T * C;		// comp struct
 
@@ -89,8 +88,7 @@ int main(int argc, char const *argv[]) {
 	float * output1 = (float *)malloc(sizeof(float) * block_size);
 	float * output2 = (float *)malloc(sizeof(float) * block_size);
 	float * lpf_samples_output = (float *)malloc(sizeof(float) * block_size);
-	float * decimation_buffer = (float *)malloc(sizeof(float) * block_size / M);
-	if(input == NULL || output1 == NULL || output2 == NULL || lpf_samples_output == NULL || decimation_buffer == NULL) {
+	if(input == NULL || output1 == NULL || output2 == NULL || lpf_samples_output == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
 	} 
@@ -121,13 +119,14 @@ int main(int argc, char const *argv[]) {
 
  		case 2: // COMPRESSOR ----------------------------------------
 
+ 			window = 100 * block_size;
 			// initialize rms detection
-			V = init_rms(block_size, block_size);
+			V = init_rms(window, block_size);
 			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }
 			
+			threshold = effects[1];	// 0db entered is 1VRMS
+			ratio = effects[2];
 			// initialize compressor
-			threshold = -8;	// 0 is 1VRMS
-			ratio = 20;
 			C = init_compressor(threshold, ratio, block_size);
 			if(C == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); return 1; }
 
@@ -172,9 +171,6 @@ int main(int argc, char const *argv[]) {
 
 		switch(effect) {
 			case 1: // DELAY -----------------------------------------------------------------
-				// lowpass filter the input guitar signal
-    			// arm_fir_f32(&S, input, lpf_samples_output, block_size);
-
 				// delay the guitar signal by D->sample_delay samples
 				calc_delay(0, D, lpf_samples_output);	// 1 is to add delay to input signal
 
@@ -184,9 +180,6 @@ int main(int argc, char const *argv[]) {
 				break;
 
 	 		case 2:	// COMPRESSOR ------------------------------------------------------------
-				// lowpass filter the input guitar signal
-    			// arm_fir_f32(&S, input, lpf_samples_output, block_size);
-			
 				// detect RMS level
 				calc_rms(V, lpf_samples_output);
 
@@ -195,9 +188,9 @@ int main(int argc, char const *argv[]) {
 			
 
 				
-	 			for (i = 0; i < block_size; ++i) {
-					output1[i] = (V->output[i] * 0.6667) - 1.0;
-				}
+	 		// 	for (i = 0; i < block_size; ++i) {
+				// 	output1[i] = (V->output[i] * 0.6667) - 1.0;
+				// }
 				// pass buffers for output to the dac
 				putblockstereo(output1, C->output);
 				// putblockstereo(output1, output2);
@@ -205,24 +198,10 @@ int main(int argc, char const *argv[]) {
 				break;
 
 			case 3:	// EQ -------------------------------------------------------------------
-				// // decimate by M
-				// for(i = 0; i < block_size / M; i++) {
-				// 	decimation_buffer[i] = lpf_samples_output[i * M];
-				// } 
-
 				// adjust freq bands with equalizer
 				calc_eq(Q->D1, Q->D2, Q, lpf_samples_output);
-				// calc_eq(Q->D1, Q->D2, Q, decimation_buffer);
-
-				// for (k = 0; k < block_size / M; k++) {
-    // 	  			// Every stage-3 output should be written to D1 output samples!
-    // 	  			for (j = 0; j < M; j++) {
-				// 		output2[k * M + j] = Q->output[k];
-    // 				}
-    // 			}
 
 				// pass buffers for output to the dac
-				// putblockstereo(output1, output2);
 				putblockstereo(output1, Q->output);
 
 				break;

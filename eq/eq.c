@@ -181,7 +181,7 @@ void calc_eq(DELAY_T * D1, DELAY_T * D2, EQ_T * Q, float * input) {
 	// calculate block of equalized output samples -------------------------------------------------------------
 	for(i = 0; i < Q->block_size; i++) {
 		// output is the output of each band scaled by the band gain and added together 
-		Q->output[i] = 0.3 * ((Q->low_scale * Q->low_band_out[i]) + (Q->mid_scale * Q->mid_band_out[i]) + (Q->high_scale * Q->high_band_out[i]));
+		Q->output[i] = 0.5 * ((Q->low_scale * Q->low_band_out[i]) + (Q->mid_scale * Q->mid_band_out[i]) + (Q->high_scale * Q->high_band_out[i]));
 	}
 	
 }
