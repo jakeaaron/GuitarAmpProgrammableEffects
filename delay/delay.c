@@ -27,6 +27,7 @@
 /**
  * @brief [initialize delay struct]
  * 
+ * @param delay_units [0 for samples, 1 for seconds]
  * @param FS [Sampling frequency used to figure out the sample delay]
  * @param time_delay [amount of delay in seconds]
  * @param delay_gain [volume of delayed signal in percentage of original signal]

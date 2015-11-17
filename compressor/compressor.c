@@ -39,7 +39,6 @@
 
  	int i;
 
-
  	// initialize compressor struct ----------------------------------------
  	COMP_T * C = (COMP_T *)malloc(sizeof(COMP_T));
  	if(C == NULL) return NULL;
@@ -74,13 +73,12 @@
  void calc_compressor(COMP_T * C, float * rms_vals, float * input) {
 
  	int i;
- 	
 
  	// for every sample, compress if rms value breaches threshold -----------------------------------------
  	for(i = 0; i < C->block_size; i++) {
  		if(rms_vals[i] > C->threshold_rms) {
  			// C->output[i] = 20 * log10((C->threshold_rms + ((input[i] - C->threshold_rms) / C->ratio)));
- 			C->output[i] = input[i] * 0.75;
+ 			C->output[i] = input[i] * 0.5;
  			// C->output[i] = 0;
  		} else {
  			C->output[i] = input[i];

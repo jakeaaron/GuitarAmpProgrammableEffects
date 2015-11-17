@@ -61,7 +61,6 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 
 	int i, j;
 
-
 	// set up struct for eq -------------------------------------------------------------------------------------
 	EQ_T * Q = (EQ_T *)malloc(sizeof(EQ_T));	// allocate struct
 	if(Q == NULL) return NULL;					// errcheck malloc call
@@ -81,7 +80,6 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 	Q->D1 = init_delay(0, FS, sample_delay, 1, block_size); // 0 is delay in samples instead of in seconds
 	Q->D2 = init_delay(0, FS, sample_delay, 1, block_size);
 	if(Q->D1 == NULL || Q->D2 == NULL) return NULL; 
-
 
 
 	// declare and initialize variables necessary for arm fir routines ------------------------------------------
@@ -145,7 +143,6 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 void calc_eq(DELAY_T * D1, DELAY_T * D2, EQ_T * Q, float * input) {
 
 	int i, j, k;
-
 
 	// LOW BAND ------------------------------------------------------------------------------------------------
 	// calculate low band output with no gain
