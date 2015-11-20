@@ -115,7 +115,7 @@ void calc_delay(int input_toggle, DELAY_T * D, float * input) {
 		// reset index if at the end of history buffer
 		if(D->index == (D->sample_delay - 1)) {
 			D->index = 0;	// reset to beginning of buffer
-		} else {
+		 } else {
 			// if Fs = 48000 then history index will go all the way to 23999 for a .5s delay
 			D->index++; // incremement index all the way through history array
 		}

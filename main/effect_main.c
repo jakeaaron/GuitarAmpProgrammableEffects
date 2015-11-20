@@ -51,7 +51,7 @@ int main(int argc, char const *argv[]) {
 	compressor = { 2, threshold, ratio }
 	equalizer = { 3, lowband_gain, midband_gain, highband_gain } */
 
-	float effects[4] = {2, -7, 1, 0};
+	float effects[4] = {3, 0, 0, 0};
 	int effect = effects[0];
 
 	// declare variables used for effects assigned in switch cases --------------
@@ -208,10 +208,10 @@ int main(int argc, char const *argv[]) {
 
 			case 3:	// EQ --------------------------------------------------------------------
 				// adjust freq bands with equalizer
-				calc_eq(Q->D1, Q->D2, Q, lpf_samples_output);
+				calc_eq(Q->D1, Q->D2, Q->D3, Q, lpf_samples_output);
 
 				// pass buffers for output to the dac
-				putblockstereo(output1, Q->output);
+				putblockstereo(lpf_samples_output, Q->output);
 
 				break;
 

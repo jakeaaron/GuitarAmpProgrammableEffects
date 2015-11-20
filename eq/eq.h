@@ -40,6 +40,7 @@ typedef struct eq_struct {
 	arm_fir_instance_f32 S_mid;	// arm fir struct for the mid band lowpass filter
 	DELAY_T * D1;				// pointer to the delay struct
 	DELAY_T * D2;
+	DELAY_T * D3;
 	float * low_band_out;		// output buffer for the low band calculation		
 	float * mid_band_out;		// output buffer for the mid band calculation
 	float * high_band_out;		// output buffer for the high band calculation
@@ -74,6 +75,7 @@ EQ_T * init_eq(
 void calc_eq(
 	DELAY_T * D1,	// pointer to delay struct
 	DELAY_T * D2,	// pointer to delay struct
+	DELAY_T * D3,	// pointer to delay struct
 	EQ_T * Q,		// pointer to eq struct 
 	float * input	// buffer of input samples to work on
 );
