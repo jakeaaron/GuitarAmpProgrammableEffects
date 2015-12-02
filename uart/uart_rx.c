@@ -58,7 +58,14 @@ void init_uart(void) {
 	huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart1.Init.OverSampling = UART_OVERSAMPLING_16;
 
+  /* 
+   * Note that HAL_UART_Init() calls HAL_UART_MspInit() (The MPU-specific initialization
+   * routine).  This function must be re-defined  below in order to associate 
+   * the correct DMA stream with the UART.  Similarly, HAL_UART_DeInit() calls
+   * HAL_UART_MspDeInit()... which we're on the hook to define.
+   */
 	if(HAL_UART_Init(&huart1) != HAL_OK) flagerror(DEBUG_ERROR);
+
 }
 
 
