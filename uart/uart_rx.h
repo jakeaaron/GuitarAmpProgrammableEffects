@@ -4,29 +4,39 @@
 
 
 
+// DEFINE ------------------------------------------------
+
+#define BAUDRATE 				9600
+#define RXPIN 					GPIO_PIN_7
+#define DATAPORT 				GPIOB
+#define UART_PRIORITY         	6
+#define UART_RX_SUBPRIORITY   	0
+#define MAXSTRING          		4 // Biggest string the user will type is 4 bytes
+
+// -------------------------------------------------------
 
 
 
 
 typedef struct receive_struct {
 	
-	uint8_t rx_buffer;					// store the byte/char that we just recieved 
-	uint8_t rx_string[MAXSTRING];		// 4 byte string of chars built from rx_buffer
+	uint8_t * rx_buffer;
+	char * rx_string;	// 4 byte buffer containing the recieve characters. \n is added at the end when using snprintf
 	int rx_index;						// index for going through rx_string
-	GPIO_InitTypeDef GPIO_InitStruct;
-	UART_HandleTypeDef huart1;
-	DMA_HandleTypeDef hdma_usart1_rx;
 
 } RX_T;
 
-void init_rx(void);
 
-void init_gpio(RX_T * R);
+RX_T * init_rx(void);
 
-void init_uart(RX_T * R);
+void init_uart(void);
 
-void init_dma(RX_T * R);
+void HAL_UART_MspInit(UART_HandleTypeDef * huart);
 
-void DMA2_Stream2_IRQHandler(RX_T * R);
+void HAL_UART_MspDeInit(UART_HandleTypeDef * huart);
 
-void HAL_UART_RxCpltCallback(RX_T * R);
+void DMA2_Stream2_IRQHandler(void);
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart);
+
+void usart_read(RX_T * R);

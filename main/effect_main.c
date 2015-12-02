@@ -26,6 +26,7 @@
 #include "calc_rms.h"
 #include "compressor.h"
 #include "eq.h"
+#include "uart_rx.h"
 
 #include "fir_lowpass.h"
 
@@ -51,8 +52,12 @@ int main(int argc, char const *argv[]) {
 	compressor = { 2, threshold, ratio }
 	equalizer = { 3, lowband_gain, midband_gain, highband_gain } */
 
-	float effects[4] = {3, 0, 0, 0};
-	int effect = effects[0];
+
+	RX_T * R = init_rx();
+	// wait until recieve is complete and then set the recieved characters in the R->rx_string
+	usart_read(R);
+
+	int effect = R->rx_string[0];
 
 	// declare variables used for effects assigned in switch cases --------------
 	// cannot declare variables in switch case
@@ -111,9 +116,9 @@ int main(int argc, char const *argv[]) {
 	switch(effect) {
 		case 1: // DELAY --------------------------------------------------------
 			
-			delay = effects[1];		// this is delay in seconds
+			delay = R->rx_string[1];		// this is delay in seconds
 			if(delay > 0.5) { flagerror(DEBUG_ERROR); while(1); }		// don't delay more than half a second
-			delay_gain = effects[2];
+			delay_gain = R->rx_string[2];
 			if(delay_gain > 1) { flagerror(DEBUG_ERROR); while(1); }	// limit output vol to input vol
 
 			// initialize delay structure for delay routine 
@@ -131,9 +136,9 @@ int main(int argc, char const *argv[]) {
 			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 			
 			// initialize compressor --------------
-			threshold = effects[1];	// 0db entered is 1VRMS
+			threshold = R->rx_string[1];	// 0db entered is 1VRMS
 			if(threshold > 6) { flagerror(DEBUG_ERROR); while(1); } // limit threshold to the max rms voltage the board is capable of
-			ratio = effects[2];
+			ratio = R->rx_string[2];
 			if(ratio <= 0) { flagerror(DEBUG_ERROR); while(1); }	// limit ratio to positive value
 
 			C = init_compressor(threshold, ratio, block_size);
@@ -145,11 +150,11 @@ int main(int argc, char const *argv[]) {
 
 			// initialize eq
 			// limit the gain for each band to +-15dB
-			low_gain = effects[1];
+			low_gain = R->rx_string[1];
 			if(low_gain > 15 || low_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
-			mid_gain = effects[2];
+			mid_gain = R->rx_string[2];
 			if(mid_gain > 15 || mid_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
-			high_gain = effects[3];
+			high_gain = R->rx_string[3];
 			if(high_gain > 15 || high_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
 			Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
 			if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
