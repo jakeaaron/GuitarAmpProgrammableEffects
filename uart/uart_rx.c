@@ -20,7 +20,7 @@
 static __IO ITStatus RX_Complete = RESET;
 static GPIO_InitTypeDef GPIO_InitStruct;
 static UART_HandleTypeDef huart1;
-static DMA_HandleTypeDef hdma_usart1_rx;
+static DMA_HandleTypeDef hdma_usart3_rx;
 
 
 
@@ -39,7 +39,6 @@ RX_T * init_rx(void) {
 	init_uart();
 
 	// start DMA
-	__HAL_UART_FLUSH_DRREGISTER(&huart1);
 	HAL_UART_Receive_DMA(&huart1, R->rx_buffer, 4);	// 
 
 	return R;
@@ -49,7 +48,7 @@ RX_T * init_rx(void) {
 
 void init_uart(void) {
 	// set up UART --------------------------------------------------------------
-	huart1.Instance = USART1;
+	huart1.Instance = USART3;	// CANNOT USE USART1 SOMEHOW CONNECTED TO THE USB PORT
 	huart1.Init.BaudRate = BAUDRATE;
 	huart1.Init.WordLength = UART_WORDLENGTH_8B;
 	huart1.Init.StopBits = UART_STOPBITS_1;
@@ -86,28 +85,33 @@ void HAL_UART_MspInit(UART_HandleTypeDef * huart) {
 	HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
   
 	// set up DMA channel for receiving process ---------------------------------
-	hdma_usart1_rx.Instance = DMA2_Stream2;
-	hdma_usart1_rx.Init.Channel = DMA_CHANNEL_5;
-	hdma_usart1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-	hdma_usart1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma_usart1_rx.Init.MemInc = DMA_MINC_DISABLE;
-	hdma_usart1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-	hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-	hdma_usart1_rx.Init.Mode = DMA_CIRCULAR;	// important so it keeps getting chars until told to stop, otherwise need to config everytime
-	hdma_usart1_rx.Init.Priority = DMA_PRIORITY_LOW;
-	hdma_usart1_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	hdma_usart3_rx.Instance = DMA1_Stream1;
+	hdma_usart3_rx.Init.Channel = DMA_CHANNEL_4;
+	hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+	hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
+	hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	hdma_usart3_rx.Init.Mode = DMA_CIRCULAR;	// important so it keeps getting chars until told to stop, otherwise need to config everytime
+	hdma_usart3_rx.Init.Priority = DMA_PRIORITY_HIGH;
+	hdma_usart3_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	hdma_usart3_rx.Init.MemBurst = DMA_MBURST_INC4;
+	hdma_usart3_rx.Init.PeriphBurst = DMA_PBURST_INC4;
 
-	HAL_DMA_Init(&hdma_usart1_rx);
+	HAL_DMA_Init(&hdma_usart3_rx);
         
 	// Associate the initialized DMA handle to the the UART handle
 	// this is kinda strange, not actually a function call, but its a macro
 	// (UART_HandleTypeDef * DIFFERENT THEN THE ONE DEFINED UP TOP FOR THE HAL_RECEIVE, dma field in uart struct, DMA_HandleTypeDef)
-	__HAL_LINKDMA(huart, hdmarx, hdma_usart1_rx);
+	__HAL_LINKDMA(huart, hdmarx, hdma_usart3_rx);
 
 	// set priority of dma interrupt
-	HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, UART_PRIORITY, UART_RX_SUBPRIORITY);
+	HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, UART_PRIORITY, UART_RX_SUBPRIORITY);
 	// enable the dma interrupt
-	HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
+	HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+
+	HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(USART3_IRQn);
     
 }
 
@@ -129,21 +133,21 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef * huart) {
   HAL_GPIO_DeInit(DATAPORT, RXPIN);
    
   /* De-Initialize the DMA Stream associate to transmission process */
-  HAL_DMA_DeInit(&hdma_usart1_rx); 
+  HAL_DMA_DeInit(&hdma_usart3_rx); 
   
   /*##-4- Disable the NVIC for DMA ###########################################*/
-  HAL_NVIC_DisableIRQ(DMA2_Stream2_IRQn);
+  HAL_NVIC_DisableIRQ(DMA1_Stream1_IRQn);
 }
 
 
 // handle DMA interrupt 
-void DMA2_Stream2_IRQHandler(void) {
+void DMA1_Stream1_IRQHandler(void) {
 
 	// clear pending bit
-    HAL_NVIC_ClearPendingIRQ(DMA2_Stream2_IRQn);
+    HAL_NVIC_ClearPendingIRQ(DMA1_Stream1_IRQn);
 
     // handle the dma interrupt request
-    HAL_DMA_IRQHandler(&hdma_usart1_rx);
+    HAL_DMA_IRQHandler(huart1.hdmarx);
 }
 
 
@@ -166,7 +170,7 @@ void usart_read(RX_T * R) {
 		case 1: // DELAY --------------------------------------------------------
 			
 			// amount of delay in seconds
-			R->rx_string[1] = R->rx_string[1] / (2 * 255);	// 8 bit char is max of 255, so a transmitted delay val of 255 will be half a second
+			R->rx_string[1] = R->rx_string[1];	// 8 bit char is max of 255, so a transmitted delay val of 255 will be half a second
 			// amount of gain of delayed signal
 			R->rx_string[2] = R->rx_string[2] / 255;		// max gain is 1
 
