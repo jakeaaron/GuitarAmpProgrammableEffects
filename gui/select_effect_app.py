@@ -4,8 +4,9 @@
 # import gui library
 try:
     import wx
+    import serial
 except ImportError:
-    raise ImportError,"The wxPython module is required to run this program."
+    raise ImportError,"The wxPython module and serial is required to run this program."
 
 
 class select_effect(wx.Frame):	# inherit from base class for gui windows
@@ -102,7 +103,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		# now that effect and parameters are chosen, make a submit button
 		self.enter_button = wx.Button(self.panel, label="Gape-ify me, Captain! (Submit)")
 		# call function to deal with the input data (eventually send to stm board)
-		self.Bind(wx.EVT_BUTTON, self.submit_effect, self.enter_button)
+		self.Bind(wx.EVT_BUTTON, self.on_submit_effect, self.enter_button)
 		# add button to layout
 		self.sizer.Add(self.enter_button, pos=(9, 3))
 		self.Layout()
@@ -133,6 +134,10 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 			self.high_input_label.Destroy()
 			self.high_input.Destroy()
 
+		# if the submit button exists, destroy it. it exists if the last effect wasn't the default value of 0
+		if self.last_effect != 0:
+			self.enter_button.Destroy()
+
 
 
 	# event handlers for selecting the effect -----------------------------------------------
@@ -143,7 +148,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 		# enter amount of delay --------------------------
 		# enter time label
-		self.time_input_label = wx.StaticText(self.panel, label="Enter amount of delay in seconds (max is 0.5)")
+		self.time_input_label = wx.StaticText(self.panel, label="Enter amount of delay in seconds (max is 0.5, min is 0)")
 		self.sizer.Add(self.time_input_label, pos=(1, 5))
 		# enter time field
 		self.time_input = wx.TextCtrl(self.panel, value="0.5", size=(100, -1))
@@ -151,7 +156,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 		# enter gain of the delayed signal ---------------
 		# enter gain label
-		self.gain_input_label = wx.StaticText(self.panel, label="Enter the gain of the delayed signal (max is 1)")
+		self.gain_input_label = wx.StaticText(self.panel, label="Enter the gain of the delayed signal (max is 1, min is 0)")
 		self.sizer.Add(self.gain_input_label, pos=(3, 5))
 		# enter gain field
 		self.gain_input = wx.TextCtrl(self.panel, value="1", size=(100, -1))
@@ -215,33 +220,89 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.Layout()
 
 
-	def error():
-		
+	# called when value is outside of appropriate bounds
+	def error(self):
+		dlg = wx.MessageDialog(self, 'Please make sure to enter parameter within the appropriate bounds.', 'Value Error', wx.OK|wx.ICON_INFORMATION)
+		dlg.ShowModal()
+		dlg.Destroy()
 
 
-	def submit_effect(self, event):
 
+	def on_submit_effect(self, event):
+
+		# get output array for delay effect
 		if self.selected_effect == 1:
+			# put delay effect as selected effect in the output buffer
 			self.output[0] = 1
+			# amount of delay in seconds
 			self.delay_time = float(self.time_input.GetValue())
-			if self.delay_time < 0 OR self.delay_time > 0.5:
-				error()
+			if self.delay_time < 0 or self.delay_time > 0.5:
+				self.error()
 				return
-			self.output[1] = int(self.delay_time * (2.0 * 255.0))
-			self.output[2] = int(float(self.gain_input.GetValue()) * 255.0)
+			else: 
+				# highest amount of delay is 0.5 (255), put in output buffer
+				self.output[1] = int(self.delay_time * (2.0 * 255.0))
+
+			# gain of delayed signal
+			self.delay_gain = float(self.gain_input.GetValue())
+			if self.delay_gain > 1 or self.delay_gain < 0:
+				self.error()
+				return
+			else:
+				# highest amount of gain is 1 (255), put in output buffer
+				self.output[2] = int(self.delay_gain * 255.0)
 
 		elif self.selected_effect == 2:
+			# put compressor as selected effect in the output buffer
 			self.output[0] = 2
-			self.output[1] = self.threshold_input.GetValue()
-			self.output[2] = self.ratio_input.GetValue()
+			# threshold val
+			self.threshold = int(self.threshold_input.GetValue())
+			if self.threshold > 6:
+				self.error()
+				return
+			else:
+				# adding 200 will make sure there is no neg val, put in output buffer
+				self.output[1] = self.threshold + 200
+
+			# ratio val
+			self.ratio = int(self.ratio_input.GetValue())
+			if self.ratio < 1 or self.ratio > 254:
+				self.error()
+				return
+			else:
+				# put ratio in output buffer, no mapping needed
+				self.output[2] = self.ratio
 
 		elif self.selected_effect == 3:
+			# put eq as selected effect in the output buffer
 			self.output[0] = 3
-			self.output[1] = self.low_input.GetValue()
-			self.output[2] = self.mid_input.GetValue()
-			self.output[3] = self.high_input.GetValue()
+
+			# band gain vals
+			self.low = int(self.low_input.GetValue())
+			if self.low > 10 or self.low < -10:
+				self.error()
+				return
+			else:
+				self.output[1] = self.low + 10
+
+			self.mid = int(self.mid_input.GetValue())
+			if self.mid > 10 or self.mid < -10:
+				self.error()
+				return
+			else:
+				self.output[2] = self.mid + 10
+
+			self.high = int(self.high_input.GetValue())
+			if self.high > 10 or self.high < -10:
+				self.error()
+				return
+			else:
+				self.output[3] = self.high + 10
+
 
 		print self.output
+		# ser = serial.Serial('/dev/ttyUSB0', 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
+		# ser.write(self.output)
 
 
 

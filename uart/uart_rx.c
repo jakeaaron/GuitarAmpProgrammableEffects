@@ -72,8 +72,8 @@ void init_uart(void) {
 void HAL_UART_MspInit(UART_HandleTypeDef * huart) {
   
 	__GPIOB_CLK_ENABLE();	// enable dataport clock
-	__USART1_CLK_ENABLE();	// usart clock
-	__DMA2_CLK_ENABLE();	// dma clock
+	__USART3_CLK_ENABLE();	// usart clock
+	__DMA1_CLK_ENABLE();	// dma clock
   
   	// set up USART1 RX GPIO config (PB7) ---------------------------
  	GPIO_InitStruct.Pin = RXPIN;				// use gpio 7
@@ -159,6 +159,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart) {
 }
 
 
+/** talk about the mapping of vals from the gui to this side
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param R [description]
+ */
 void usart_read(RX_T * R) {
 
 	while(RX_Complete != SET) {}	// wait until recieve is complete
@@ -166,11 +172,13 @@ void usart_read(RX_T * R) {
     // rx_string now contains the 4 ints from the rx stream
     snprintf(R->rx_string, 4, "%d %d %d %d", R->rx_buffer[0], R->rx_buffer[1], R->rx_buffer[2], R->rx_buffer[3]);
 
+	// the values received are from the gui and are mapped a certain way to always be a positive (or 0) value
+	// on this end we do the reverse of what the gui did to get the actual values entered
 	switch(R->rx_string[0]) {
 		case 1: // DELAY --------------------------------------------------------
 			
 			// amount of delay in seconds
-			R->rx_string[1] = R->rx_string[1];	// 8 bit char is max of 255, so a transmitted delay val of 255 will be half a second
+			R->rx_string[1] = R->rx_string[1] / (2.0 * 255.0);	// 8 bit char is max of 255, so a transmitted delay val of 255 will be half a second
 			// amount of gain of delayed signal
 			R->rx_string[2] = R->rx_string[2] / 255;		// max gain is 1
 
@@ -178,12 +186,22 @@ void usart_read(RX_T * R) {
 
  		case 2: // COMPRESSOR ---------------------------------------------------
 
+ 			// threshold level in dB
+ 			R->rx_string[1] = R->rx_string[1] - 200;
 
+ 			// compressor ratio
+ 			// R->rx_string[2] doesn't need to be mapped to a different value
 
 			break;
 
 		case 3: // EQ -----------------------------------------------------------
 
+			// low band
+			R->rx_string[1] = R->rx_string[1] - 10;
+			// mid band
+			R->rx_string[2] = R->rx_string[2] - 10;
+			// high band
+			R->rx_string[3] = R->rx_string[3] - 10;
 
 
 			break;

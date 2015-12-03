@@ -44,6 +44,9 @@
 
 int main(int argc, char const *argv[]) {
 
+	// Set up the DAC/ADC interface
+	initialize(FS_48K, MONO_IN, STEREO_OUT); 
+
 	// SELECTEFFECT ------------------------------------------------------------------------------------
 
 	/* effects format:
@@ -57,7 +60,8 @@ int main(int argc, char const *argv[]) {
 	// wait until recieve is complete and then set the recieved characters in the R->rx_string
 	usart_read(R);
 
-	int effect = R->rx_string[0];
+	// int effect = R->rx_string[0];
+	int effect = 1;
 
 	// declare variables used for effects assigned in switch cases --------------
 	// cannot declare variables in switch case
@@ -82,8 +86,7 @@ int main(int argc, char const *argv[]) {
 	// initialize ---------------------------------------------------------------
 	char outstr[100];
 	int block_size, i;
-	// Set up the DAC/ADC interface
-	initialize(FS_48K, MONO_IN, STEREO_OUT); 
+
 
 	// get number of samples in each block (default of 100)
 	block_size = getblocksize();
@@ -122,7 +125,7 @@ int main(int argc, char const *argv[]) {
 			if(delay_gain > 1) { flagerror(DEBUG_ERROR); while(1); }	// limit output vol to input vol
 
 			// initialize delay structure for delay routine 
-			D = init_delay(1, FS, delay, delay_gain, block_size);		// 1 means delay is in seconds
+			D = init_delay(1, FS, 0.5, 1, block_size);		// 1 means delay is in seconds
 			if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }	
 			
 			break;
