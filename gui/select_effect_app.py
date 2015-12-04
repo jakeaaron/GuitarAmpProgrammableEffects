@@ -2,6 +2,7 @@
 
 
 # import gui library
+from subprocess import call 
 try:
     import wx
     import serial
@@ -10,7 +11,7 @@ except ImportError:
 
 
 class select_effect(wx.Frame):	# inherit from base class for gui windows
-	
+	"""  """
 	# initialize class
 	def __init__(self, parent, id, title):
 		wx.Frame.__init__(self, parent, id, title=title, size=(300, 300))	# call wk.Frame constructor
@@ -20,7 +21,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 	# initialize/create all the gui widgets needed for the app
 	def init_elements(self):
-
+		"""  """
 		self.selected_effect = 0
 		self.last_effect = 0
 		self.output = [0, 0, 0, 0]
@@ -71,7 +72,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 	# event handler on click of effect button
 	def effect(self, arg):
-
+		"""  """
 		# delay
 		if arg == 1:
 			# for knowing what effect was selected to build output string for dsp code
@@ -110,7 +111,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 
 	def refresh(self):
-
+		"""  """
 		if self.last_effect == 1:
 			# clear delay fields ----------------
 			self.time_input_label.Destroy()
@@ -143,6 +144,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 	# event handlers for selecting the effect -----------------------------------------------
 	# this function is called if the delay effect is selected
 	def on_delay_click(self):
+		"""  """
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
@@ -166,6 +168,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.Layout()
 
 	def on_comp_click(self):
+		"""  """
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
@@ -189,6 +192,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.Layout()
 
 	def on_eq_click(self):
+		"""  """
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
@@ -222,6 +226,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 	# called when value is outside of appropriate bounds
 	def error(self):
+		"""  """
 		dlg = wx.MessageDialog(self, 'Please make sure to enter parameter within the appropriate bounds.', 'Value Error', wx.OK|wx.ICON_INFORMATION)
 		dlg.ShowModal()
 		dlg.Destroy()
@@ -229,7 +234,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 
 	def on_submit_effect(self, event):
-
+		"""  """
 		# get output array for delay effect
 		if self.selected_effect == 1:
 			# put delay effect as selected effect in the output buffer
@@ -301,6 +306,8 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 
 		print self.output
+		# send to 1wire c program to display on 7seg
+		call("./display_effect", self.output)
 		# ser = serial.Serial('/dev/ttyUSB0', 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
 		# ser.write(self.output)
 

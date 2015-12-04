@@ -1,4 +1,13 @@
-
+/**
+ * @file uart_rx.c
+ *
+ * @author Jacob Allenwood
+ * @date November 29, 2015
+ *
+ * @brief []
+ * @details []
+ * 
+ */
 
 
 // INCLUDE -----------------------------------------------
@@ -16,12 +25,10 @@
 
 // -------------------------------------------------------
 
-
-static __IO ITStatus RX_Complete = RESET;
+static 	__IO ITStatus RX_Complete = RESET;
 static GPIO_InitTypeDef GPIO_InitStruct;
 static UART_HandleTypeDef huart1;
 static DMA_HandleTypeDef hdma_usart3_rx;
-
 
 
 RX_T * init_rx(void) {
@@ -31,7 +38,8 @@ RX_T * init_rx(void) {
 	RX_T * R = (RX_T *)malloc(sizeof(RX_T));
 
 	R->rx_buffer = (uint8_t *)malloc(sizeof(uint8_t) * MAXSTRING);
-	R->rx_string = (char *)malloc((sizeof(char) * MAXSTRING) + 1);
+	// has to be powers of 2??????
+	R->rx_string = (char *)malloc((sizeof(char) * 8));
 	for(i = 0; i < MAXSTRING; i++) R->rx_buffer[i] = 0;
 	for(j = 0; j < MAXSTRING + 1; j++) R->rx_string[j] = 0;
 	R->rx_index = 0;
@@ -39,7 +47,7 @@ RX_T * init_rx(void) {
 	init_uart();
 
 	// start DMA
-	HAL_UART_Receive_DMA(&huart1, R->rx_buffer, 4);	// 
+	HAL_UART_Receive_DMA(&huart1, &(R->rx_buffer), 4);	// 
 
 	return R;
 
@@ -80,7 +88,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef * huart) {
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;		// alternate push pull mode
 	GPIO_InitStruct.Pull = GPIO_NOPULL;			// no pull up or pull down activation
 	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;	
-	GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
+	GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
 
 	HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
   
@@ -127,8 +135,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef * huart) {
 void HAL_UART_MspDeInit(UART_HandleTypeDef * huart) {
   
   /* Reset peripherals  */
-  __USART1_FORCE_RESET();
-  __USART1_RELEASE_RESET();
+  __USART3_FORCE_RESET();
+  __USART3_RELEASE_RESET();
 
   HAL_GPIO_DeInit(DATAPORT, RXPIN);
    
@@ -143,8 +151,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef * huart) {
 // handle DMA interrupt 
 void DMA1_Stream1_IRQHandler(void) {
 
-	// clear pending bit
-    HAL_NVIC_ClearPendingIRQ(DMA1_Stream1_IRQn);
+	// // clear pending bit
+ //    HAL_NVIC_ClearPendingIRQ(DMA1_Stream1_IRQn);
 
     // handle the dma interrupt request
     HAL_DMA_IRQHandler(huart1.hdmarx);
@@ -180,7 +188,7 @@ void usart_read(RX_T * R) {
 			// amount of delay in seconds
 			R->rx_string[1] = R->rx_string[1] / (2.0 * 255.0);	// 8 bit char is max of 255, so a transmitted delay val of 255 will be half a second
 			// amount of gain of delayed signal
-			R->rx_string[2] = R->rx_string[2] / 255;		// max gain is 1
+			R->rx_string[2] = R->rx_string[2] / 255.0;		// max gain is 1
 
 			break;
 

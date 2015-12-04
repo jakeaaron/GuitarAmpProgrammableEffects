@@ -5,8 +5,7 @@
  * @date September 1, 2015
  *
  * @brief This file contains the main program to run the selected GAPE effect
- * 
- * @details
+ * @details []
  * 
  */
 
