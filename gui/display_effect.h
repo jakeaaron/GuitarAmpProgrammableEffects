@@ -33,17 +33,21 @@
 
 
 typedef struct display_struct {
-	char * input;			// param vals to write input from python gui
+	float * input;			// param vals to write input from python gui
 	unsigned char * output;	// buffer containing segs to write to display
-	int effect;
+	int * sign_buffer;		// this contains the sign of each input value, so that we don't have to deal with negative signs when trying to do string stuff
+	int effect;				// 1 = delay, 2 = compressor, 3 = eq; used for writing effect to display
 	int display_index;		// index of which param from the input is being displayed
+	int fd;					// file descriptor for i2c to talk to display
 } DISP_T;
 
 
 
 // function declarations ----------------
+DISP_T * init_params(int fd, char ** argv);
 int init_i2c(char * device_file);
 int init_display(int fd);
-unsigned char * char_to_7seg(double temp, unsigned char * output);
-int lcd_write(int fd, double temp, unsigned char * temp_string);
+int char_to_7seg(int argc, DISP_T * D_T);
+int lcd_write(DISP_T * D_T);
+int clear_display(int fd);
 // --------------------------------------

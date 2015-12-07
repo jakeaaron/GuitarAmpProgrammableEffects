@@ -2,12 +2,12 @@
 
 
 # import gui library
-from subprocess import call 
 try:
-    import wx
-    import serial
+	from subprocess import call 
+	import wx
+	import serial
 except ImportError:
-    raise ImportError,"The wxPython module and serial is required to run this program."
+	raise ImportError,"The wxPython module and serial and subprocess is required to run this program."
 
 
 class select_effect(wx.Frame):	# inherit from base class for gui windows
@@ -15,6 +15,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 	# initialize class
 	def __init__(self, parent, id, title):
 		wx.Frame.__init__(self, parent, id, title=title, size=(300, 300))	# call wk.Frame constructor
+		self.Bind(wx.EVT_CLOSE, self.OnClose)
 		self.parent = parent	# useful to keep track of parent (usually a parent container)
 		self.init_elements()
 
@@ -23,6 +24,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 	def init_elements(self):
 		"""  """
 		self.selected_effect = 0
+		self.count = 0
 		self.last_effect = 0
 		self.output = [0, 0, 0, 0]
 
@@ -41,7 +43,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.border.Add(self.sizer, 1, wx.ALL | wx.EXPAND, 5)
 
 
-		self.select_effect_label = wx.StaticText(self.panel, label="Select your GAPE effect, bro!")
+		self.select_effect_label = wx.StaticText(self.panel, label="Select your effect!")
 		self.sizer.Add(self.select_effect_label, pos=(1, 1))
 
 
@@ -102,7 +104,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 
 		# now that effect and parameters are chosen, make a submit button
-		self.enter_button = wx.Button(self.panel, label="Gape-ify me, Captain! (Submit)")
+		self.enter_button = wx.Button(self.panel, label="Submit")
 		# call function to deal with the input data (eventually send to stm board)
 		self.Bind(wx.EVT_BUTTON, self.on_submit_effect, self.enter_button)
 		# add button to layout
@@ -235,12 +237,17 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 	def on_submit_effect(self, event):
 		"""  """
+
 		# get output array for delay effect
 		if self.selected_effect == 1:
 			# put delay effect as selected effect in the output buffer
 			self.output[0] = 1
 			# amount of delay in seconds
-			self.delay_time = float(self.time_input.GetValue())
+			try:
+				self.delay_time = float(self.time_input.GetValue())
+			except ValueError:
+				self.error()
+				return
 			if self.delay_time < 0 or self.delay_time > 0.5:
 				self.error()
 				return
@@ -249,7 +256,11 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 				self.output[1] = int(self.delay_time * (2.0 * 255.0))
 
 			# gain of delayed signal
-			self.delay_gain = float(self.gain_input.GetValue())
+			try:
+				self.delay_gain = float(self.gain_input.GetValue())
+			except ValueError:
+				self.error()
+				return
 			if self.delay_gain > 1 or self.delay_gain < 0:
 				self.error()
 				return
@@ -261,7 +272,11 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 			# put compressor as selected effect in the output buffer
 			self.output[0] = 2
 			# threshold val
-			self.threshold = int(self.threshold_input.GetValue())
+			try:
+				self.threshold = float(self.threshold_input.GetValue())
+			except ValueError:
+				self.error()
+				return
 			if self.threshold > 6:
 				self.error()
 				return
@@ -270,7 +285,11 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 				self.output[1] = self.threshold + 200
 
 			# ratio val
-			self.ratio = int(self.ratio_input.GetValue())
+			try:
+				self.ratio = float(self.ratio_input.GetValue())
+			except ValueError:
+				self.error()
+				return
 			if self.ratio < 1 or self.ratio > 254:
 				self.error()
 				return
@@ -283,21 +302,33 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 			self.output[0] = 3
 
 			# band gain vals
-			self.low = int(self.low_input.GetValue())
+			try:
+				self.low = float(self.low_input.GetValue())
+			except ValueError:
+				self.error()
+				return
 			if self.low > 10 or self.low < -10:
 				self.error()
 				return
 			else:
 				self.output[1] = self.low + 10
 
-			self.mid = int(self.mid_input.GetValue())
+			try:
+				self.mid = float(self.mid_input.GetValue())
+			except ValueError:
+				self.error()
+				return
 			if self.mid > 10 or self.mid < -10:
 				self.error()
 				return
 			else:
 				self.output[2] = self.mid + 10
 
-			self.high = int(self.high_input.GetValue())
+			try:
+				self.high = float(self.high_input.GetValue())
+			except ValueError:
+				self.error()
+				return
 			if self.high > 10 or self.high < -10:
 				self.error()
 				return
@@ -305,13 +336,50 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 				self.output[3] = self.high + 10
 
 
+		# count how many times we have submitted params so we can determine if we need to kill the running process before running again
+		self.count = self.count + 1
+
+
+		# OUTPUT > -------------------------------------------------------------------
+
+		# console ------------------------------------------------------
+		
 		print self.output
-		# send to 1wire c program to display on 7seg
-		call("./display_effect", self.output)
+
+
+		# display_effect.c ---------------------------------------------
+
+		# if the c program to display the effects is already running, kill it, then run it again. (so we don't get values mixed up when we want to choose a different effect)
+		if(self.count > 1):
+			call(["sudo killall display_effect"], shell=True)
+
+		# if it isn't already running...run it
+
+		# send to 1wire c program to display on 7seg. build a string like used on the command line to pass the c file the args
+		# & is to run in background so the gui is still responsive when wanting to change effects or parameters
+		# nohup is to disconnect the job from the login sesion of the shell
+		self.command = ["sudo ./display_effect {} {} {} {} &".format(str(self.output[0]), str(self.output[1]), str(self.output[2]), str(self.output[3]))]
+		call(self.command, shell=True)
+
+
+		# serial terminal to stm32f407-discovery/dsp effects ------------
+
 		# ser = serial.Serial('/dev/ttyUSB0', 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
 		# ser.write(self.output)
 
 
+
+
+	def OnClose(self, event):
+		# if the c program is running when we close the gui, stop the c program
+		if(self.count > 0):
+			# we are closing the gui so if we had stuff displaying, lets clear the display
+			call(["sudo ./display_effect -1"], shell=True)
+
+			# now kill the process
+			call(["sudo killall display_effect"], shell=True)
+
+		self.Destroy()
 
 
 # main()
@@ -321,7 +389,7 @@ if __name__ == "__main__":
 	app = wx.App()
     # instance of select_effect
     # (no parent, -1 to let wx choose an identifier, window title, size of gui window)
-	frame = select_effect(None, -1, 'Select Your GAPE Effect')
+	frame = select_effect(None, -1, 'Digital Effect Suite')
 	frame.Show()
     # while(1) to wait and handle events such as click of button, quitting, etc.
 	app.MainLoop()

@@ -4,8 +4,31 @@
  * @author Jacob Allenwood
  * @date September 1, 2015
  *
- * @brief This file contains the main program to run the selected GAPE effect
- * @details []
+ * @brief This file contains the main program to run the selected GAPE effect; either a delay, a compressor, or an equalizer.
+ * @details [
+ * At the start of this program, the usart_read function is called to find out what effect should be run. The function 
+ * waits for the RX_Complete flag to be set by the receive complete call back function. This receive complete function is 
+ * called after the HAL DMA recieve interrupt is completed, i.e. once the program receives the characters from the python gui. 
+ * 
+ * After all the variables and buffers needed for the program are declared, the FIR filter that lowpass filters the input guitar
+ * signal is initialized using the arm cmsis dsp library routine. This filter is designed to cutoff at 10kHz to filter any 
+ * unwanted noise/harmonics before we do the dsp on the signal. The design was based on the frequency spectrum of an electric guitar
+ * output, as the range goes out to around 10kHz.
+ * 
+ * Then the selected effect is initialized with the appropriate inititialize function. These functions initialize the structures needed
+ * for their corresponding calculation routines, that actually manipulate the signal to produce the corresponding guitar effect. Before
+ * the effect is initialized however, the values go through error checking to make sure the user isn't trying to run the effect with
+ * inappropriate paramters. For example, a delay that is not much larger than the contract specified 0.5 seconds causes a memory overflow
+ * which completely distorts the output signal and produces garbage. The error checking makes sure that it doesn't use a delay value of 
+ * more than 0.5 seconds.
+ * 
+ * The rest of the program is an infinite loop manipulating the input to produce the appropriate output effect. The input is first lowpass
+ * filtered with the cutoff at 10kHz as previously mentioned, and then continues to call the calculate function corresponding to the 
+ * previously called initialize function. 
+ * 
+ * The program never returns. If an error is caught, then an error led is lit up on the STM32F407-Discovery board and then remains
+ * in an infinite loop.
+ * ]
  * 
  */
 
@@ -34,7 +57,7 @@
 
 // DEFINES -------------------------------------------------------------
 
-#define FS 48000
+#define FS 48000	// sampling frequency of 48kHz
 
 // ---------------------------------------------------------------------
 
@@ -63,7 +86,7 @@ int main(int argc, char const *argv[]) {
 	int effect = 1;
 
 	// declare variables used for effects assigned in switch cases --------------
-	// cannot declare variables in switch case
+	// cannot declare variables in switch case, so we declare all here
 	
 	// switch delay --------------
 	DELAY_T * D; 	// delay struct
