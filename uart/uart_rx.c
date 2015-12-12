@@ -25,10 +25,21 @@
 
 // -------------------------------------------------------
 
-static 	__IO ITStatus RX_Complete = RESET;
-static GPIO_InitTypeDef GPIO_InitStruct;
+
+// GLOBAL VARIABLES TO THIS FILE ------------------------- 
+
+// static 	__IO ITStatus RX_Complete = RESET;
 static UART_HandleTypeDef huart1;
-static DMA_HandleTypeDef hdma_usart3_rx;
+// static DMA_HandleTypeDef hdma_rx;
+
+// static UART_HandleTypeDef UartHandle;
+static __IO ITStatus UartReady = RESET;
+static DMA_HandleTypeDef hdma_tx;
+
+// -------------------------------------------------------
+
+static void Error_Handler(void);
+static size_t mystrlen( const char *str );
 
 
 RX_T * init_rx(void) {
@@ -38,16 +49,16 @@ RX_T * init_rx(void) {
 	RX_T * R = (RX_T *)malloc(sizeof(RX_T));
 
 	R->rx_buffer = (uint8_t *)malloc(sizeof(uint8_t) * MAXSTRING);
-	// has to be powers of 2??????
-	R->rx_string = (char *)malloc((sizeof(char) * 8));
+	R->rx_string = (char *)malloc((sizeof(char) * MAXSTRING + 1)); // +1 for null at end for snprintf
 	for(i = 0; i < MAXSTRING; i++) R->rx_buffer[i] = 0;
 	for(j = 0; j < MAXSTRING + 1; j++) R->rx_string[j] = 0;
-	R->rx_index = 0;
+	// R->rx_index = 0;
 
 	init_uart();
 
-	// start DMA
-	HAL_UART_Receive_DMA(&huart1, &(R->rx_buffer), 4);	// 
+	// initialize LED for waiting to receive characters
+	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED6);
 
 	return R;
 
@@ -56,14 +67,15 @@ RX_T * init_rx(void) {
 
 void init_uart(void) {
 	// set up UART --------------------------------------------------------------
-	huart1.Instance = USART3;	// CANNOT USE USART1 SOMEHOW CONNECTED TO THE USB PORT
+	huart1.Instance = UART4;	// CANNOT USE USART1 SOMEHOW CONNECTED TO THE USB PORT
+
 	huart1.Init.BaudRate = BAUDRATE;
 	huart1.Init.WordLength = UART_WORDLENGTH_8B;
 	huart1.Init.StopBits = UART_STOPBITS_1;
 	huart1.Init.Parity = UART_PARITY_NONE;
-	huart1.Init.Mode = UART_MODE_RX;
 	huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+	huart1.Init.Mode = UART_MODE_TX_RX;
 
   /* 
    * Note that HAL_UART_Init() calls HAL_UART_MspInit() (The MPU-specific initialization
@@ -72,54 +84,64 @@ void init_uart(void) {
    * HAL_UART_MspDeInit()... which we're on the hook to define.
    */
 	if(HAL_UART_Init(&huart1) != HAL_OK) flagerror(DEBUG_ERROR);
+	UartReady = SET;
+
 
 }
 
 
 // this is automatically called by the HAL_UART_INIT call in the init_uart function
 void HAL_UART_MspInit(UART_HandleTypeDef * huart) {
+	
+	GPIO_InitTypeDef GPIO_InitStruct;
   
-	__GPIOB_CLK_ENABLE();	// enable dataport clock
-	__USART3_CLK_ENABLE();	// usart clock
+	__GPIOC_CLK_ENABLE();	// enable dataport clock
+	__UART4_CLK_ENABLE();	// uart clock
 	__DMA1_CLK_ENABLE();	// dma clock
   
-  	// set up USART1 RX GPIO config (PB7) ---------------------------
- 	GPIO_InitStruct.Pin = RXPIN;				// use gpio 7
+  	// set up UART4 RX GPIO config (PC11) ---------------------------
+ 	GPIO_InitStruct.Pin = RXPIN;				// use gpio 11
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;		// alternate push pull mode
 	GPIO_InitStruct.Pull = GPIO_NOPULL;			// no pull up or pull down activation
 	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;	
-	GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+	GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
 
+	// init rx gpio
+	HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
+
+	// transmit gpio PC10
+	GPIO_InitStruct.Pin = TXPIN;
+	GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
+
+	// init tx gpio
 	HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
   
-	// set up DMA channel for receiving process ---------------------------------
-	hdma_usart3_rx.Instance = DMA1_Stream1;
-	hdma_usart3_rx.Init.Channel = DMA_CHANNEL_4;
-	hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-	hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
-	hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-	hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-	hdma_usart3_rx.Init.Mode = DMA_CIRCULAR;	// important so it keeps getting chars until told to stop, otherwise need to config everytime
-	hdma_usart3_rx.Init.Priority = DMA_PRIORITY_HIGH;
-	hdma_usart3_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-	hdma_usart3_rx.Init.MemBurst = DMA_MBURST_INC4;
-	hdma_usart3_rx.Init.PeriphBurst = DMA_PBURST_INC4;
 
-	HAL_DMA_Init(&hdma_usart3_rx);
-        
-	// Associate the initialized DMA handle to the the UART handle
-	// this is kinda strange, not actually a function call, but its a macro
-	// (UART_HandleTypeDef * DIFFERENT THEN THE ONE DEFINED UP TOP FOR THE HAL_RECEIVE, dma field in uart struct, DMA_HandleTypeDef)
-	__HAL_LINKDMA(huart, hdmarx, hdma_usart3_rx);
+	/* Configure the DMA handler for Transmission process (DMA1, Stream 4, Channel 4) */
+	hdma_tx.Instance                 = DMA1_Stream4;
 
-	// set priority of dma interrupt
-	HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, UART_PRIORITY, UART_RX_SUBPRIORITY);
-	// enable the dma interrupt
-	HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+	hdma_tx.Init.Channel             = DMA_CHANNEL_4;
+	hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+	hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+	hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+	hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+	hdma_tx.Init.Mode                = DMA_NORMAL;
+	hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+	hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+	hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+	hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
+	hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-	HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(USART3_IRQn);
+	HAL_DMA_Init(&hdma_tx);   
+
+	/* Associate the initialized DMA handle to the the UART handle */
+	__HAL_LINKDMA(huart, hdmatx, hdma_tx);
+
+
+	/* NVIC configuration for DMA transfer complete interrupt (UART4_TX) */
+	HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 1);
+	HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
     
 }
 
@@ -134,38 +156,88 @@ void HAL_UART_MspInit(UART_HandleTypeDef * huart) {
   */
 void HAL_UART_MspDeInit(UART_HandleTypeDef * huart) {
   
-  /* Reset peripherals  */
-  __USART3_FORCE_RESET();
-  __USART3_RELEASE_RESET();
+	/* Reset peripherals  */
+	__UART4_FORCE_RESET();
+	__UART4_RELEASE_RESET();
 
-  HAL_GPIO_DeInit(DATAPORT, RXPIN);
-   
-  /* De-Initialize the DMA Stream associate to transmission process */
-  HAL_DMA_DeInit(&hdma_usart3_rx); 
-  
-  /*##-4- Disable the NVIC for DMA ###########################################*/
-  HAL_NVIC_DisableIRQ(DMA1_Stream1_IRQn);
+	HAL_GPIO_DeInit(DATAPORT, RXPIN);
+	HAL_GPIO_DeInit(DATAPORT, TXPIN);
+
+	/* De-Initialize the DMA Stream associate to transmission process */
+	HAL_DMA_DeInit(&hdma_tx); 
+
+	/*##-4- Disable the NVIC for DMA ###########################################*/
+	HAL_NVIC_DisableIRQ(DMA1_Stream4_IRQn);
+
 }
 
 
 // handle DMA interrupt 
-void DMA1_Stream1_IRQHandler(void) {
+void DMA1_Stream4_IRQHandler(void) {
 
 	// // clear pending bit
- //    HAL_NVIC_ClearPendingIRQ(DMA1_Stream1_IRQn);
+    HAL_NVIC_ClearPendingIRQ(DMA1_Stream4_IRQn);
 
     // handle the dma interrupt request
-    HAL_DMA_IRQHandler(huart1.hdmarx);
+    HAL_DMA_IRQHandler(huart1.hdmatx);
 }
 
 
-// this is automatically executed at end of recieve process
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart) {
+// // this is automatically executed at end of recieve process
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart) {
 
-    // set transmit complete flag for usart_read
-    RX_Complete = SET;
+//     // set receive complete flag for usart_read
+//     RX_Complete = SET;
+
+// }
+
+static size_t mystrlen( const char *str ) 
+{
+  // This is to avoid loading strlen.o
+  // Supposedly, this is the bsd implementation...  really...  I heard it from
+  // a guy on the internet.
+  const char *s;
+  for (s=str; *s; ++s)
+    ;
+  return(s-str);
 }
 
+/* User access routine...  send a character string through the UART */
+void UART_putstr(const char *s) {
+  
+  int len;
+  
+  /*
+   * If the UART is already busy with a transmission, block here until it is complete.
+   * Once the UART is free, turn the DMA loose transmitting the new string through
+   * the UART
+   */
+  
+  while (UartReady != SET) {}	// Wait for the UART to become available
+  UartReady = RESET;		// Now mark the UART as being busy.  When the
+				// transmission is complete, the callback routine
+				// below will change the flag to SET
+  len = mystrlen(s);
+  if(HAL_UART_Transmit_DMA(&huart1, (uint8_t*)s, len)!= HAL_OK) Error_Handler();
+  return;
+}
+
+
+/* UART  Tx Transfer completed callback
+  * @param  UartHandle: UART handle. 
+  * @retval None
+  * 
+  * Getting here is confusing...  
+  * The DMA IRQ handler below calls  HAL_DMA_IRQHandler() for the UART Tx DMA
+  * HAL_DMA_IRQHandler() calls UART_DMATransmitCplt() on a transmit complete.
+  * UART_DMA_TransmitCplt() eventually calls HAL_UART_TxCpltCallback(), which we're
+  * allowed to re-define.
+  */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+  /* Set transmission flag: trasfer complete*/
+  UartReady = SET; 
+}
 
 /** talk about the mapping of vals from the gui to this side
  * @brief [brief description]
@@ -175,10 +247,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart) {
  */
 void usart_read(RX_T * R) {
 
-	while(RX_Complete != SET) {}	// wait until recieve is complete
+	// getting error here setting to receive
+	// if(HAL_UART_Receive(&huart1, R->rx_buffer, MAXSTRING, 100) != HAL_OK) flagerror(DEBUG_ERROR);	// 
+
+	// blink while we are waiting to receive characters
+	while(!__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE)) {
+    	BSP_LED_Toggle(LED6);
+    	HAL_Delay(450);	
+    	BSP_LED_Toggle(LED3);
+    	HAL_Delay(450);
+	}	
 
     // rx_string now contains the 4 ints from the rx stream
-    snprintf(R->rx_string, 4, "%d %d %d %d", R->rx_buffer[0], R->rx_buffer[1], R->rx_buffer[2], R->rx_buffer[3]);
+    snprintf(R->rx_string, 5, "%d %d %d %d", R->rx_buffer[0], R->rx_buffer[1], R->rx_buffer[2], R->rx_buffer[3]);
 
 	// the values received are from the gui and are mapped a certain way to always be a positive (or 0) value
 	// on this end we do the reverse of what the gui did to get the actual values entered
@@ -222,3 +303,210 @@ void usart_read(RX_T * R) {
 	}
 }
 
+
+
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @param  None
+  * @retval None
+  */
+static void Error_Handler(void) {
+  BSP_LED_On(ERROR_LED);
+  while(1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// test with hummels uart transmit ---------------------------------------------------
+// static UART_HandleTypeDef UartHandle;
+// static __IO ITStatus UartReady = RESET;
+// static DMA_HandleTypeDef hdma_tx;
+
+
+// void init_uart(void) 
+// { 
+//   /* Put the USART peripheral in the Asynchronous mode (UART Mode) */
+//   /* UART4 configured as follow:
+//       - Word Length = 8 Bits
+//       - Stop Bit = One Stop bit
+//       - Parity = None
+//       - BaudRate = 9600 baud
+//       - Hardware flow control disabled (RTS and CTS signals) 
+//       - Transmit only mode */
+//   huart1.Instance        = UART4;
+//   huart1.Init.BaudRate   = 9600;
+//   huart1.Init.WordLength = UART_WORDLENGTH_8B;
+//   huart1.Init.StopBits   = UART_STOPBITS_1;
+//   huart1.Init.Parity     = UART_PARITY_NONE;
+//   huart1.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+//   huart1.Init.Mode       = UART_MODE_TX_RX;
+
+
+//   /* 
+//    * Note that HAL_UART_Init() calls HAL_UART_MspInit() (The MPU-specific initialization
+//    * routine).  This function must be re-defined  below in order to associate 
+//    * the correct DMA stream with the UART.  Similarly, HAL_UART_DeInit() calls
+//    * HAL_UART_MspDeInit()... which we're on the hook to define.
+//    */
+//   // HAL_UART_DeInit(&UartHandle);
+//   if(HAL_UART_Init(&huart1) != HAL_OK);
+//   UartReady = SET; 
+// }
+
+// static size_t mystrlen( const char *str ) 
+// {
+//   // This is to avoid loading strlen.o
+//   // Supposedly, this is the bsd implementation...  really...  I heard it from
+//   // a guy on the internet.
+//   const char *s;
+//   for (s=str; *s; ++s)
+//     ;
+//   return(s-str);
+// }
+
+// /* User access routine...  send a character string through the UART */
+// void UART_putstr(const char *s) {
+  
+//   // int len;
+  
+//   // /*
+//   //  * If the UART is already busy with a transmission, block here until it is complete.
+//   //  * Once the UART is free, turn the DMA loose transmitting the new string through
+//   //  * the UART
+//   //  */
+  
+//   // while (UartReady != SET) {}	// Wait for the UART to become available
+//   // UartReady = RESET;		// Now mark the UART as being busy.  When the
+// 		// 		// transmission is complete, the callback routine
+// 		// 		// below will change the flag to SET
+//   // len = mystrlen(s);
+//   // if(HAL_UART_Transmit_DMA(&UartHandle, (uint8_t*)s, len)!= HAL_OK);
+//   // return;
+
+//   // 	BSP_LED_Toggle(NORMAL_LED);
+//   // 	HAL_Delay(300);
+//   // 	BSP_LED_Toggle(NORMAL_LED);
+ 
+// }
+
+// void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
+// {
+//   // Error_Handler(); 
+// }
+
+/* UART  Tx Transfer completed callback
+  * @param  UartHandle: UART handle. 
+  * @retval None
+  * 
+  * Getting here is confusing...  
+  * The DMA IRQ handler below calls  HAL_DMA_IRQHandler() for the UART Tx DMA
+  * HAL_DMA_IRQHandler() calls UART_DMATransmitCplt() on a transmit complete.
+  * UART_DMA_TransmitCplt() eventually calls HAL_UART_TxCpltCallback(), which we're
+  * allowed to re-define.
+  */
+// void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
+// {
+//   /* Set transmission flag: trasfer complete*/
+//   UartReady = SET; 
+// }
+
+/*
+  * @brief UART MSP Initialization 
+  *        This function configures the hardware resources used in this example: 
+  *           - Peripheral's clock enable
+  *           - Peripheral's GPIO Configuration  
+  *           - DMA configuration for transmission request by peripheral 
+  *           - NVIC configuration for DMA interrupt request enable
+  * 
+  * The UART is configured for transmit only, using UART4 which is connected to 
+  * GPIO Pin PC10.  We're using DMA1, Stream 4, Channel 4.
+  * 
+  * @param huart: UART handle pointer
+  * @retval None
+  */
+// void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+// {
+  
+//   GPIO_InitTypeDef  GPIO_InitStruct;
+  
+//   /* Enable GPIO and periferal clocks.  Need PC10 as the output pin, UART4 and DMA1. */
+//   __GPIOC_CLK_ENABLE();		// Need PC10 as an output pin
+//   __UART4_CLK_ENABLE();
+//   __DMA1_CLK_ENABLE();   
+  
+//   /*  UART4 TX GPIO pin configuration (PC10) */
+//   GPIO_InitStruct.Pin       = GPIO_PIN_10;
+//   GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+//   GPIO_InitStruct.Pull      = GPIO_NOPULL;
+//   GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+//   GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
+  
+//   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+        
+//   /* Configure the DMA handler for Transmission process (DMA1, Stream 4, Channel 4) */
+//   hdma_tx.Instance                 = DMA1_Stream4;
+  
+//   hdma_tx.Init.Channel             = DMA_CHANNEL_4;
+//   hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+//   hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+//   hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+//   hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+//   hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+//   hdma_tx.Init.Mode                = DMA_NORMAL;
+//   hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+//   hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+//   hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+//   hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
+//   hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
+  
+//   HAL_DMA_Init(&hdma_tx);   
+  
+//   /* Associate the initialized DMA handle to the the UART handle */
+//   __HAL_LINKDMA(huart, hdmatx, hdma_tx);
+    
+    
+//   /* NVIC configuration for DMA transfer complete interrupt (UART4_TX) */
+//   HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 1);
+//   HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+
+    
+// }
+
+// /**
+//   * @brief UART MSP De-Initialization 
+//   *        This function frees the hardware resources used in this example:
+//   *          - Disable the Peripheral's clock
+//   *          - Revert GPIO, DMA and NVIC configuration to their default state
+//   * @param huart: UART handle pointer
+//   * @retval None
+//   */
+// void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
+// {
+  
+
+//   /* Reset peripherals  */
+//   __UART4_FORCE_RESET();
+//   __UART4_RELEASE_RESET();
+
+//   HAL_GPIO_DeInit(GPIOC, GPIO_PIN_10);
+   
+//   /* De-Initialize the DMA Stream associate to transmission process */
+//   HAL_DMA_DeInit(&hdma_tx); 
+  
+//   /*##-4- Disable the NVIC for DMA ###########################################*/
+//   HAL_NVIC_DisableIRQ(DMA1_Stream4_IRQn);
+// }

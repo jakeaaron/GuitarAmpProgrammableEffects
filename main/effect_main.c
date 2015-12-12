@@ -48,7 +48,9 @@
 #include "calc_rms.h"
 #include "compressor.h"
 #include "eq.h"
+
 #include "uart_rx.h"
+// #include "uart.h"
 
 #include "fir_lowpass.h"
 
@@ -66,9 +68,47 @@
 
 int main(int argc, char const *argv[]) {
 
-	// Set up the DAC/ADC interface
+	// Set up sysclock
 	initialize(FS_48K, MONO_IN, STEREO_OUT); 
 
+	// init_uart();
+
+	// RX_T * R = init_rx();
+	// // wait until recieve is complete and then set the recieved characters in the R->rx_string
+	// usart_read(R);
+
+	// init_USART(3, 6, 9600, UART_WORDLENGTH_9B, UART_STOPBITS_1, UART_PARITY_EVEN);
+	// uint8_t * read_buf = NULL;
+	// // // start up dma receive
+	// usart_receive_begin();
+	// // wait until we have valid receive characters 
+	// while(validRx != 0) {}	// validRx is externed from the uart code and is set to 0 in the rxhalfcomplete call
+	// read_buf = usart_read();
+
+
+	
+	RX_T * R = init_rx();
+
+	char outstr[100];
+	UART_putstr("hereeeh");
+	
+	// wait until recieve is complete and then set the recieved characters in the R->rx_string
+	usart_read(R);
+
+	while(1) {
+    	BSP_LED_Toggle(NORMAL_LED);
+    	HAL_Delay(450);	
+	}
+
+
+	// set up adc and dac because I made initialize not include them so we can deal with uart stuff and not be waiting for adc/dac buffers
+	init_dac(FS_48K, STEREO_OUT);
+	init_adc(FS_48K, MONO_IN);
+
+
+
+
+	
 	// SELECTEFFECT ------------------------------------------------------------------------------------
 
 	/* effects format:
@@ -76,11 +116,6 @@ int main(int argc, char const *argv[]) {
 	delay = { 1, time_delay, delay_gain }
 	compressor = { 2, threshold, ratio }
 	equalizer = { 3, lowband_gain, midband_gain, highband_gain } */
-
-
-	RX_T * R = init_rx();
-	// wait until recieve is complete and then set the recieved characters in the R->rx_string
-	usart_read(R);
 
 	// int effect = R->rx_string[0];
 	int effect = 1;
@@ -106,7 +141,6 @@ int main(int argc, char const *argv[]) {
 
 
 	// initialize ---------------------------------------------------------------
-	char outstr[100];
 	int block_size, i;
 
 
@@ -141,10 +175,10 @@ int main(int argc, char const *argv[]) {
 	switch(effect) {
 		case 1: // DELAY --------------------------------------------------------
 			
-			delay = R->rx_string[1];		// this is delay in seconds
-			if(delay > 0.5) { flagerror(DEBUG_ERROR); while(1); }		// don't delay more than half a second
-			delay_gain = R->rx_string[2];
-			if(delay_gain > 1) { flagerror(DEBUG_ERROR); while(1); }	// limit output vol to input vol
+			// delay = R->rx_string[1];		// this is delay in seconds
+			// if(delay > 0.5) { flagerror(DEBUG_ERROR); while(1); }		// don't delay more than half a second
+			// delay_gain = R->rx_string[2];
+			// if(delay_gain > 1) { flagerror(DEBUG_ERROR); while(1); }	// limit output vol to input vol
 
 			// initialize delay structure for delay routine 
 			D = init_delay(1, FS, 0.5, 1, block_size);		// 1 means delay is in seconds
@@ -155,19 +189,19 @@ int main(int argc, char const *argv[]) {
  		case 2: // COMPRESSOR ---------------------------------------------------
 
 			// initialize rms detection -----------
- 			window = 100 * block_size;
+ 		// 	window = 100 * block_size;
 
-			V = init_rms(window, block_size);
-			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
+			// V = init_rms(window, block_size);
+			// if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 			
-			// initialize compressor --------------
-			threshold = R->rx_string[1];	// 0db entered is 1VRMS
-			if(threshold > 6) { flagerror(DEBUG_ERROR); while(1); } // limit threshold to the max rms voltage the board is capable of
-			ratio = R->rx_string[2];
-			if(ratio <= 0) { flagerror(DEBUG_ERROR); while(1); }	// limit ratio to positive value
+			// // initialize compressor --------------
+			// threshold = R->rx_string[1];	// 0db entered is 1VRMS
+			// if(threshold > 6) { flagerror(DEBUG_ERROR); while(1); } // limit threshold to the max rms voltage the board is capable of
+			// ratio = R->rx_string[2];
+			// if(ratio <= 0) { flagerror(DEBUG_ERROR); while(1); }	// limit ratio to positive value
 
-			C = init_compressor(threshold, ratio, block_size);
-			if(C == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
+			// C = init_compressor(threshold, ratio, block_size);
+			// if(C == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 
 			break;
 
@@ -175,14 +209,14 @@ int main(int argc, char const *argv[]) {
 
 			// initialize eq
 			// limit the gain for each band to +-15dB
-			low_gain = R->rx_string[1];
-			if(low_gain > 15 || low_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
-			mid_gain = R->rx_string[2];
-			if(mid_gain > 15 || mid_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
-			high_gain = R->rx_string[3];
-			if(high_gain > 15 || high_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
-			Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
-			if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
+			// low_gain = R->rx_string[1];
+			// if(low_gain > 15 || low_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
+			// mid_gain = R->rx_string[2];
+			// if(mid_gain > 15 || mid_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
+			// high_gain = R->rx_string[3];
+			// if(high_gain > 15 || high_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
+			// Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
+			// if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 
 			break;
 

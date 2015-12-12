@@ -67,6 +67,7 @@ int main(int argc, char ** argv) {
 	if(init_display(fd)) { perror("could not initialize display"); return 1; }
 	
 	// check if gui is closing so we can clear the display before we kill the program
+	// (on close, gui passes a -1 to this program)
 	if(atoi(argv[1]) == -1) {
 		if(clear_display(fd) == 1) { perror("could not clear display"); return 1; };
 		return 0;
@@ -291,7 +292,7 @@ int char_to_7seg(int argc, DISP_T * D_T) {
 	// used to determine whether to display effect name before displaying param
 	D_T->display_index = 0;
 
-	// display each value from the gui
+	// display each param from the gui
 	// [effect, 1st param, 2nd param, 3rd param]
 	// (parameter)
 	for(k = 1; k < argc - 1; k++) {
@@ -302,7 +303,6 @@ int char_to_7seg(int argc, DISP_T * D_T) {
 		// clear output buffer
 		for(z = 0; z < 4; z++) {
 			D_T->output[z] = 0;
-			printf("input is: %f\n", D_T->input[z]);
 		}
 
 		// this is 4 bytes of one passed value with null at end
@@ -314,68 +314,58 @@ int char_to_7seg(int argc, DISP_T * D_T) {
 			switch(effect_buf[i]) {
 				case '0':
 					D_T->output[j] = ZERO;
-					printf("I'm writing 0 to the output!\n");
 
 					break;
 
 				case '1':
 					D_T->output[j] = ONE;
-					printf("I'm writing 1 to the output!\n");
 
 					break;
 
 				case '2':
 					D_T->output[j] = TWO;
-					printf("I'm writing 2 to the output!\n");
 
 					break;
 
 				case '3':
 
 					D_T->output[j] = THREE;
-					printf("I'm writing 3 to the output!\n");
 
 					break;
 
 				case '4':
 
 					D_T->output[j] = FOUR;
-					printf("I'm writing 4 to the output!\n");
 
 					break;
 
 				case '5':
 
 					D_T->output[j] = FIVE;
-					printf("I'm writing 5 to the output!\n");
 
 					break;
 
 				case '6':
 
 					D_T->output[j] = SIX;
-					printf("I'm writing 6 to the output!\n");
 
 					break;
 
 				case '7':
 
 					D_T->output[j] = SEVEN;
-					printf("I'm writing 7 to the output!\n");
 
 					break;
 
 				case '8':
 
 					D_T->output[j] = EIGHT;
-					printf("I'm writing 8 to the output!\n");
 
 					break;
 
 				case '9':
 
 					D_T->output[j] = NINE;
-					printf("I'm writing 9 to the output!\n");
 
 					break;
 
@@ -406,8 +396,6 @@ int char_to_7seg(int argc, DISP_T * D_T) {
 		if(D_T->effect != 3 && k == 2) {
 			k++;
 		}
-					printf("effect_buf is: %c %c %c \n", effect_buf[0], effect_buf[1], effect_buf[2]);
-					printf("output buf is: %u %u %u \n", D_T->output[0], D_T->output[1], D_T->output[2]);
 
 		// write to ldc
 		if(lcd_write(D_T) == 1) { perror("could not write to lcd"); return 1; }	
@@ -433,7 +421,7 @@ int lcd_write(DISP_T * D_T) {
 	int i;
 
 	// clear buffer
-	for(i = 0; i <17; i++) {
+	for(i = 0; i < 17; i++) {
 		buffer[i] = 0x00;
 	}
 
@@ -445,8 +433,6 @@ int lcd_write(DISP_T * D_T) {
 	buffer[6] = 0x00;	// next 8 bits of column 4, not connected 
 	buffer[10] = 0x00;	// next 8 bits of column 5, not connected
 
-	printf("%d\n", D_T->display_index);
-
 	// display chosen effect first if we haven't already
 	if(D_T->display_index == 0) {
 		switch(D_T->effect) {
@@ -455,10 +441,9 @@ int lcd_write(DISP_T * D_T) {
 
 				buffer[3] = L;
 
-				buffer[7] = Y;
+				buffer[7] = A;
 
-				// last digit blank
-				buffer[9] = 0x00;
+				buffer[9] = Y;
 
 				break;
 
@@ -508,13 +493,11 @@ int lcd_write(DISP_T * D_T) {
 		usleep(2500000);
 
 		// clear buffer
-		for(i = 0; i <17; i++) {
+		for(i = 0; i < 17; i++) {
 			buffer[i] = 0x00;
 		}
 
 	} 
-
-	printf("sign is: %d\n", D_T->sign_buffer[D_T->display_index - 1]);
 
 	// now display parameter
 	// determine whether we need a negative sign or not, and then display it appropriately 
@@ -566,7 +549,7 @@ int lcd_write(DISP_T * D_T) {
 
 	// cause a little blink between showing parameters
 	// clear buffer
-	for(i = 0; i <17; i++) {
+	for(i = 0; i < 17; i++) {
 		buffer[i] = 0x00;
 	}
 	if(write(D_T->fd, buffer, 17) < 0) { perror("could not write message to lcd"); return 1; }
@@ -576,13 +559,20 @@ int lcd_write(DISP_T * D_T) {
 }
 
 
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param fd [description]
+ * @return [description]
+ */
 int clear_display(int fd) {
 
-	unsigned char buffer[17];
 	int i;
+	unsigned char buffer[17];
 
 	// clear buffer
-	for(i = 0; i <17; i++) {
+	for(i = 0; i < 17; i++) {
 		buffer[i] = 0x00;
 	}
 

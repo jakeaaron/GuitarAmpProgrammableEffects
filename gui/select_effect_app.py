@@ -11,7 +11,7 @@ except ImportError:
 
 
 class select_effect(wx.Frame):	# inherit from base class for gui windows
-	"""  """
+	""" Class with all the definitions to run the application to select the GAPE effect. """
 	# initialize class
 	def __init__(self, parent, id, title):
 		wx.Frame.__init__(self, parent, id, title=title, size=(300, 300))	# call wk.Frame constructor
@@ -22,7 +22,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 	# initialize/create all the gui widgets needed for the app
 	def init_elements(self):
-		"""  """
+		""" This sets up the windows and effect buttons. """
 		self.selected_effect = 0
 		self.count = 0
 		self.last_effect = 0
@@ -74,13 +74,15 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 	# event handler on click of effect button
 	def effect(self, arg):
-		"""  """
+		""" This handles the onclick event for when an effect button is selected. The appropriate function is called and the 
+		current effect and last effect variables are set. This also adds the submit button to the frame for when the fields 
+		are filled out. """
 		# delay
 		if arg == 1:
 			# for knowing what effect was selected to build output string for dsp code
 			self.selected_effect = arg
 			# show delay params
-			self.on_delay_click()	# checks last_effect from last effect selection to destroy the appropriate widgets
+			self.on_delay_click()	# checks last_effect from last effect selection to destroy the appropriate widgets and creates the new widgets for the selected effect
 			# now set last effect to delay for the refresh function
 			self.last_effect = arg
 
@@ -89,7 +91,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 			# for knowing what effect was selected to build output string for dsp code
 			self.selected_effect = arg
 			# show compressor params
-			self.on_comp_click()	# checks last_effect from last effect selection to destroy the appropriate widgets
+			self.on_comp_click()	# checks last_effect from last effect selection to destroy the appropriate widgetsand creates the new widgets for the selected effect
 			# now set last effect to comp for refresh function
 			self.last_effect = arg
 
@@ -98,7 +100,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 			# for knowing what effect was selected to build output string for dsp code
 			self.selected_effect = arg
 			# show eq params
-			self.on_eq_click()	# checks last_effect from last effect selection to destroy the appropriate widgets
+			self.on_eq_click()	# checks last_effect from last effect selection to destroy the appropriate widgetsand creates the new widgets for the selected effect
 			# now set last effect to eq for refresh function
 			self.last_effect = arg
 
@@ -113,7 +115,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 
 	def refresh(self):
-		"""  """
+		""" This destroys all the widgets created for the effect previously selected to make room for the current effect widgets. """
 		if self.last_effect == 1:
 			# clear delay fields ----------------
 			self.time_input_label.Destroy()
@@ -144,9 +146,8 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 
 	# event handlers for selecting the effect -----------------------------------------------
-	# this function is called if the delay effect is selected
 	def on_delay_click(self):
-		"""  """
+		""" This sets up the widgets for the delay parameters. """
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
@@ -170,7 +171,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.Layout()
 
 	def on_comp_click(self):
-		"""  """
+		""" This sets up the widgets for the compressor parameters. """
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
@@ -194,7 +195,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.Layout()
 
 	def on_eq_click(self):
-		"""  """
+		""" This sets up the widgets for the equalizer parameters. """
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
@@ -228,7 +229,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 	# called when value is outside of appropriate bounds
 	def error(self):
-		"""  """
+		""" This is called whenever we receive any characters in the parameter inputs that we don't expect. """
 		dlg = wx.MessageDialog(self, 'Please make sure to enter parameter within the appropriate bounds.', 'Value Error', wx.OK|wx.ICON_INFORMATION)
 		dlg.ShowModal()
 		dlg.Destroy()
@@ -236,7 +237,9 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 
 	def on_submit_effect(self, event):
-		"""  """
+		""" This checks all the parameters from the input to make sure they are appropriate. If they are, they are set to
+		to the output buffer. Then the output is sent to three different areas: the console, the display_effect program
+		(7 seg display), and the dsp board through serial. """
 
 		# get output array for delay effect
 		if self.selected_effect == 1:
@@ -357,7 +360,6 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 		# send to 1wire c program to display on 7seg. build a string like used on the command line to pass the c file the args
 		# & is to run in background so the gui is still responsive when wanting to change effects or parameters
-		# nohup is to disconnect the job from the login sesion of the shell
 		self.command = ["sudo ./display_effect {} {} {} {} &".format(str(self.output[0]), str(self.output[1]), str(self.output[2]), str(self.output[3]))]
 		call(self.command, shell=True)
 
@@ -365,12 +367,15 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		# serial terminal to stm32f407-discovery/dsp effects ------------
 
 		# ser = serial.Serial('/dev/ttyUSB0', 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
+		# convert output buf to string with no spaces?
 		# ser.write(self.output)
 
 
 
 
 	def OnClose(self, event):
+		""" This is called when the gui is closed. It clears the display if there are any characters on it,
+		and then kills the program. Finally, it actually closes the gui window. """
 		# if the c program is running when we close the gui, stop the c program
 		if(self.count > 0):
 			# we are closing the gui so if we had stuff displaying, lets clear the display
@@ -388,7 +393,7 @@ if __name__ == "__main__":
 	# instance of app
 	app = wx.App()
     # instance of select_effect
-    # (no parent, -1 to let wx choose an identifier, window title, size of gui window)
+    # (no parent, -1 to let wx choose an identifier, window title)
 	frame = select_effect(None, -1, 'Digital Effect Suite')
 	frame.Show()
     # while(1) to wait and handle events such as click of button, quitting, etc.
