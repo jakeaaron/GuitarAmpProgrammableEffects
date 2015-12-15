@@ -6,8 +6,9 @@ try:
 	from subprocess import call 
 	import wx
 	import serial
+	import RPi.GPIO as GPIO
 except ImportError:
-	raise ImportError,"The wxPython module and serial and subprocess is required to run this program."
+	raise ImportError,"The wxPython module, RPi.GPIO, serial and subprocess is required to run this program."
 
 
 class select_effect(wx.Frame):	# inherit from base class for gui windows
@@ -239,7 +240,8 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 	def on_submit_effect(self, event):
 		""" This checks all the parameters from the input to make sure they are appropriate. If they are, they are set to
 		to the output buffer. Then the output is sent to three different areas: the console, the display_effect program
-		(7 seg display), and the dsp board through serial. """
+		(7 seg display), and the dsp board through gpio. Note that the values are scaled in different ways so that we don't 
+		need to deal with negative numbers. """
 
 		# get output array for delay effect
 		if self.selected_effect == 1:
@@ -255,7 +257,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 				self.error()
 				return
 			else: 
-				# highest amount of delay is 0.5 (255), put in output buffer
+				# highest amount of delay is 0.5 (255 for an 8bit value), put in output buffer
 				self.output[1] = int(self.delay_time * (2.0 * 255.0))
 
 			# gain of delayed signal
@@ -343,7 +345,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.count = self.count + 1
 
 
-		# OUTPUT > -------------------------------------------------------------------
+		# OUTPUT > --------------------------------------------------------------------------------
 
 		# console ------------------------------------------------------
 		
@@ -369,6 +371,15 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		# ser = serial.Serial('/dev/ttyUSB0', 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
 		# convert output buf to string with no spaces?
 		# ser.write(self.output)
+
+
+		# RPi gpio -> Xbee Digital I/O
+		if(self.count > 1):
+			call(["sudo killall send_effect"], shell=True)
+
+		self.command2 = ["sudo ./send_effect {} &".format(str(self.selected_effect))]
+		call(self.command2, shell=True)
+			
 
 
 

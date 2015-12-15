@@ -5,6 +5,9 @@
  * @date September 1, 2015
  *
  * @brief This file contains the main program to run the selected GAPE effect; either a delay, a compressor, or an equalizer.
+ * 
+ * @setup []
+ * 
  * @details [
  * At the start of this program, the usart_read function is called to find out what effect should be run. The function 
  * waits for the RX_Complete flag to be set by the receive complete call back function. This receive complete function is 
@@ -70,41 +73,28 @@ int main(int argc, char const *argv[]) {
 
 	// Set up sysclock
 	initialize(FS_48K, MONO_IN, STEREO_OUT); 
-
-	// init_uart();
-
-	// RX_T * R = init_rx();
-	// // wait until recieve is complete and then set the recieved characters in the R->rx_string
-	// usart_read(R);
-
-	// init_USART(3, 6, 9600, UART_WORDLENGTH_9B, UART_STOPBITS_1, UART_PARITY_EVEN);
-	// uint8_t * read_buf = NULL;
-	// // // start up dma receive
-	// usart_receive_begin();
-	// // wait until we have valid receive characters 
-	// while(validRx != 0) {}	// validRx is externed from the uart code and is set to 0 in the rxhalfcomplete call
-	// read_buf = usart_read();
-
-
-	
-	RX_T * R = init_rx();
-
-	char outstr[100];
-	UART_putstr("hereeeh");
-	
-	// wait until recieve is complete and then set the recieved characters in the R->rx_string
-	usart_read(R);
-
-	while(1) {
-    	BSP_LED_Toggle(NORMAL_LED);
-    	HAL_Delay(450);	
-	}
-
-
 	// set up adc and dac because I made initialize not include them so we can deal with uart stuff and not be waiting for adc/dac buffers
 	init_dac(FS_48K, STEREO_OUT);
 	init_adc(FS_48K, MONO_IN);
 
+
+
+	
+	// RX_T * R = init_rx();
+
+	// char outstr[100];
+	// // UART_putstr("before \n");
+
+	// // wait until recieve is complete and then set the recieved characters in the R->rx_string
+	// usart_read(R);
+
+	// UART_putstr("I made it past read");
+
+
+	// set up buffers for reading the effect and params from gui
+	FX_T * F = init_effects_read();
+	// F->effect and F->effect_params are updated by the read effect call
+	read_effect(F);
 
 
 
@@ -117,8 +107,7 @@ int main(int argc, char const *argv[]) {
 	compressor = { 2, threshold, ratio }
 	equalizer = { 3, lowband_gain, midband_gain, highband_gain } */
 
-	// int effect = R->rx_string[0];
-	int effect = 1;
+	int effect = F->effect;
 
 	// declare variables used for effects assigned in switch cases --------------
 	// cannot declare variables in switch case, so we declare all here
