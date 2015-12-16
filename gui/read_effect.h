@@ -19,6 +19,7 @@
  typedef struct effect {
  	int * pin_states;
  	int * effect_params;
+ 	int preset;
  	int effect;
  } FX_T;
 

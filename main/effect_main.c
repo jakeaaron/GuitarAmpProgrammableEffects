@@ -94,17 +94,6 @@ int main(int argc, char const *argv[]) {
 	equalizer = { 3, lowband_gain, midband_gain, highband_gain } */
 
 	int effect = F->effect;
-	// int effect = 1;
-
-	// char string[100];
-	// sprintf(string, "effect select is: %d\n", effect);
-	// UART_putstr(string);
-	// while(1) {
- //    	BSP_LED_Toggle(NORMAL_LED);
- //    	HAL_Delay(100);	
- //    	BSP_LED_Toggle(ERROR_LED);
- //    	HAL_Delay(100);
-	// }
 
 	// declare variables used for effects assigned in switch cases --------------
 	// cannot declare variables in switch case, so we declare all here
@@ -161,10 +150,10 @@ int main(int argc, char const *argv[]) {
 	switch(effect) {
 		case 1: // DELAY --------------------------------------------------------
 			
-			// delay = R->rx_string[1];		// this is delay in seconds
-			// if(delay > 0.5) { flagerror(DEBUG_ERROR); while(1); }		// don't delay more than half a second
-			// delay_gain = R->rx_string[2];
-			// if(delay_gain > 1) { flagerror(DEBUG_ERROR); while(1); }	// limit output vol to input vol
+			delay = R->rx_string[1];		// this is delay in seconds
+			if(delay > 0.5) { flagerror(DEBUG_ERROR); while(1); }		// don't delay more than half a second
+			delay_gain = R->rx_string[2];
+			if(delay_gain > 1) { flagerror(DEBUG_ERROR); while(1); }	// limit output vol to input vol
 
 			// initialize delay structure for delay routine 
 			D = init_delay(1, FS, 0.5, 1, block_size);		// 1 means delay is in seconds

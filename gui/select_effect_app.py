@@ -5,9 +5,8 @@
 try:
 	from subprocess import call 
 	import wx
-	import serial
 except ImportError:
-	raise ImportError,"The wxPython module, RPi.GPIO, serial and subprocess is required to run this program."
+	raise ImportError,"The wxPython module and subprocess is required to run this program."
 
 
 class select_effect(wx.Frame):	# inherit from base class for gui windows
@@ -106,12 +105,16 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 			self.last_effect = arg
 
 
+
+		self.preset_label = wx.StaticText(self.panel, label="Preset")
+		self.sizer.Add(self.preset_label, pos=(1, 4))
+
 		# now that effect and parameters are chosen, make a submit button
 		self.enter_button = wx.Button(self.panel, label="Submit")
 		# call function to deal with the input data (eventually send to stm board)
 		self.Bind(wx.EVT_BUTTON, self.on_submit_effect, self.enter_button)
 		# add button to layout
-		self.sizer.Add(self.enter_button, pos=(9, 3))
+		self.sizer.Add(self.enter_button, pos=(16, 4))
 		self.Layout()
 
 
@@ -130,23 +133,56 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 		if self.last_effect == 2:
 			# clear compressor fields ----------------
+			self.preset3_button.Destroy()
+			self.preset4_button.Destroy()
 			self.threshold_input_label.Destroy()
-			self.threshold_input.Destroy()
 			self.ratio_input_label.Destroy()
-			self.ratio_input.Destroy()
+			self.threshold_input1.Destroy()
+			self.ratio_input1.Destroy()
+			self.threshold_input2.Destroy()
+			self.ratio_input2.Destroy()
 
 		if self.last_effect == 3:
 		# clear eq fields ----------------
+			self.preset5_button.Destroy()
+			self.preset6_button.Destroy()
+			self.preset7_button.Destroy()
+			self.preset8_button.Destroy()
+			self.preset9_button.Destroy()
+			self.preset10_button.Destroy()
+			self.preset11_button.Destroy()
 			self.low_input_label.Destroy()
-			self.low_input.Destroy()
 			self.mid_input_label.Destroy()
-			self.mid_input.Destroy()
 			self.high_input_label.Destroy()
-			self.high_input.Destroy()
+			self.low_input1.Destroy()
+			self.mid_input1.Destroy()
+			self.high_input1.Destroy()
+			self.low_input2.Destroy()
+			self.mid_input2.Destroy()
+			self.high_input2.Destroy()
+			self.low_input3.Destroy()
+			self.mid_input3.Destroy()
+			self.high_input3.Destroy()
+			self.low_input4.Destroy()
+			self.mid_input4.Destroy()
+			self.high_input4.Destroy()
+			self.low_input5.Destroy()
+			self.mid_input5.Destroy()
+			self.high_input5.Destroy()
+			self.low_input6.Destroy()
+			self.mid_input6.Destroy()
+			self.high_input6.Destroy()
+			self.low_input7.Destroy()
+			self.mid_input7.Destroy()
+			self.high_input7.Destroy()
+
 
 		# if the submit button exists, destroy it. it exists if the last effect wasn't the default value of 0
 		if self.last_effect != 0:
 			self.enter_button.Destroy()
+			self.preset_label.Destroy()
+
+
 
 
 
@@ -158,39 +194,39 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 		# Labels --------------------------------------------------------
 		# enter time label
-		self.time_input_label = wx.StaticText(self.panel, label="Amount of delay")
-		self.sizer.Add(self.time_input_label, pos=(1, 5))
+		self.time_input_label = wx.StaticText(self.panel, label="Amount of delay (s)")
+		self.sizer.Add(self.time_input_label, pos=(1, 6))
 
 		# enter gain label
 		self.gain_input_label = wx.StaticText(self.panel, label="Gain")
-		self.sizer.Add(self.gain_input_label, pos=(1, 7))
+		self.sizer.Add(self.gain_input_label, pos=(1, 8))
 
 
 		# PRESET 1 ------------------------------------------------------
 		self.preset1_button = wx.Button(self.panel, label="Large Room")
 		self.Bind(wx.EVT_BUTTON, self.on_large_room, self.preset1_button)
-		self.sizer.Add(self.preset1_button, pos=(2, 3))
+		self.sizer.Add(self.preset1_button, pos=(2, 4))
 		# enter time field
-		self.time_input1 = wx.TextCtrl(self.panel, value="0.5s")
+		self.time_input1 = wx.TextCtrl(self.panel, value="0.5")
 		self.time_input1.SetEditable(False)
-		self.sizer.Add(self.time_input1, pos=(2, 5))
+		self.sizer.Add(self.time_input1, pos=(2, 6))
 		# enter gain field
 		self.gain_input1 = wx.TextCtrl(self.panel, value="0.5")
 		self.gain_input1.SetEditable(False)
-		self.sizer.Add(self.gain_input1, pos=(2, 7))
+		self.sizer.Add(self.gain_input1, pos=(2, 8))
 
 		# PRESET 2 ------------------------------------------------------
 		self.preset2_button = wx.Button(self.panel, label="Small Room")
 		self.Bind(wx.EVT_BUTTON, self.on_small_room, self.preset2_button)
-		self.sizer.Add(self.preset2_button, pos=(4, 3))
+		self.sizer.Add(self.preset2_button, pos=(4, 4))
 		# enter time field
-		self.time_input2 = wx.TextCtrl(self.panel, value="0.25s")
+		self.time_input2 = wx.TextCtrl(self.panel, value="0.25")
 		self.time_input2.SetEditable(False)
-		self.sizer.Add(self.time_input2, pos=(4, 5))
+		self.sizer.Add(self.time_input2, pos=(4, 6))
 		# enter gain field
 		self.gain_input2 = wx.TextCtrl(self.panel, value="1")
 		self.gain_input2.SetEditable(False)
-		self.sizer.Add(self.gain_input2, pos=(4, 7))
+		self.sizer.Add(self.gain_input2, pos=(4, 8))
 
 
 		# fix the layout of widgets
@@ -203,37 +239,37 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.refresh()
 
 		# Labels ---------------------------------------------------
-		self.threshold_input_label = wx.StaticText(self.panel, label="Threshold")
-		self.sizer.Add(self.threshold_input_label, pos=(1, 5))
+		self.threshold_input_label = wx.StaticText(self.panel, label="Threshold (dB)")
+		self.sizer.Add(self.threshold_input_label, pos=(1, 6))
 
 		self.ratio_input_label = wx.StaticText(self.panel, label="Ratio")
-		self.sizer.Add(self.ratio_input_label, pos=(1, 7))
+		self.sizer.Add(self.ratio_input_label, pos=(1, 8))
 
 		# PRESET 3 - Coffee Shop -----------------------------------
 		self.preset3_button = wx.Button(self.panel, label="Coffee Shop")
 		self.Bind(wx.EVT_BUTTON, self.on_coffee_shop, self.preset3_button)
-		self.sizer.Add(self.preset3_button, pos=(2, 3))
+		self.sizer.Add(self.preset3_button, pos=(2, 4))
 		# enter threshold field
-		self.threshold_input1 = wx.TextCtrl(self.panel, value="-12dB")
+		self.threshold_input1 = wx.TextCtrl(self.panel, value="-12")
 		self.threshold_input1.SetEditable(False)
-		self.sizer.Add(self.threshold_input1, pos=(2, 5))
+		self.sizer.Add(self.threshold_input1, pos=(2, 6))
 		# enter ratio field
 		self.ratio_input1 = wx.TextCtrl(self.panel, value="2")
 		self.ratio_input1.SetEditable(False)
-		self.sizer.Add(self.ratio_input1, pos=(2, 7))
+		self.sizer.Add(self.ratio_input1, pos=(2, 8))
 
 		# PRESET 4 - Celestial Immolation --------------------------
 		self.preset4_button = wx.Button(self.panel, label="Celestial Immolation")
 		self.Bind(wx.EVT_BUTTON, self.on_celestial, self.preset4_button)
-		self.sizer.Add(self.preset4_button, pos=(4, 3))
+		self.sizer.Add(self.preset4_button, pos=(4, 4))
 		# enter threshold field
-		self.threshold_input2 = wx.TextCtrl(self.panel, value="-2dB")
+		self.threshold_input2 = wx.TextCtrl(self.panel, value="-2")
 		self.threshold_input2.SetEditable(False)
-		self.sizer.Add(self.threshold_input2, pos=(4, 5))
+		self.sizer.Add(self.threshold_input2, pos=(4, 6))
 		# enter ratio field
 		self.ratio_input2 = wx.TextCtrl(self.panel, value="9")
 		self.ratio_input2.SetEditable(False)
-		self.sizer.Add(self.ratio_input2, pos=(4, 7))
+		self.sizer.Add(self.ratio_input2, pos=(4, 8))
 
 
 		# fix the layout of widgets
@@ -247,65 +283,133 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 		# Labels ---------------------------------------------------
 		self.low_input_label = wx.StaticText(self.panel, label="Low Band")
-		self.sizer.Add(self.low_input_label, pos=(1, 5))
+		self.sizer.Add(self.low_input_label, pos=(1, 6))
 
 		self.mid_input_label = wx.StaticText(self.panel, label="Mid Band")
-		self.sizer.Add(self.mid_input_label, pos=(1, 7))
+		self.sizer.Add(self.mid_input_label, pos=(1, 8))
 
 		self.high_input_label = wx.StaticText(self.panel, label="High Band")
-		self.sizer.Add(self.high_input_label, pos=(1, 9))
+		self.sizer.Add(self.high_input_label, pos=(1, 10))
 
 
 		# PRESET 5 - Bass Boost ------------------------------------
 		self.preset5_button = wx.Button(self.panel, label="Bass Boost")
 		self.Bind(wx.EVT_BUTTON, self.on_bassboost, self.preset5_button)
-		self.sizer.Add(self.preset5_button, pos=(2, 3))
+		self.sizer.Add(self.preset5_button, pos=(2, 4))
 		# enter low band field
 		self.low_input1 = wx.TextCtrl(self.panel, value="10")
 		self.low_input1.SetEditable(False)
-		self.sizer.Add(self.low_input1, pos=(2, 5))
+		self.sizer.Add(self.low_input1, pos=(2, 6))
 		# enter mid band field
 		self.mid_input1 = wx.TextCtrl(self.panel, value="0")
 		self.mid_input1.SetEditable(False)
-		self.sizer.Add(self.mid_input1, pos=(2, 7))
+		self.sizer.Add(self.mid_input1, pos=(2, 8))
 		# enter mid band field
 		self.high_input1 = wx.TextCtrl(self.panel, value="0")
 		self.high_input1.SetEditable(False)
-		self.sizer.Add(self.high_input1, pos=(2, 9))
+		self.sizer.Add(self.high_input1, pos=(2, 10))
 
 		# PRESET 6 - Mid Boost -------------------------------------
 		self.preset6_button = wx.Button(self.panel, label="Mid Boost")
 		self.Bind(wx.EVT_BUTTON, self.on_midboost, self.preset6_button)
-		self.sizer.Add(self.preset6_button, pos=(4, 3))
+		self.sizer.Add(self.preset6_button, pos=(4, 4))
 		# enter low band field
 		self.low_input2 = wx.TextCtrl(self.panel, value="0")
 		self.low_input2.SetEditable(False)
-		self.sizer.Add(self.low_input2, pos=(4, 5))
+		self.sizer.Add(self.low_input2, pos=(4, 6))
 		# enter mid band field
 		self.mid_input2 = wx.TextCtrl(self.panel, value="10")
 		self.mid_input2.SetEditable(False)
-		self.sizer.Add(self.mid_input2, pos=(4, 7))
+		self.sizer.Add(self.mid_input2, pos=(4, 8))
 		# enter mid band field
 		self.high_input2 = wx.TextCtrl(self.panel, value="0")
 		self.high_input2.SetEditable(False)
-		self.sizer.Add(self.high_input2, pos=(4, 9))
+		self.sizer.Add(self.high_input2, pos=(4, 10))
 
-		# PRESET 7 - High Boost ------------------------------------
-		self.preset7_button = wx.Button(self.panel, label="High Boost")
-		self.Bind(wx.EVT_BUTTON, self.on_midboost, self.preset7_button)
-		self.sizer.Add(self.preset7_button, pos=(4, 3))
+		# PRESET 7 - Treble Boost ------------------------------------
+		self.preset7_button = wx.Button(self.panel, label="Treble Boost")
+		self.Bind(wx.EVT_BUTTON, self.on_highboost, self.preset7_button)
+		self.sizer.Add(self.preset7_button, pos=(6, 4))
 		# enter low band field
 		self.low_input3 = wx.TextCtrl(self.panel, value="0")
 		self.low_input3.SetEditable(False)
-		self.sizer.Add(self.low_input3, pos=(4, 5))
+		self.sizer.Add(self.low_input3, pos=(6, 6))
 		# enter mid band field
 		self.mid_input3 = wx.TextCtrl(self.panel, value="0")
 		self.mid_input3.SetEditable(False)
-		self.sizer.Add(self.mid_input3, pos=(4, 7))
+		self.sizer.Add(self.mid_input3, pos=(6, 8))
 		# enter mid band field
 		self.high_input3 = wx.TextCtrl(self.panel, value="10")
 		self.high_input3.SetEditable(False)
-		self.sizer.Add(self.high_input3, pos=(4, 9))
+		self.sizer.Add(self.high_input3, pos=(6, 10))
+
+		# PRESET 8 - Bass Attenuation ------------------------------------
+		self.preset8_button = wx.Button(self.panel, label="Bass Attenuation")
+		self.Bind(wx.EVT_BUTTON, self.on_basskill, self.preset8_button)
+		self.sizer.Add(self.preset8_button, pos=(8, 4))
+		# enter low band field
+		self.low_input4 = wx.TextCtrl(self.panel, value="-10")
+		self.low_input4.SetEditable(False)
+		self.sizer.Add(self.low_input4, pos=(8, 6))
+		# enter mid band field
+		self.mid_input4 = wx.TextCtrl(self.panel, value="0")
+		self.mid_input4.SetEditable(False)
+		self.sizer.Add(self.mid_input4, pos=(8, 8))
+		# enter mid band field
+		self.high_input4 = wx.TextCtrl(self.panel, value="0")
+		self.high_input4.SetEditable(False)
+		self.sizer.Add(self.high_input4, pos=(8, 10))
+
+		# PRESET 9 - Mid Attenuation -------------------------------------
+		self.preset9_button = wx.Button(self.panel, label="Mid Attenuation")
+		self.Bind(wx.EVT_BUTTON, self.on_midkill, self.preset9_button)
+		self.sizer.Add(self.preset9_button, pos=(10, 4))
+		# enter low band field
+		self.low_input5 = wx.TextCtrl(self.panel, value="0")
+		self.low_input5.SetEditable(False)
+		self.sizer.Add(self.low_input5, pos=(10, 6))
+		# enter mid band field
+		self.mid_input5 = wx.TextCtrl(self.panel, value="-10")
+		self.mid_input5.SetEditable(False)
+		self.sizer.Add(self.mid_input5, pos=(10, 8))
+		# enter mid band field
+		self.high_input5 = wx.TextCtrl(self.panel, value="0")
+		self.high_input5.SetEditable(False)
+		self.sizer.Add(self.high_input5, pos=(10, 10))
+
+		# PRESET 10 - Treble Attenuation ------------------------------------
+		self.preset10_button = wx.Button(self.panel, label="Treble Attenuation")
+		self.Bind(wx.EVT_BUTTON, self.on_highkill, self.preset10_button)
+		self.sizer.Add(self.preset10_button, pos=(12, 4))
+		# enter low band field
+		self.low_input6 = wx.TextCtrl(self.panel, value="0")
+		self.low_input6.SetEditable(False)
+		self.sizer.Add(self.low_input6, pos=(12, 6))
+		# enter mid band field
+		self.mid_input6 = wx.TextCtrl(self.panel, value="0")
+		self.mid_input6.SetEditable(False)
+		self.sizer.Add(self.mid_input6, pos=(12, 8))
+		# enter mid band field
+		self.high_input6 = wx.TextCtrl(self.panel, value="-10")
+		self.high_input6.SetEditable(False)
+		self.sizer.Add(self.high_input6, pos=(12, 10))
+
+		# PRESET 11 - Flat Response -----------------------------------------
+		self.preset11_button = wx.Button(self.panel, label="Flat Response")
+		self.Bind(wx.EVT_BUTTON, self.on_flat, self.preset11_button)
+		self.sizer.Add(self.preset11_button, pos=(14, 4))
+		# enter low band field
+		self.low_input7 = wx.TextCtrl(self.panel, value="0")
+		self.low_input7.SetEditable(False)
+		self.sizer.Add(self.low_input7, pos=(14, 6))
+		# enter mid band field
+		self.mid_input7 = wx.TextCtrl(self.panel, value="0")
+		self.mid_input7.SetEditable(False)
+		self.sizer.Add(self.mid_input7, pos=(14, 8))
+		# enter mid band field
+		self.high_input7 = wx.TextCtrl(self.panel, value="0")
+		self.high_input7.SetEditable(False)
+		self.sizer.Add(self.high_input7, pos=(14, 10))
 
 
 		# fix the layout of widgets
@@ -313,24 +417,238 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 
 
-	# event handlers for on preset click ---------------------------------------------------
-	# DELAY PRESETS --------------------------
+	# event handlers for on preset click -------------------------------------------------------
+
+
+	# DELAY PRESETS ------------------------------------------------------
 	# preset 1 - Large Room Delay
-	def on_large_room(self):
+	def on_large_room(self, event):
+		self.selected_preset = 1
+
 		# highlight selected preset grey
 		self.time_input1.SetBackgroundColour((111, 111, 111))
 		self.gain_input1.SetBackgroundColour((111, 111, 111))
-		self.time_input2.SetBackgroundColour((0, 0, 0))
-		self.time_input2.SetBackgroundColour((0, 0, 0))
+		self.time_input2.SetBackgroundColour((255, 255, 255))
+		self.gain_input2.SetBackgroundColour((255, 255, 255))
 
 	# preset 2 - Small Room Delay
-	def on_small_room:
+	def on_small_room(self, event):
+		self.selected_preset = 2
+
 		# highlight selected preset grey
-		self.time_input1.SetBackgroundColour((0, 0, 0))
-		self.time_input1.SetBackgroundColour((0, 0, 0))
+		self.time_input1.SetBackgroundColour((255, 255, 255))
+		self.gain_input1.SetBackgroundColour((255, 255, 255))
 		self.time_input2.SetBackgroundColour((111, 111, 111))
 		self.gain_input2.SetBackgroundColour((111, 111, 111))
 
+
+	# COMPRESSOR PRESETS -------------------------------------------------
+	def on_coffee_shop(self, event):
+		self.selected_preset = 3
+
+		# highlight selected preset grey
+		self.threshold_input1.SetBackgroundColour((111, 111, 111))
+		self.ratio_input1.SetBackgroundColour((111, 111, 111))
+		self.threshold_input2.SetBackgroundColour((255, 255, 255))
+		self.ratio_input2.SetBackgroundColour((255, 255, 255))
+
+	def on_celestial(self, event):
+		self.selected_preset = 4
+
+		# highlight selected preset grey
+		self.threshold_input1.SetBackgroundColour((255, 255, 255))
+		self.ratio_input1.SetBackgroundColour((255, 255, 255))
+		self.threshold_input2.SetBackgroundColour((111, 111, 111))
+		self.ratio_input2.SetBackgroundColour((111, 111, 111))
+
+
+	# EQUALIZER PRESETS -------------------------------------------------
+	def on_bassboost(self, event):
+		self.selected_preset = 5
+
+		# highlight selected preset grey
+		self.low_input1.SetBackgroundColour((111, 111, 111))
+		self.mid_input1.SetBackgroundColour((111, 111, 111))
+		self.high_input1.SetBackgroundColour((111, 111, 111))
+		self.low_input2.SetBackgroundColour((255, 255, 255))
+		self.mid_input2.SetBackgroundColour((255, 255, 255))
+		self.high_input2.SetBackgroundColour((255, 255, 255))
+		self.low_input3.SetBackgroundColour((255, 255, 255))
+		self.mid_input3.SetBackgroundColour((255, 255, 255))
+		self.high_input3.SetBackgroundColour((255, 255, 255))
+		self.low_input4.SetBackgroundColour((255, 255, 255))
+		self.mid_input4.SetBackgroundColour((255, 255, 255))
+		self.high_input4.SetBackgroundColour((255, 255, 255))
+		self.low_input5.SetBackgroundColour((255, 255, 255))
+		self.mid_input5.SetBackgroundColour((255, 255, 255))
+		self.high_input5.SetBackgroundColour((255, 255, 255))
+		self.low_input6.SetBackgroundColour((255, 255, 255))
+		self.mid_input6.SetBackgroundColour((255, 255, 255))
+		self.high_input6.SetBackgroundColour((255, 255, 255))
+		self.low_input7.SetBackgroundColour((255, 255, 255))
+		self.mid_input7.SetBackgroundColour((255, 255, 255))
+		self.high_input7.SetBackgroundColour((255, 255, 255))
+
+	def on_midboost(self, event):
+		self.selected_preset = 6
+
+		# highlight selected preset grey
+		self.low_input1.SetBackgroundColour((255, 255, 255))
+		self.mid_input1.SetBackgroundColour((255, 255, 255))
+		self.high_input1.SetBackgroundColour((255, 255, 255))
+		self.low_input2.SetBackgroundColour((111, 111, 111))
+		self.mid_input2.SetBackgroundColour((111, 111, 111))
+		self.high_input2.SetBackgroundColour((111, 111, 111))
+		self.low_input3.SetBackgroundColour((255, 255, 255))
+		self.mid_input3.SetBackgroundColour((255, 255, 255))
+		self.high_input3.SetBackgroundColour((255, 255, 255))
+		self.low_input4.SetBackgroundColour((255, 255, 255))
+		self.mid_input4.SetBackgroundColour((255, 255, 255))
+		self.high_input4.SetBackgroundColour((255, 255, 255))
+		self.low_input5.SetBackgroundColour((255, 255, 255))
+		self.mid_input5.SetBackgroundColour((255, 255, 255))
+		self.high_input5.SetBackgroundColour((255, 255, 255))
+		self.low_input6.SetBackgroundColour((255, 255, 255))
+		self.mid_input6.SetBackgroundColour((255, 255, 255))
+		self.high_input6.SetBackgroundColour((255, 255, 255))
+		self.low_input7.SetBackgroundColour((255, 255, 255))
+		self.mid_input7.SetBackgroundColour((255, 255, 255))
+		self.high_input7.SetBackgroundColour((255, 255, 255))
+
+	def on_highboost(self, event):
+		self.selected_preset = 7
+
+		# highlight selected preset grey
+		self.low_input1.SetBackgroundColour((255, 255, 255))
+		self.mid_input1.SetBackgroundColour((255, 255, 255))
+		self.high_input1.SetBackgroundColour((255, 255, 255))
+		self.low_input2.SetBackgroundColour((255, 255, 255))
+		self.mid_input2.SetBackgroundColour((255, 255, 255))
+		self.high_input2.SetBackgroundColour((255, 255, 255))
+		self.low_input3.SetBackgroundColour((111, 111, 111))
+		self.mid_input3.SetBackgroundColour((111, 111, 111))
+		self.high_input3.SetBackgroundColour((111, 111, 111))
+		self.low_input4.SetBackgroundColour((255, 255, 255))
+		self.mid_input4.SetBackgroundColour((255, 255, 255))
+		self.high_input4.SetBackgroundColour((255, 255, 255))
+		self.low_input5.SetBackgroundColour((255, 255, 255))
+		self.mid_input5.SetBackgroundColour((255, 255, 255))
+		self.high_input5.SetBackgroundColour((255, 255, 255))
+		self.low_input6.SetBackgroundColour((255, 255, 255))
+		self.mid_input6.SetBackgroundColour((255, 255, 255))
+		self.high_input6.SetBackgroundColour((255, 255, 255))
+		self.low_input7.SetBackgroundColour((255, 255, 255))
+		self.mid_input7.SetBackgroundColour((255, 255, 255))
+		self.high_input7.SetBackgroundColour((255, 255, 255))
+
+
+	def on_basskill(self, event):
+		self.selected_preset = 8
+
+		# highlight selected preset grey
+		self.low_input1.SetBackgroundColour((255, 255, 255))
+		self.mid_input1.SetBackgroundColour((255, 255, 255))
+		self.high_input1.SetBackgroundColour((255, 255, 255))
+		self.low_input2.SetBackgroundColour((255, 255, 255))
+		self.mid_input2.SetBackgroundColour((255, 255, 255))
+		self.high_input2.SetBackgroundColour((255, 255, 255))
+		self.low_input3.SetBackgroundColour((255, 255, 255))
+		self.mid_input3.SetBackgroundColour((255, 255, 255))
+		self.high_input3.SetBackgroundColour((255, 255, 255))
+		self.low_input4.SetBackgroundColour((111, 111, 111))
+		self.mid_input4.SetBackgroundColour((111, 111, 111))
+		self.high_input4.SetBackgroundColour((111, 111, 111))
+		self.low_input5.SetBackgroundColour((255, 255, 255))
+		self.mid_input5.SetBackgroundColour((255, 255, 255))
+		self.high_input5.SetBackgroundColour((255, 255, 255))
+		self.low_input6.SetBackgroundColour((255, 255, 255))
+		self.mid_input6.SetBackgroundColour((255, 255, 255))
+		self.high_input6.SetBackgroundColour((255, 255, 255))
+		self.low_input7.SetBackgroundColour((255, 255, 255))
+		self.mid_input7.SetBackgroundColour((255, 255, 255))
+		self.high_input7.SetBackgroundColour((255, 255, 255))
+
+
+	def on_midkill(self, event):
+		self.selected_preset = 9
+
+		# highlight selected preset grey
+		self.low_input1.SetBackgroundColour((255, 255, 255))
+		self.mid_input1.SetBackgroundColour((255, 255, 255))
+		self.high_input1.SetBackgroundColour((255, 255, 255))
+		self.low_input2.SetBackgroundColour((255, 255, 255))
+		self.mid_input2.SetBackgroundColour((255, 255, 255))
+		self.high_input2.SetBackgroundColour((255, 255, 255))
+		self.low_input3.SetBackgroundColour((255, 255, 255))
+		self.mid_input3.SetBackgroundColour((255, 255, 255))
+		self.high_input3.SetBackgroundColour((255, 255, 255))
+		self.low_input4.SetBackgroundColour((255, 255, 255))
+		self.mid_input4.SetBackgroundColour((255, 255, 255))
+		self.high_input4.SetBackgroundColour((255, 255, 255))
+		self.low_input5.SetBackgroundColour((111, 111, 111))
+		self.mid_input5.SetBackgroundColour((111, 111, 111))
+		self.high_input5.SetBackgroundColour((111, 111, 111))
+		self.low_input6.SetBackgroundColour((255, 255, 255))
+		self.mid_input6.SetBackgroundColour((255, 255, 255))
+		self.high_input6.SetBackgroundColour((255, 255, 255))
+		self.low_input7.SetBackgroundColour((255, 255, 255))
+		self.mid_input7.SetBackgroundColour((255, 255, 255))
+		self.high_input7.SetBackgroundColour((255, 255, 255))
+
+
+	def on_highkill(self, event):
+		self.selected_preset = 10
+
+		# highlight selected preset grey
+		self.low_input1.SetBackgroundColour((255, 255, 255))
+		self.mid_input1.SetBackgroundColour((255, 255, 255))
+		self.high_input1.SetBackgroundColour((255, 255, 255))
+		self.low_input2.SetBackgroundColour((255, 255, 255))
+		self.mid_input2.SetBackgroundColour((255, 255, 255))
+		self.high_input2.SetBackgroundColour((255, 255, 255))
+		self.low_input3.SetBackgroundColour((255, 255, 255))
+		self.mid_input3.SetBackgroundColour((255, 255, 255))
+		self.high_input3.SetBackgroundColour((255, 255, 255))
+		self.low_input4.SetBackgroundColour((255, 255, 255))
+		self.mid_input4.SetBackgroundColour((255, 255, 255))
+		self.high_input4.SetBackgroundColour((255, 255, 255))
+		self.low_input5.SetBackgroundColour((255, 255, 255))
+		self.mid_input5.SetBackgroundColour((255, 255, 255))
+		self.high_input5.SetBackgroundColour((255, 255, 255))
+		self.low_input6.SetBackgroundColour((111, 111, 111))
+		self.mid_input6.SetBackgroundColour((111, 111, 111))
+		self.high_input6.SetBackgroundColour((111, 111, 111))
+		self.low_input7.SetBackgroundColour((255, 255, 255))
+		self.mid_input7.SetBackgroundColour((255, 255, 255))
+		self.high_input7.SetBackgroundColour((255, 255, 255))
+
+
+
+	def on_flat(self, event):
+		self.selected_preset = 11
+
+		# highlight selected preset grey
+		self.low_input1.SetBackgroundColour((255, 255, 255))
+		self.mid_input1.SetBackgroundColour((255, 255, 255))
+		self.high_input1.SetBackgroundColour((255, 255, 255))
+		self.low_input2.SetBackgroundColour((255, 255, 255))
+		self.mid_input2.SetBackgroundColour((255, 255, 255))
+		self.high_input2.SetBackgroundColour((255, 255, 255))
+		self.low_input3.SetBackgroundColour((255, 255, 255))
+		self.mid_input3.SetBackgroundColour((255, 255, 255))
+		self.high_input3.SetBackgroundColour((255, 255, 255))
+		self.low_input4.SetBackgroundColour((255, 255, 255))
+		self.mid_input4.SetBackgroundColour((255, 255, 255))
+		self.high_input4.SetBackgroundColour((255, 255, 255))
+		self.low_input5.SetBackgroundColour((255, 255, 255))
+		self.mid_input5.SetBackgroundColour((255, 255, 255))
+		self.high_input5.SetBackgroundColour((255, 255, 255))
+		self.low_input6.SetBackgroundColour((255, 255, 255))
+		self.mid_input6.SetBackgroundColour((255, 255, 255))
+		self.high_input6.SetBackgroundColour((255, 255, 255))
+		self.low_input7.SetBackgroundColour((111, 111, 111))
+		self.mid_input7.SetBackgroundColour((111, 111, 111))
+		self.high_input7.SetBackgroundColour((111, 111, 111))
 
 
 
@@ -368,6 +686,20 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 				else: 
 					# highest amount of delay is 0.5 (255 for an 8bit value), put in output buffer
 					self.output[1] = int(self.delay_time * (2.0 * 255.0))
+
+				# gain of delayed signal
+				try:
+					self.delay_gain = float(self.gain_input1.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.delay_gain > 1 or self.delay_gain < 0:
+					self.error()
+					return
+				else:
+					# highest amount of gain is 1 (255), put in output buffer
+					self.output[2] = int(self.delay_gain * 255.0)
+
 			elif self.selected_preset == 2:
 				# amount of delay in seconds
 				try:
@@ -380,87 +712,331 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 					return
 				else: 
 					# highest amount of delay is 0.5 (255 for an 8bit value), put in output buffer
-					self.output[1] = int(self.delay_time * (2.0 * 255.0))			
+					self.output[1] = int(self.delay_time * (2.0 * 255.0))
 
-			# gain of delayed signal
-			try:
-				self.delay_gain = float(self.gain_input.GetValue())
-			except ValueError:
-				self.error()
-				return
-			if self.delay_gain > 1 or self.delay_gain < 0:
-				self.error()
-				return
-			else:
-				# highest amount of gain is 1 (255), put in output buffer
-				self.output[2] = int(self.delay_gain * 255.0)
+				# gain of delayed signal
+				try:
+					self.delay_gain = float(self.gain_input2.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.delay_gain > 1 or self.delay_gain < 0:
+					self.error()
+					return
+				else:
+					# highest amount of gain is 1 (255), put in output buffer
+					self.output[2] = int(self.delay_gain * 255.0)
+
+
 
 		elif self.selected_effect == 2:
 			# put compressor as selected effect in the output buffer
 			self.output[0] = 2
-			# threshold val
-			try:
-				self.threshold = float(self.threshold_input.GetValue())
-			except ValueError:
-				self.error()
-				return
-			if self.threshold > 6:
-				self.error()
-				return
-			else:
-				# adding 200 will make sure there is no neg val, put in output buffer
-				self.output[1] = self.threshold + 200
 
-			# ratio val
-			try:
-				self.ratio = float(self.ratio_input.GetValue())
-			except ValueError:
-				self.error()
-				return
-			if self.ratio < 1 or self.ratio > 254:
-				self.error()
-				return
-			else:
-				# put ratio in output buffer, no mapping needed
-				self.output[2] = self.ratio
+			if self.selected_preset == 3:
+				# threshold val
+				try:
+					self.threshold = float(self.threshold_input1.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.threshold > 6:
+					self.error()
+					return
+				else:
+					# adding 200 will make sure there is no neg val, put in output buffer
+					self.output[1] = self.threshold + 200
+
+				# ratio val
+				try:
+					self.ratio = float(self.ratio_input1.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.ratio < 1 or self.ratio > 254:
+					self.error()
+					return
+				else:
+					# put ratio in output buffer, no mapping needed
+					self.output[2] = self.ratio
+
+
+			elif self.selected_preset == 4:
+				# threshold val
+				try:
+					self.threshold = float(self.threshold_input2.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.threshold > 6:
+					self.error()
+					return
+				else:
+					# adding 200 will make sure there is no neg val, put in output buffer
+					self.output[1] = self.threshold + 200
+
+				# ratio val
+				try:
+					self.ratio = float(self.ratio_input2.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.ratio < 1 or self.ratio > 254:
+					self.error()
+					return
+				else:
+					# put ratio in output buffer, no mapping needed
+					self.output[2] = self.ratio
+
 
 		elif self.selected_effect == 3:
 			# put eq as selected effect in the output buffer
 			self.output[0] = 3
 
-			# band gain vals
-			try:
-				self.low = float(self.low_input.GetValue())
-			except ValueError:
-				self.error()
-				return
-			if self.low > 10 or self.low < -10:
-				self.error()
-				return
-			else:
-				self.output[1] = self.low + 10
+			if self.selected_preset == 5:
+				# band gain vals
+				try:
+					self.low = float(self.low_input1.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.low > 10 or self.low < -10:
+					self.error()
+					return
+				else:
+					self.output[1] = self.low + 10
 
-			try:
-				self.mid = float(self.mid_input.GetValue())
-			except ValueError:
-				self.error()
-				return
-			if self.mid > 10 or self.mid < -10:
-				self.error()
-				return
-			else:
-				self.output[2] = self.mid + 10
+				try:
+					self.mid = float(self.mid_input1.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.mid > 10 or self.mid < -10:
+					self.error()
+					return
+				else:
+					self.output[2] = self.mid + 10
 
-			try:
-				self.high = float(self.high_input.GetValue())
-			except ValueError:
-				self.error()
-				return
-			if self.high > 10 or self.high < -10:
-				self.error()
-				return
-			else:
-				self.output[3] = self.high + 10
+				try:
+					self.high = float(self.high_input1.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.high > 10 or self.high < -10:
+					self.error()
+					return
+				else:
+					self.output[3] = self.high + 10
+
+			elif self.selected_preset == 6:
+				# band gain vals
+				try:
+					self.low = float(self.low_input2.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.low > 10 or self.low < -10:
+					self.error()
+					return
+				else:
+					self.output[1] = self.low + 10
+
+				try:
+					self.mid = float(self.mid_input2.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.mid > 10 or self.mid < -10:
+					self.error()
+					return
+				else:
+					self.output[2] = self.mid + 10
+
+				try:
+					self.high = float(self.high_input2.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.high > 10 or self.high < -10:
+					self.error()
+					return
+				else:
+					self.output[3] = self.high + 10
+
+			elif self.selected_preset == 7:
+				# band gain vals
+				try:
+					self.low = float(self.low_input3.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.low > 10 or self.low < -10:
+					self.error()
+					return
+				else:
+					self.output[1] = self.low + 10
+
+				try:
+					self.mid = float(self.mid_input3.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.mid > 10 or self.mid < -10:
+					self.error()
+					return
+				else:
+					self.output[2] = self.mid + 10
+
+				try:
+					self.high = float(self.high_input3.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.high > 10 or self.high < -10:
+					self.error()
+					return
+				else:
+					self.output[3] = self.high + 10
+
+			elif self.selected_preset == 8:
+				# band gain vals
+				try:
+					self.low = float(self.low_input4.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.low > 10 or self.low < -10:
+					self.error()
+					return
+				else:
+					self.output[1] = self.low + 10
+
+				try:
+					self.mid = float(self.mid_input4.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.mid > 10 or self.mid < -10:
+					self.error()
+					return
+				else:
+					self.output[2] = self.mid + 10
+
+				try:
+					self.high = float(self.high_input4.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.high > 10 or self.high < -10:
+					self.error()
+					return
+				else:
+					self.output[3] = self.high + 10
+
+			elif self.selected_preset == 9:
+				# band gain vals
+				try:
+					self.low = float(self.low_input5.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.low > 10 or self.low < -10:
+					self.error()
+					return
+				else:
+					self.output[1] = self.low + 10
+
+				try:
+					self.mid = float(self.mid_input5.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.mid > 10 or self.mid < -10:
+					self.error()
+					return
+				else:
+					self.output[2] = self.mid + 10
+
+				try:
+					self.high = float(self.high_input5.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.high > 10 or self.high < -10:
+					self.error()
+					return
+				else:
+					self.output[3] = self.high + 10
+
+			elif self.selected_preset == 10:
+				# band gain vals
+				try:
+					self.low = float(self.low_input6.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.low > 10 or self.low < -10:
+					self.error()
+					return
+				else:
+					self.output[1] = self.low + 10
+
+				try:
+					self.mid = float(self.mid_input6.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.mid > 10 or self.mid < -10:
+					self.error()
+					return
+				else:
+					self.output[2] = self.mid + 10
+
+				try:
+					self.high = float(self.high_input6.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.high > 10 or self.high < -10:
+					self.error()
+					return
+				else:
+					self.output[3] = self.high + 10
+
+			elif self.selected_preset == 11:
+				# band gain vals
+				try:
+					self.low = float(self.low_input7.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.low > 10 or self.low < -10:
+					self.error()
+					return
+				else:
+					self.output[1] = self.low + 10
+
+				try:
+					self.mid = float(self.mid_input7.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.mid > 10 or self.mid < -10:
+					self.error()
+					return
+				else:
+					self.output[2] = self.mid + 10
+
+				try:
+					self.high = float(self.high_input7.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.high > 10 or self.high < -10:
+					self.error()
+					return
+				else:
+					self.output[3] = self.high + 10
 
 
 		# count how many times we have submitted params so we can determine if we need to kill the running process before running again
@@ -470,7 +1046,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		# OUTPUT > --------------------------------------------------------------------------------
 
 		# console ------------------------------------------------------
-		
+	
 		print self.output
 
 
@@ -488,18 +1064,12 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		call(self.command, shell=True)
 
 
-		# serial terminal to stm32f407-discovery/dsp effects ------------
+		# send_effect.c ------------------------------------------------
 
-		# ser = serial.Serial('/dev/ttyUSB0', 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE)
-		# convert output buf to string with no spaces?
-		# ser.write(self.output)
-
-
-		# RPi gpio -> Xbee Digital I/O
 		if(self.count > 1):
 			call(["sudo killall send_effect"], shell=True)
 
-		self.command2 = ["sudo ./send_effect {} &".format(str(self.selected_effect))]
+		self.command2 = ["sudo ./send_effect {} {} &".format(str(self.selected_effect), str(self.selected_preset))]
 		call(self.command2, shell=True)
 			
 

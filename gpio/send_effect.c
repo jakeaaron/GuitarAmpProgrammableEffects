@@ -36,6 +36,24 @@
 #define SET_DIRECTION_GPIO6 "/sys/class/gpio/gpio6/direction"
 #define SET_VALUE_GPIO6 "/sys/class/gpio/gpio6/value"
 
+#define SET_DIRECTION_GPIO13 "/sys/class/gpio/gpio13/direction"
+#define SET_VALUE_GPIO13 "/sys/class/gpio/gpio13/value"
+
+#define SET_DIRECTION_GPIO19 "/sys/class/gpio/gpio19/direction"
+#define SET_VALUE_GPIO19 "/sys/class/gpio/gpio19/value"
+
+#define SET_DIRECTION_GPIO26 "/sys/class/gpio/gpio26/direction"
+#define SET_VALUE_GPIO26 "/sys/class/gpio/gpio26/value"
+
+#define SET_DIRECTION_GPIO16 "/sys/class/gpio/gpio16/direction"
+#define SET_VALUE_GPIO16 "/sys/class/gpio/gpio16/value"
+
+#define SET_DIRECTION_GPIO20 "/sys/class/gpio/gpio20/direction"
+#define SET_VALUE_GPIO20 "/sys/class/gpio/gpio20/value"
+
+#define SET_DIRECTION_GPIO21 "/sys/class/gpio/gpio21/direction"
+#define SET_VALUE_GPIO21 "/sys/class/gpio/gpio21/value"
+
 // ---------------------------------------------------------
 
 // FUNCTION PROTOTYPES -------------------------------------
@@ -89,13 +107,24 @@ int init_gpio(void) {
  * 	------------------
  * 	gpio 5		PD0
  * 	gpio 6		PD1
+ * 	------------------
+ * 	
+ * 	preset selection
+ * 	------------------
+ * 	gpio 13		PD2
+ * 	gpio 19		PD3
+ * 	gpio 26		PD4
+ * 	gpio 16		PD5
+ * 	gpio 20		PD6
+ * 	gpio 21		PD7
+ * 	
  */
 
 
 // valid send bit --------------------------------------------------------------
 // when this is set, the stm board knows that it is ready to read the other pins
 
-	// gpio25 - DI/O7 ----------------------------------------------
+	// gpio25 - PB3 ----------------------------------------------
 	// enable gpio 25 and close the file
 	if(write_to_file(ENABLE_GPIO_FILE, "25")) {
 		perror("could not enable gpio25");
@@ -117,7 +146,7 @@ int init_gpio(void) {
 
 // effect selection bits -------------------------------------------------------
 
-	// gpio5 - DI/O1 ----------------------------------------------
+	// gpio5 - PD0 ----------------------------------------------
 	// enable gpio 5 and close the file
 	if(write_to_file(ENABLE_GPIO_FILE, "5")) {
 		perror("could not enable gpio5");
@@ -136,7 +165,7 @@ int init_gpio(void) {
 		return 1;
 	}
 
- 	// gpio6 - DI/O0 ----------------------------------------------
+ 	// gpio6 - PD1 ----------------------------------------------
 	// enable gpio6 and close the file
 	if(write_to_file(ENABLE_GPIO_FILE, "6")) {
 		perror("could not enable gpio6");
@@ -156,6 +185,128 @@ int init_gpio(void) {
 	}
 
 
+// preset selection bits -------------------------------------------------------
+
+
+	// gpio13 - PD2 ----------------------------------------------
+	// enable gpio 13 and close the file
+	if(write_to_file(ENABLE_GPIO_FILE, "13")) {
+		perror("could not enable gpio13");
+		return 1;
+	}
+
+	// make gpio13 an output and close the file
+	if(write_to_file(SET_DIRECTION_GPIO13, "out")) {
+		perror("could not make gpio13 an output");
+		return 1;
+	}
+
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO13, "0")) {
+		perror("could not set gpio13 low");
+		return 1;
+	}
+
+
+	// gpio19 - PD3 ----------------------------------------------
+	// enable gpio 19 and close the file
+	if(write_to_file(ENABLE_GPIO_FILE, "19")) {
+		perror("could not enable gpio19");
+		return 1;
+	}
+
+	// make gpio19 an output and close the file
+	if(write_to_file(SET_DIRECTION_GPIO19, "out")) {
+		perror("could not make gpio19 an output");
+		return 1;
+	}
+
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO19, "0")) {
+		perror("could not set gpio19 low");
+		return 1;
+	}
+
+
+	// gpio26 - PD4 ----------------------------------------------
+	// enable gpio 26 and close the file
+	if(write_to_file(ENABLE_GPIO_FILE, "26")) {
+		perror("could not enable gpio26");
+		return 1;
+	}
+
+	// make gpio26 an output and close the file
+	if(write_to_file(SET_DIRECTION_GPIO26, "out")) {
+		perror("could not make gpio26 an output");
+		return 1;
+	}
+
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO26, "0")) {
+		perror("could not set gpio26 low");
+		return 1;
+	}
+
+
+	// gpio16 - PD5 ----------------------------------------------
+	// enable gpio 16 and close the file
+	if(write_to_file(ENABLE_GPIO_FILE, "16")) {
+		perror("could not enable gpio16");
+		return 1;
+	}
+
+	// make gpio16 an output and close the file
+	if(write_to_file(SET_DIRECTION_GPIO16, "out")) {
+		perror("could not make gpio16 an output");
+		return 1;
+	}
+
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO16, "0")) {
+		perror("could not set gpio16 low");
+		return 1;
+	}
+
+
+	// gpio20 - PD6 ----------------------------------------------
+	// enable gpio 20 and close the file
+	if(write_to_file(ENABLE_GPIO_FILE, "20")) {
+		perror("could not enable gpio20");
+		return 1;
+	}
+
+	// make gpio20 an output and close the file
+	if(write_to_file(SET_DIRECTION_GPIO20, "out")) {
+		perror("could not make gpio20 an output");
+		return 1;
+	}
+
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO20, "0")) {
+		perror("could not set gpio20 low");
+		return 1;
+	}
+
+	// gpio21 - PD7 ----------------------------------------------
+	// enable gpio 21 and close the file
+	if(write_to_file(ENABLE_GPIO_FILE, "21")) {
+		perror("could not enable gpio21");
+		return 1;
+	}
+
+	// make gpio21 an output and close the file
+	if(write_to_file(SET_DIRECTION_GPIO21, "out")) {
+		perror("could not make gpio21 an output");
+		return 1;
+	}
+
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO21, "0")) {
+		perror("could not set gpio21 low");
+		return 1;
+	}
+
+
 	return 0;
 }
 
@@ -170,63 +321,227 @@ int init_gpio(void) {
 int send_effect(char ** argv) {
 
 	/**
+	 * 	-----------------------
+	 * 	PB3
 	 *	GPIO25			valid
 	 *	-----------------------
 	 *	0				no
 	 *	1				yes
 	 *	
 	 *	
+	 *	-----------------------
+	 *	PD1		PD0			  
 	 *	GPIO6	GPIO5	effect
 	 *	-----------------------
 	 *	0		1		delay
 	 *	1		0		compressor
 	 *	1		1		equalizer
-	 *	-----------------------
+	 *	
+	 *	
+	 *					GPIO21	GPIO20	GPIO16	GPIO26	GPIO19	GPIO13
+	 *	Preset	Effect	PD7		PD6		PD5		PD4		PD3		PD2	
+	 *	-----------------------------------------------------------
+	 *	1		Delay	0		0		0		0		0		1
+	 *	2		Delay	0		0		0		0		1		0
+	 *	
+	 *	3		Comp	0		0		0		0		0		1
+	 *	4		Comp	0		0		0		0		1		0
+	 *	
+	 *	5		EQ		0		0		0		0		0		1
+	 *	6		EQ		0		0		0		0		1		0
+	 *	7		EQ		0		0		0		1		0		0
+	 *	8		EQ		0		0		1		0		0		0
+	 *	9		EQ		0		1		0		0		0		0
+	 *	10		EQ		1		0		0		0		0		0
+	 *	11		EQ		0		0		0		0		1		1
+	 *	
 	 *	
 	 */
 
  	int effect = atoi(argv[1]);
+ 	int preset = atoi(argv[2]);
 
 	// set gpio for effect selection ------------------------------------------
-	if(effect == 1) {			// delay
-		// gpio5 - 1
-		if(write_to_file(SET_VALUE_GPIO5, "1")) {
-			perror("could not set gpio5 high");
-			return 1;
-		}
+	switch(effect) {	
+		case 1:		// delay
+			// set effect selection bits ---------------------
+			// gpio5 - 1
+			if(write_to_file(SET_VALUE_GPIO5, "1")) {
+				perror("could not set gpio5 high");
+				return 1;
+			}
 
-		// gpio6 - 0
-		if(write_to_file(SET_VALUE_GPIO6, "0")) {
-			perror("could not set gpio6 low");
-			return 1;		
-		}
-	} else if(effect == 2) {	// compressor									
-		// gpio5 - 0
-		if(write_to_file(SET_VALUE_GPIO5, "0")) {
-			perror("could not set gpio5 low");
-			return 1;
-		}
+			// gpio6 - 0
+			if(write_to_file(SET_VALUE_GPIO6, "0")) {
+				perror("could not set gpio6 low");
+				return 1;		
+			}
 
-		// gpio6 - 1
-		if(write_to_file(SET_VALUE_GPIO6, "1")) {
-			perror("could not set gpio6 high");
-			return 1;		
-		}
-	} else if(effect == 3) {	// equalizer
-		// gpio5 - 1
-		if(write_to_file(SET_VALUE_GPIO5, "1")) {
-			perror("could not set gpio5 high");
-			return 1;
-		}
+			// set preset selection bits ---------------------
+			switch(preset) {
+				case 1:		// preset 1 - Large Room
+					if(write_to_file(SET_VALUE_GPIO13, "1")) {
+						perror("could not set gpio13 high");
+						return 1;
+					}
 
-		// gpio6 - 1
-		if(write_to_file(SET_VALUE_GPIO6, "1")) {
-			perror("could not set gpio6 high");
-			return 1;		
-		}
-	} else {
-		perror("invalid effect selection");
-		return 1;
+					break;
+
+				case 2:		// preset 2 - Small Room
+					if(write_to_file(SET_VALUE_GPIO19, "1")) {
+						perror("could not set gpio19 high");
+						return 1;
+					}
+
+					break;
+
+
+				default:	// error
+					perror("invalid preset selection for delay");
+					return 1; 
+			}
+
+
+			break;
+
+
+		case 2:		// compressor	
+			// set effect selection bits ---------------------------------- 
+			// gpio5 - 0
+			if(write_to_file(SET_VALUE_GPIO5, "0")) {
+				perror("could not set gpio5 low");
+				return 1;
+			}
+
+			// gpio6 - 1
+			if(write_to_file(SET_VALUE_GPIO6, "1")) {
+				perror("could not set gpio6 high");
+				return 1;		
+			}
+
+			// set preset selection bits ----------------------------------
+			switch(preset) {
+				case 3:		// preset 3 - Coffee Shop
+					if(write_to_file(SET_VALUE_GPIO13, "1")) {
+						perror("could not set gpio13 high");
+						return 1;
+					}
+
+					break;
+
+				case 4:		// preset 4 - Celestial Immolation
+					if(write_to_file(SET_VALUE_GPIO19, "1")) {
+						perror("could not set gpio19 high");
+						return 1;
+					}
+
+					break;
+
+
+				default:	// error
+					perror("invalid preset selection for compressor");
+					return 1; 
+
+			}
+
+			break;
+
+
+		case 3:		// equalizer
+			// set effect selection bit --------------------------
+			// gpio5 - 1
+			if(write_to_file(SET_VALUE_GPIO5, "1")) {
+				perror("could not set gpio5 high");
+				return 1;
+			}
+
+			// gpio6 - 1
+			if(write_to_file(SET_VALUE_GPIO6, "1")) {
+				perror("could not set gpio6 high");
+				return 1;		
+			}
+
+			// set preset selection bits -------------------------
+			switch(preset) {
+				case 5:			// bass boost
+					if(write_to_file(SET_VALUE_GPIO13, "1")) {
+						perror("could not set gpio13 high");
+						return 1;
+					}
+
+					break;
+
+				case 6:			// mid boost
+					if(write_to_file(SET_VALUE_GPIO19, "1")) {
+						perror("could not set gpio19 high");
+						return 1;
+					}
+
+					break;
+
+				case 7:			// treble boost
+					if(write_to_file(SET_VALUE_GPIO26, "1")) {
+						perror("could not set gpio26 high");
+						return 1;
+					}
+
+					break;
+
+				case 8:			// bass attenuation
+					if(write_to_file(SET_VALUE_GPIO16, "1")) {
+						perror("could not set gpio16 high");
+						return 1;
+					}
+
+					break;
+
+				case 9:			// mid attenuation
+					if(write_to_file(SET_VALUE_GPIO20, "1")) {
+						perror("could not set gpio20 high");
+						return 1;
+					}
+
+					break;
+
+				case 10:		// treble attenuation
+					if(write_to_file(SET_VALUE_GPIO21, "1")) {
+						perror("could not set gpio21 high");
+						return 1;
+					}
+
+					break;
+
+				case 11:		// flat response
+					if(write_to_file(SET_VALUE_GPIO13, "1")) {
+						perror("could not set gpio13 high");
+						return 1;
+					}
+
+					// gpio6 - 1
+					if(write_to_file(SET_VALUE_GPIO19, "1")) {
+						perror("could not set gpio19 high");
+						return 1;		
+					}
+
+					break;
+
+
+				default:
+
+					perror("invalid preset selection for equalizer");
+					return 1;
+			}
+
+
+			break;
+
+
+		default:
+			perror("invalid effect selection");
+			return 1;
+
+			break;
+
 	}
 
 
