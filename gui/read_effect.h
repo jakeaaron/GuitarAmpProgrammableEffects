@@ -17,10 +17,10 @@
 
 
  typedef struct effect {
- 	int * pin_states;
- 	int * effect_params;
- 	int preset;
- 	int effect;
+ 	int * pin_states;		// buffer containing the state of each PD pin (pin_states[0] -> PD0)
+ 	int * effect_params;	// buffer containing the values to set for the selected effect
+ 	int preset;				// contains the preset value from the gui (1 - 11)
+ 	int effect;				// 1 = delay, 2 = compressor, 3 = equalizer
  } FX_T;
 
 
@@ -41,6 +41,11 @@ void read_gpio(
 
 
 void read_effect(
+		FX_T * F
+	);
+
+
+void free_fx(
 		FX_T * F
 	);
 

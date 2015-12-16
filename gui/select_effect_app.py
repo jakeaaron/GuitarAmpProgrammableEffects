@@ -250,7 +250,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.Bind(wx.EVT_BUTTON, self.on_coffee_shop, self.preset3_button)
 		self.sizer.Add(self.preset3_button, pos=(2, 4))
 		# enter threshold field
-		self.threshold_input1 = wx.TextCtrl(self.panel, value="-12")
+		self.threshold_input1 = wx.TextCtrl(self.panel, value="-10")
 		self.threshold_input1.SetEditable(False)
 		self.sizer.Add(self.threshold_input1, pos=(2, 6))
 		# enter ratio field
@@ -1066,10 +1066,10 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 		# send_effect.c ------------------------------------------------
 
-		if(self.count > 1):
-			call(["sudo killall send_effect"], shell=True)
+		print self.selected_effect 
+		print self.selected_preset
 
-		self.command2 = ["sudo ./send_effect {} {} &".format(str(self.selected_effect), str(self.selected_preset))]
+		self.command2 = ["sudo ./send_effect {} {}".format(str(self.selected_effect), str(self.selected_preset))]
 		call(self.command2, shell=True)
 			
 

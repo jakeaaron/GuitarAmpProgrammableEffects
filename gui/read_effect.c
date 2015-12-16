@@ -24,12 +24,6 @@
 
 #include "read_effect.h"
 
-// PRIVATE FUNCTION PROTOTYPES -----------------
-
-
-// ---------------------------------------------
-
-
 
 
 
@@ -38,16 +32,14 @@
 	int i, j;
 
 	FX_T * F = (FX_T *)malloc(sizeof(FX_T));
-
-	F->effect = 0;
-	F->pin_states = (int *)malloc(sizeof(int) * 8);		// state of 8 PD pins
-	F->effect_params = (int *)malloc(sizeof(int) * 3);	// values to set in main program
+	F->pin_states = (int *)malloc(sizeof(int) * 8);
+	F->effect_params = (int *)malloc(sizeof(int) * 3);
 	if(F->pin_states == NULL || F->effect_params == NULL) {
-		BSP_LED_Toggle(ERROR_LED);
-		while(1);
+		return NULL;
 	}
-	for(i = 0; i < 8; i++) F->pin_states[i] = 0;	
-	for(j = 0; j < 3; j++) F->pin_states[j] = 0;
+	F->effect = 0;
+	for(i = 0; i < 8; i++) F->pin_states[i] = 0;	// state of 8 PD pins	
+	for(j = 0; j < 3; j++) F->effect_params[j] = 0;	// values to set in main program
 
 
 	// initialize LEDs for waiting for valid send
@@ -98,6 +90,12 @@ void init_gpio(void) {
 }
 
 
+/**
+ * @brief [read the state of each gpio pin and place the values in the F->pin_states buffer]
+ * @details [this is used to determine which effect and which preset has been selected from the gui]
+ * 
+ * @param F [pointer to effect structure]
+ */
 void read_gpio(FX_T * F) {
 /**
  * /// GPIO MAPPING ///
@@ -253,9 +251,14 @@ void read_effect(FX_T * F) {
 		case 2:		// compressor	
 			if(F->pin_states[2] == 1 && F->pin_states[3] == 0) {		// preset 3 - Coffee Shop
 				F->preset = 3;
-				// compressor
+				// compressor { threshold, ratio }
+				F->effect_params[0] = -10;
+				F->effect_params[1] = 2;
 			} else if(F->pin_states[2] == 0 && F->pin_states[3] == 1) {	// preset 4 - Celestial Immolation
 				F->preset = 4;
+				// compressor { threshold, ratio }
+				F->effect_params[0] = -2;
+				F->effect_params[1] = 9;
 			} else {
 				BSP_LED_Toggle(ERROR_LED);
 				while(1);
@@ -267,18 +270,40 @@ void read_effect(FX_T * F) {
 		case 3:		// equalizer
 			if(F->pin_states[2] == 1 && F->pin_states[3] == 0) {		// preset 5 -  Bass Boost
 				F->preset = 5;
+				// equalizer { low band, mid band, high band }
+				F->effect_params[0] = 10;
+				F->effect_params[1] = 0;
+				F->effect_params[2] = 0;
 			} else if(F->pin_states[3] == 1) {							// preset 6 - Mid Boost
 				F->preset = 6;
+				F->effect_params[0] = 0;
+				F->effect_params[1] = 10;
+				F->effect_params[2] = 0;				
 			} else if(F->pin_states[4] == 1) {							// preset 7 - Treble Boost
 				F->preset = 7;
+				F->effect_params[0] = 0;
+				F->effect_params[1] = 0;
+				F->effect_params[2] = 10;
 			} else if(F->pin_states[5] == 1) {							// preset 8 - Bass Attenuation
 				F->preset = 8;
+				F->effect_params[0] = -10;
+				F->effect_params[1] = 0;
+				F->effect_params[2] = 0;
 			} else if(F->pin_states[6] == 1) {							// preset 9 - Mid Attenuation
 				F->preset = 9;
+				F->effect_params[0] = 0;
+				F->effect_params[1] = -10;
+				F->effect_params[2] = 0;
 			} else if(F->pin_states[7] == 1) {							// preset 10 - Treble Attenuation
 				F->preset = 10;
+				F->effect_params[0] = 0;
+				F->effect_params[1] = 0;
+				F->effect_params[2] = -10;
 			} else if(F->pin_states[2] == 1 && F->pin_states[3] == 1) {	// preset 11 - Flat Response
 				F->preset = 11;
+				F->effect_params[0] = 0;
+				F->effect_params[1] = 0;
+				F->effect_params[2] = 0;
 			} else {
 				BSP_LED_Toggle(ERROR_LED);
 				while(1);
@@ -296,3 +321,14 @@ void read_effect(FX_T * F) {
 }
 
 
+/**
+ * @brief [free memory allocated for FX_T]
+ * 
+ * @param F [pointer to struct]
+ */
+void free_fx(FX_T * F) {
+  // free memory allocated for struct
+  free(F);
+  // NULL pointer for safety
+  F = NULL;
+}

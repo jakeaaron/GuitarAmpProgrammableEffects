@@ -5,10 +5,45 @@
  * @date December 14, 2015
  *
  * @brief This file contains the functions for setting the gpio pins of the RPi, to set the pins on the STM32F407-Discovery board.
- * This is done by connecting the transmitting Xbee to the RPi, and the receiving Xbee to the STM board. When the pins on the transmitting
- * Xbee are set, the receiving Xbee matches the same pin states. 
+ * This is done by connecting the gpio pins on the STM board, to the gpio pins on the Raspberry Pi. When the Pi sets pins high, the 
+ * connected pins on the STM board go high as well, and then the dsp side of the code determines the pin states and the sent effect
+ * and preset. 
+ * 
+ * @setup [
+ *  	GPIO MAPPING
+ * 	
+ * 		RPi	  --->	STM
+ * 		
+ * 		------------------
+ * 		valid send bit
+ * 		------------------
+ * 		gpio 25		PB3
+ * 		
+ * 		------------------
+ * 		effect selection
+ * 		------------------
+ * 		gpio 5		PD0
+ * 		gpio 6		PD1
+ * 		------------------
+ * 		
+ * 		preset selection
+ * 		------------------
+ * 		gpio 13		PD2
+ * 		gpio 19		PD3
+ * 		gpio 26		PD4
+ * 		gpio 16		PD5
+ * 		gpio 20		PD6
+ * 		gpio 21		PD7
+ * ]
  * 
  * @details [
+ * 		init_gpio() - enables and initializes the gpio pins on the Pi to zero. these pins are used to talk to the STM board
+ * 		
+ * 		send_effect() - sets the gpio pins high specific to the effect and preset received from the gui. see the function for 
+ * 			protocol.
+ * 			
+ * 		write_to_file() - actually writes the values from the send_effect() to the corresponding gpio files. this is called
+ * 			by the send_effect() 
  * ]
  * 
  */
@@ -69,7 +104,6 @@ int write_to_file(char * file, char * value);	// open write and close file
 
 int main(int argc, char ** argv) {
 
-
 	// enable and set gpios as output ---------------------------------
 	if(init_gpio() == 1) {
 		perror("could not initialize gpios");
@@ -83,14 +117,13 @@ int main(int argc, char ** argv) {
 	}
 
 	return 0;
-
 }
 
 
 /**
- * @brief [brief description]
- * @details [long description]
- * @return [description]
+ * @brief [initializes all the gpio pins for talking to the STM board to low]
+ * @details [check out the gpio mapping between the rpi and the stm board]
+ * @return [0 success, 1 error]
  */
 int init_gpio(void) {
 /**
@@ -312,11 +345,12 @@ int init_gpio(void) {
 
 
 /**
- * @brief [brief description]
+ * @brief [this function writes to the correct gpio pins to tell the STM board which effect and what parameters were 
+ * selected by the gui]
  * @details [long description]
  * 
- * @param argv [description]
- * @return [description]
+ * @param argv [arguments passed from the gui through the command line]
+ * @return [0 success, 1 error]
  */
 int send_effect(char ** argv) {
 
@@ -550,6 +584,8 @@ int send_effect(char ** argv) {
 		perror("could not set gpio25 high");
 		return 1;
 	}
+
+	return 0;
 
 }
 

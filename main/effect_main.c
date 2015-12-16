@@ -74,7 +74,8 @@ int main(int argc, char const *argv[]) {
 
 	// GET EFFECT --------------------------------------------------------------------------------------
 	// set up buffers for reading the effect and params from gui
-	FX_T * F = init_effects_read();
+	FX_T * F = init_effects_read();		// this call waits until PB3 is set, meaning there is a valid send of effect and params
+	if(F == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 	// F->effect and F->effect_params are updated by the read effect call
 	read_effect(F);
 	// -------------------------------------------------------------------------------------------------
@@ -126,9 +127,8 @@ int main(int argc, char const *argv[]) {
 	// allocate memory for input and output buffers -----------------------------
 	float * input = (float *)malloc(sizeof(float) * block_size);
 	float * output1 = (float *)malloc(sizeof(float) * block_size);
-	float * output2 = (float *)malloc(sizeof(float) * block_size);
 	float * lpf_samples_output = (float *)malloc(sizeof(float) * block_size);
-	if(input == NULL || output1 == NULL || output2 == NULL || lpf_samples_output == NULL) {
+	if(input == NULL || output1 == NULL || lpf_samples_output == NULL) {
 		flagerror(MEMORY_ALLOCATION_ERROR);
 		while(1);
 	} 
@@ -150,13 +150,17 @@ int main(int argc, char const *argv[]) {
 	switch(effect) {
 		case 1: // DELAY --------------------------------------------------------
 			
-			delay = R->rx_string[1];		// this is delay in seconds
+			delay = F->effect_params[0];		// this is delay in seconds
 			if(delay > 0.5) { flagerror(DEBUG_ERROR); while(1); }		// don't delay more than half a second
-			delay_gain = R->rx_string[2];
+			delay_gain = F->effect_params[1];
 			if(delay_gain > 1) { flagerror(DEBUG_ERROR); while(1); }	// limit output vol to input vol
 
+			// free struct now that we got the values we needed from it
+			free_fx(F);
+
 			// initialize delay structure for delay routine 
-			D = init_delay(1, FS, 0.5, 1, block_size);		// 1 means delay is in seconds
+			// D = init_delay(1, FS, delay, delay_gain, block_size);		// 1 means delay is in seconds
+			D = init_delay(1, FS, 0.5, 1, block_size);
 			if(D == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }	
 			
 			break;
@@ -165,18 +169,19 @@ int main(int argc, char const *argv[]) {
 
 			// initialize rms detection -----------
  			window = 100 * block_size;
-
 			V = init_rms(window, block_size);
 			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 			
 			// initialize compressor --------------
-			// threshold = R->rx_string[1];	// 0db entered is 1VRMS
-			// if(threshold > 6) { flagerror(DEBUG_ERROR); while(1); } // limit threshold to the max rms voltage the board is capable of
-			// ratio = R->rx_string[2];
-			// if(ratio <= 0) { flagerror(DEBUG_ERROR); while(1); }	// limit ratio to positive value
+			threshold = F->effect_params[0];	// 0db entered is 1VRMS
+			if(threshold > 6) { flagerror(DEBUG_ERROR); while(1); } // limit threshold to the max rms voltage the board is capable of
+			ratio = F->effect_params[1];
+			if(ratio <= 0) { flagerror(DEBUG_ERROR); while(1); }	// limit ratio to positive value
 
-			// C = init_compressor(threshold, ratio, block_size);
-			C = init_compressor(-7, 10, block_size);
+			// free struct now that we got the values we needed from it
+			free_fx(F);
+
+			C = init_compressor(threshold, ratio, block_size);
 			if(C == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 
 			break;
@@ -185,14 +190,17 @@ int main(int argc, char const *argv[]) {
 
 			// initialize eq
 			// limit the gain for each band to +-15dB
-			// low_gain = R->rx_string[1];
-			// if(low_gain > 15 || low_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
-			// mid_gain = R->rx_string[2];
-			// if(mid_gain > 15 || mid_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
-			// high_gain = R->rx_string[3];
-			// if(high_gain > 15 || high_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
-			// Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
-			Q = init_eq(0, 10, 0, block_size, FS);
+			low_gain = F->effect_params[0];
+			if(low_gain > 15 || low_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
+			mid_gain = F->effect_params[1];
+			if(mid_gain > 15 || mid_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
+			high_gain = F->effect_params[2];
+			if(high_gain > 15 || high_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
+
+			// free struct now that we got the values we needed from it
+			free_fx(F);
+
+			Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
 			if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 
 			break;
@@ -218,7 +226,7 @@ int main(int argc, char const *argv[]) {
     	arm_fir_f32(&S, input, lpf_samples_output, block_size);
 
     	// output the input samples
-		for (i = 0; i < block_size; ++i) {
+		for (i = 0; i < block_size; i++) {
 			output1[i] = lpf_samples_output[i];
 		}
 

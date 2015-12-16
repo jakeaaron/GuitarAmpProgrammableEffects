@@ -138,11 +138,11 @@ int init_display(int fd) {
 
 
 /**
- * @brief [brief description]
- * @details [long description]
+ * @brief [determines the effect parameters from the gui]
+ * @details [note that the values are mapped in a certain way to avoid passing negative numbers from file to file]
  * 
- * @param argv [description]
- * @return [description]
+ * @param argv [array of command line arguments]
+ * @return [pointer to display structure or NULL on error]
  */
 DISP_T * init_params(int fd, char ** argv) {
 
@@ -152,10 +152,22 @@ DISP_T * init_params(int fd, char ** argv) {
 
 	// input holds the values from the python gui to display the effect and its parameters
 	D_T->input = calloc(4, sizeof(float));
+	if(D_T->input == NULL) {
+		perror("could not initialize input buffer");
+		return NULL;
+	}
 	// output holds the hex values to display the appropriate character(s) on the 7seg display
 	D_T->output = calloc(4, sizeof(unsigned char));
+	if(D_T->output == NULL) {
+		perror("could not initialize output buffer");
+		return NULL;
+	}
 	// buffer containing the sign of each input value so we don't have to deal with reading negative vals with the character stuff
 	D_T->sign_buffer = calloc(3, sizeof(int));
+	if(D_T->sign_buffer == NULL) {
+		perror("could not initialize sign_buffer");
+		return NULL;
+	}
 	// file descriptor for writing to i2c device
 	D_T->fd = fd;
 	// selected effect value: 1 = delay, 2 = compressor, 3 = eq
@@ -172,7 +184,7 @@ DISP_T * init_params(int fd, char ** argv) {
 			// param 1
 			// amount of delay
 			if((val = atof(argv[2]) / (2.0 * 255.0)) >= 0) {
-				D_T->input[1] = val;
+				D_T->input[1] = val + 0.01;
 				D_T->sign_buffer[0] = 1;
 			} else {
 				D_T->input[1] = abs(val);
@@ -275,13 +287,16 @@ DISP_T * init_params(int fd, char ** argv) {
 
 
 /**
- * @brief [brief description]
- * @details [long description]
+ * @brief [converts input characters to the equivalent value in 7seg form]
+ * @details [7seg format is the hex values found in the header file. each bit turns a specific part 
+ * of the display on. note the indexing trick when finding a decimal point. the decimal is not its
+ * own character, so we just turn it on for the previous character and make sure our index remains
+ * correct.]
  * 
- * @param argc [description]
- * @param D [description]
+ * @param argc [number of values to be displayed/converted into 7seg format]
+ * @param D_T [pointer to display structure]
  * 
- * @return [description]
+ * @return [0 success, 1 error]
  */
 int char_to_7seg(int argc, DISP_T * D_T) {
 
@@ -407,13 +422,11 @@ int char_to_7seg(int argc, DISP_T * D_T) {
 
 
 /**
- * @brief [brief description]
- * @details [long description]
+ * @brief [writes the effect and the parameters determined in the init_params to the display]
  * 
- * @param fd [description]
- * @param D [description]
+ * @param D_T [pointer to display structure]
  * 
- * @return [description]
+ * @return [0 on success, 1 on error]
  */
 int lcd_write(DISP_T * D_T) {
 
@@ -560,11 +573,10 @@ int lcd_write(DISP_T * D_T) {
 
 
 /**
- * @brief [brief description]
- * @details [long description]
+ * @brief [clears all the segments on the display for closing the application]
  * 
- * @param fd [description]
- * @return [description]
+ * @param fd [file descriptor to the i2c display device]
+ * @return [0 on success, 1 on error]
  */
 int clear_display(int fd) {
 
