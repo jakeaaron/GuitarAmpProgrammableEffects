@@ -12,6 +12,9 @@
  */
  
 
+#ifndef READ_EFFECT 
+#define READ_EFFECT
+
 
  typedef struct effect {
  	int * pin_states;
@@ -39,3 +42,6 @@ void read_gpio(
 void read_effect(
 		FX_T * F
 	);
+
+
+#endif

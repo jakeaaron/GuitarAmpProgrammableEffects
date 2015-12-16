@@ -146,6 +146,7 @@ EQ_T * init_eq(float low_gain, float mid_gain, float high_gain, int block_size, 
 void calc_eq(DELAY_T * D1, DELAY_T * D2, DELAY_T * D3, EQ_T * Q, float * input) {
 
 	int i, j, k;
+	float mid_input[Q->block_size];
 
 	// LOW BAND ------------------------------------------------------------------------------------------------
 	// calculate low band output with no gain
@@ -153,26 +154,26 @@ void calc_eq(DELAY_T * D1, DELAY_T * D2, DELAY_T * D3, EQ_T * Q, float * input) 
 	arm_fir_f32(&(Q->S_low), input, Q->low_band_out, Q->block_size);
 
 	// delay filter output to stay in phase with mid and high band for reconstructing output
-	calc_delay(0, D1, Q->low_band_out);	// D1 now contains the low band output
+	calc_delay(0, D1, Q->low_band_out);	// D1->output is now the final low band output to be reconstructed
 
 
 	// MID BAND ------------------------------------------------------------------------------------------------
-	// delay signal to stay in phase for mid band calculation
+	// delay input signal to stay in phase for mid band calculation
 	calc_delay(0, D2, input);	// 0 is to output just the delayed signal
 
 	// input for mid band is the delayed signal minus the low band
 	// this gives the samples for the rest of the spectrum that the low band doesn't cover
 	for(j = 0; j < Q->block_size; j++) {
-		D2->output[j] = D2->output[j] - Q->low_band_out[j];
+		mid_input[j] = D2->output[j] - Q->low_band_out[j];
 	}
 	// lowpass with cutoff of 1050Hz
 	// this contains the band from the cutoff of the low band, to 1050Hz
-	arm_fir_f32(&(Q->S_mid), D2->output, Q->mid_band_out, Q->block_size);
+	arm_fir_f32(&(Q->S_mid), mid_input, Q->mid_band_out, Q->block_size);
 
 
 	// HIGH BAND -----------------------------------------------------------------------------------------------
 	// delay signal to stay in phase for high band calculation (note the input was already delayed once for the mid band calc)
-	calc_delay(0, D3, D2->output);	// 0 is to output just the delayed signal
+	calc_delay(0, D3, mid_input);	// delay the input to the mid filter once more 
 
 	// the high band is the input going into the mid filter delayed, and then subtracted from the mid filter output
 	// this gives the samples for the rest of the spectrum that the low and mid band doesn't cover
@@ -184,7 +185,7 @@ void calc_eq(DELAY_T * D1, DELAY_T * D2, DELAY_T * D3, EQ_T * Q, float * input) 
 	// calculate block of equalized output samples -------------------------------------------------------------
 	for(i = 0; i < Q->block_size; i++) {
 		// output is the output of each band scaled by the band gain and added together 
-		Q->output[i] = 0.5 * ((Q->low_scale * D1->output[i]) + (Q->mid_scale * Q->mid_band_out[i]) + (Q->high_scale * Q->high_band_out[i]));
+		Q->output[i] = 0.6 * ((Q->low_scale * D1->output[i]) + (Q->mid_scale * Q->mid_band_out[i]) + (Q->high_scale * Q->high_band_out[i]));
 	}
 	
 }

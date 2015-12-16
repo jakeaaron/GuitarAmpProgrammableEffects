@@ -34,7 +34,7 @@ static UART_HandleTypeDef huart1;
 
 // static UART_HandleTypeDef UartHandle;
 static __IO ITStatus UartReady = RESET;
-// static DMA_HandleTypeDef hdma_tx;
+static DMA_HandleTypeDef hdma_tx;
 
 // -------------------------------------------------------
 
@@ -56,9 +56,9 @@ RX_T * init_rx(void) {
 
 	init_uart();
 
-	// initialize LED for waiting to receive characters
-	BSP_LED_Init(LED3);
-	BSP_LED_Init(LED6);
+	// // initialize LED for waiting to receive characters
+	// BSP_LED_Init(LED3);
+	// BSP_LED_Init(LED6);
 
 	return R;
 }
@@ -87,60 +87,60 @@ void init_uart(void) {
 }
 
 
-// // this is automatically called by the HAL_UART_INIT call in the init_uart function
-// void HAL_UART_MspInit(UART_HandleTypeDef * huart) {
+// this is automatically called by the HAL_UART_INIT call in the init_uart function
+void HAL_UART_MspInit(UART_HandleTypeDef * huart) {
 	
-// 	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitTypeDef GPIO_InitStruct;
   
-// 	__GPIOC_CLK_ENABLE();	// enable dataport clock
-// 	__UART4_CLK_ENABLE();	// uart clock
-// 	__DMA1_CLK_ENABLE();	// dma clock
+	__GPIOC_CLK_ENABLE();	// enable dataport clock
+	__UART4_CLK_ENABLE();	// uart clock
+	__DMA1_CLK_ENABLE();	// dma clock
   
-//   	// set up UART4 RX GPIO config (PC11) ---------------------------
-//  	GPIO_InitStruct.Pin = RXPIN;				// use gpio 11
-// 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;		// alternate push pull mode
-// 	GPIO_InitStruct.Pull = GPIO_NOPULL;			// no pull up or pull down activation
-// 	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;	
-// 	GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
+  	// set up UART4 RX GPIO config (PC11) ---------------------------
+ 	GPIO_InitStruct.Pin = RXPIN;				// use gpio 11
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;		// alternate push pull mode
+	GPIO_InitStruct.Pull = GPIO_NOPULL;			// no pull up or pull down activation
+	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;	
+	GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
 
-// 	// init rx gpio
-// 	HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
+	// init rx gpio
+	HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
 
-// 	// transmit gpio PC10
-// 	GPIO_InitStruct.Pin = TXPIN;
-// 	GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
+	// transmit gpio PC10
+	GPIO_InitStruct.Pin = TXPIN;
+	GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
 
-// 	// init tx gpio
-// 	HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
+	// init tx gpio
+	HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
   
 
-// 	/* Configure the DMA handler for Transmission process (DMA1, Stream 4, Channel 4) */
-// 	hdma_tx.Instance                 = DMA1_Stream4;
+	/* Configure the DMA handler for Transmission process (DMA1, Stream 4, Channel 4) */
+	hdma_tx.Instance                 = DMA1_Stream4;
 
-// 	hdma_tx.Init.Channel             = DMA_CHANNEL_4;
-// 	hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-// 	hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
-// 	hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
-// 	hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-// 	hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-// 	hdma_tx.Init.Mode                = DMA_NORMAL;
-// 	hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
-// 	hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-// 	hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-// 	hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
-// 	hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
+	hdma_tx.Init.Channel             = DMA_CHANNEL_4;
+	hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+	hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+	hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+	hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+	hdma_tx.Init.Mode                = DMA_NORMAL;
+	hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+	hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+	hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+	hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
+	hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-// 	HAL_DMA_Init(&hdma_tx);   
+	HAL_DMA_Init(&hdma_tx);   
 
-// 	/* Associate the initialized DMA handle to the the UART handle */
-// 	__HAL_LINKDMA(huart, hdmatx, hdma_tx);
+	/* Associate the initialized DMA handle to the the UART handle */
+	__HAL_LINKDMA(huart, hdmatx, hdma_tx);
 
 
-// 	/* NVIC configuration for DMA transfer complete interrupt (UART4_TX) */
-// 	HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 1);
-// 	HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+	/* NVIC configuration for DMA transfer complete interrupt (UART4_TX) */
+	HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 1);
+	HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
     
-// }
+}
 
 
 /**
@@ -290,30 +290,28 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
 // }
 
 
-/* Buffer used for transmission */
-uint8_t aTxBuffer[] = " **** UART_TwoBoards_ComPolling ****  **** UART_TwoBoards_ComPolling ****  **** UART_TwoBoards_ComPolling **** \n";
-uint8_t rxbuf[5];
 
-void usart_read(RX_T * R) {
-	if(HAL_UART_Transmit(&huart1, (uint8_t*)aTxBuffer, sizeof(aTxBuffer) / sizeof(uint8_t), 50000) != HAL_OK)
-	{
-	Error_Handler();   
-	}
 
-	/* Turn LED3 on: Transfer in transmission process is correct */
-	/* then Off for next transmission */
-	BSP_LED_On(LED3);
-	HAL_Delay(400);
-	BSP_LED_Off(LED3);
+// void usart_read(RX_T * R) {
+// 	if(HAL_UART_Transmit(&huart1, (uint8_t*)aTxBuffer, sizeof(aTxBuffer) / sizeof(uint8_t), 50000) != HAL_OK)
+// 	{
+// 	Error_Handler();   
+// 	}
 
-	/*##-3- Put UART peripheral in reception process ###########################*/  
-	if(HAL_UART_Receive(&huart1, (uint8_t*)rxbuf, sizeof(rxbuf) / sizeof(uint8_t), 50000) != HAL_OK)
-	{
-	Error_Handler();  
-	}
+// 	/* Turn LED3 on: Transfer in transmission process is correct */
+// 	/* then Off for next transmission */
+// 	BSP_LED_On(LED3);
+// 	HAL_Delay(400);
+// 	BSP_LED_Off(LED3);
 
-	UART_putstr("past receive");
-}
+// 	/*##-3- Put UART peripheral in reception process ###########################*/  
+// 	if(HAL_UART_Receive(&huart1, (uint8_t*)rxbuf, sizeof(rxbuf) / sizeof(uint8_t), 50000) != HAL_OK)
+// 	{
+// 	Error_Handler();  
+// 	}
+
+// 	UART_putstr("past receive");
+// }
 
 
 /**
@@ -368,30 +366,30 @@ void UART_putstr(const char *s) {
 
 
 
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
-{  
-  GPIO_InitTypeDef  GPIO_InitStruct;
+// void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+// {  
+//   GPIO_InitTypeDef  GPIO_InitStruct;
   
-  /*##-1- Enable peripherals and GPIO Clocks #################################*/
-	__GPIOC_CLK_ENABLE();	// enable dataport clock
-	__UART4_CLK_ENABLE();	// uart clock
-	__DMA1_CLK_ENABLE();	// dma clock
+//   /*##-1- Enable peripherals and GPIO Clocks #################################*/
+// 	__GPIOC_CLK_ENABLE();	// enable dataport clock
+// 	__UART4_CLK_ENABLE();	// uart clock
+// 	__DMA1_CLK_ENABLE();	// dma clock
   
-  /*##-2- Configure peripheral GPIO ##########################################*/  
-  /* UART TX GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = TXPIN;
-  GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull      = GPIO_NOPULL;
-  GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-  GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
+//   /*##-2- Configure peripheral GPIO ##########################################*/  
+//   /* UART TX GPIO pin configuration  */
+//   GPIO_InitStruct.Pin       = TXPIN;
+//   GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+//   GPIO_InitStruct.Pull      = GPIO_NOPULL;
+//   GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+//   GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
   
-  HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
+//   HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
     
-  /* UART RX GPIO pin configuration  */
-  GPIO_InitStruct.Pin = RXPIN;
+//   /* UART RX GPIO pin configuration  */
+//   GPIO_InitStruct.Pin = RXPIN;
     
-  HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
-}
+//   HAL_GPIO_Init(DATAPORT, &GPIO_InitStruct);
+// }
 
 
 

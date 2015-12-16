@@ -6,7 +6,6 @@ try:
 	from subprocess import call 
 	import wx
 	import serial
-	import RPi.GPIO as GPIO
 except ImportError:
 	raise ImportError,"The wxPython module, RPi.GPIO, serial and subprocess is required to run this program."
 
@@ -25,6 +24,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 	def init_elements(self):
 		""" This sets up the windows and effect buttons. """
 		self.selected_effect = 0
+		self.selected_preset = 0
 		self.count = 0
 		self.last_effect = 0
 		self.output = [0, 0, 0, 0]
@@ -119,10 +119,14 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		""" This destroys all the widgets created for the effect previously selected to make room for the current effect widgets. """
 		if self.last_effect == 1:
 			# clear delay fields ----------------
+			self.preset1_button.Destroy()
+			self.preset2_button.Destroy()
 			self.time_input_label.Destroy()
-			self.time_input.Destroy()
 			self.gain_input_label.Destroy()
-			self.gain_input.Destroy()
+			self.time_input1.Destroy()
+			self.gain_input1.Destroy()
+			self.time_input2.Destroy()
+			self.gain_input2.Destroy()
 
 		if self.last_effect == 2:
 			# clear compressor fields ----------------
@@ -152,80 +156,183 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
-		# enter amount of delay --------------------------
+		# Labels --------------------------------------------------------
 		# enter time label
-		self.time_input_label = wx.StaticText(self.panel, label="Enter amount of delay in seconds (max is 0.5, min is 0)")
+		self.time_input_label = wx.StaticText(self.panel, label="Amount of delay")
 		self.sizer.Add(self.time_input_label, pos=(1, 5))
-		# enter time field
-		self.time_input = wx.TextCtrl(self.panel, value="0.5", size=(100, -1))
-		self.sizer.Add(self.time_input, pos=(2, 5))
 
-		# enter gain of the delayed signal ---------------
 		# enter gain label
-		self.gain_input_label = wx.StaticText(self.panel, label="Enter the gain of the delayed signal (max is 1, min is 0)")
-		self.sizer.Add(self.gain_input_label, pos=(3, 5))
+		self.gain_input_label = wx.StaticText(self.panel, label="Gain")
+		self.sizer.Add(self.gain_input_label, pos=(1, 7))
+
+
+		# PRESET 1 ------------------------------------------------------
+		self.preset1_button = wx.Button(self.panel, label="Large Room")
+		self.Bind(wx.EVT_BUTTON, self.on_large_room, self.preset1_button)
+		self.sizer.Add(self.preset1_button, pos=(2, 3))
+		# enter time field
+		self.time_input1 = wx.TextCtrl(self.panel, value="0.5s")
+		self.time_input1.SetEditable(False)
+		self.sizer.Add(self.time_input1, pos=(2, 5))
 		# enter gain field
-		self.gain_input = wx.TextCtrl(self.panel, value="1", size=(100, -1))
-		self.sizer.Add(self.gain_input, pos=(4, 5))
+		self.gain_input1 = wx.TextCtrl(self.panel, value="0.5")
+		self.gain_input1.SetEditable(False)
+		self.sizer.Add(self.gain_input1, pos=(2, 7))
+
+		# PRESET 2 ------------------------------------------------------
+		self.preset2_button = wx.Button(self.panel, label="Small Room")
+		self.Bind(wx.EVT_BUTTON, self.on_small_room, self.preset2_button)
+		self.sizer.Add(self.preset2_button, pos=(4, 3))
+		# enter time field
+		self.time_input2 = wx.TextCtrl(self.panel, value="0.25s")
+		self.time_input2.SetEditable(False)
+		self.sizer.Add(self.time_input2, pos=(4, 5))
+		# enter gain field
+		self.gain_input2 = wx.TextCtrl(self.panel, value="1")
+		self.gain_input2.SetEditable(False)
+		self.sizer.Add(self.gain_input2, pos=(4, 7))
+
 
 		# fix the layout of widgets
 		self.Layout()
+
 
 	def on_comp_click(self):
 		""" This sets up the widgets for the compressor parameters. """
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
-		# enter threshold level --------------------------
-		# enter threshold label
-		self.threshold_input_label = wx.StaticText(self.panel, label="Enter the threshold level when the comp will kick in (max is 6dB)")
+		# Labels ---------------------------------------------------
+		self.threshold_input_label = wx.StaticText(self.panel, label="Threshold")
 		self.sizer.Add(self.threshold_input_label, pos=(1, 5))
-		# enter threshold field
-		self.threshold_input = wx.TextCtrl(self.panel, value="-7", size=(100, -1))
-		self.sizer.Add(self.threshold_input, pos=(2, 5))
 
-		# enter ratio of the compressor ---------------
-		# enter ratio label
-		self.ratio_input_label = wx.StaticText(self.panel, label="Enter the ratio to compress the signal by (min is 1)")
-		self.sizer.Add(self.ratio_input_label, pos=(3, 5))
+		self.ratio_input_label = wx.StaticText(self.panel, label="Ratio")
+		self.sizer.Add(self.ratio_input_label, pos=(1, 7))
+
+		# PRESET 3 - Coffee Shop -----------------------------------
+		self.preset3_button = wx.Button(self.panel, label="Coffee Shop")
+		self.Bind(wx.EVT_BUTTON, self.on_coffee_shop, self.preset3_button)
+		self.sizer.Add(self.preset3_button, pos=(2, 3))
+		# enter threshold field
+		self.threshold_input1 = wx.TextCtrl(self.panel, value="-12dB")
+		self.threshold_input1.SetEditable(False)
+		self.sizer.Add(self.threshold_input1, pos=(2, 5))
 		# enter ratio field
-		self.ratio_input = wx.TextCtrl(self.panel, value="5", size=(100, -1))
-		self.sizer.Add(self.ratio_input, pos=(4, 5))
+		self.ratio_input1 = wx.TextCtrl(self.panel, value="2")
+		self.ratio_input1.SetEditable(False)
+		self.sizer.Add(self.ratio_input1, pos=(2, 7))
+
+		# PRESET 4 - Celestial Immolation --------------------------
+		self.preset4_button = wx.Button(self.panel, label="Celestial Immolation")
+		self.Bind(wx.EVT_BUTTON, self.on_celestial, self.preset4_button)
+		self.sizer.Add(self.preset4_button, pos=(4, 3))
+		# enter threshold field
+		self.threshold_input2 = wx.TextCtrl(self.panel, value="-2dB")
+		self.threshold_input2.SetEditable(False)
+		self.sizer.Add(self.threshold_input2, pos=(4, 5))
+		# enter ratio field
+		self.ratio_input2 = wx.TextCtrl(self.panel, value="9")
+		self.ratio_input2.SetEditable(False)
+		self.sizer.Add(self.ratio_input2, pos=(4, 7))
+
 
 		# fix the layout of widgets
 		self.Layout()
+
 
 	def on_eq_click(self):
 		""" This sets up the widgets for the equalizer parameters. """
 		# delete any parameter fields if they exist so we can redraw the new ones
 		self.refresh()
 
-		# enter low band gain/attenuation ----------------
-		# enter low band label
-		self.low_input_label = wx.StaticText(self.panel, label="Enter the low band gain (-10dB <= gain <= 10dB)")
+		# Labels ---------------------------------------------------
+		self.low_input_label = wx.StaticText(self.panel, label="Low Band")
 		self.sizer.Add(self.low_input_label, pos=(1, 5))
+
+		self.mid_input_label = wx.StaticText(self.panel, label="Mid Band")
+		self.sizer.Add(self.mid_input_label, pos=(1, 7))
+
+		self.high_input_label = wx.StaticText(self.panel, label="High Band")
+		self.sizer.Add(self.high_input_label, pos=(1, 9))
+
+
+		# PRESET 5 - Bass Boost ------------------------------------
+		self.preset5_button = wx.Button(self.panel, label="Bass Boost")
+		self.Bind(wx.EVT_BUTTON, self.on_bassboost, self.preset5_button)
+		self.sizer.Add(self.preset5_button, pos=(2, 3))
 		# enter low band field
-		self.low_input = wx.TextCtrl(self.panel, value="0", size=(100, -1))
-		self.sizer.Add(self.low_input, pos=(2, 5))
-
-		# enter mid band gain/attenuation ----------------
-		# enter mid band label
-		self.mid_input_label = wx.StaticText(self.panel, label="Enter the mid band gain (-10dB <= gain <= 10dB)")
-		self.sizer.Add(self.mid_input_label, pos=(3, 5))
+		self.low_input1 = wx.TextCtrl(self.panel, value="10")
+		self.low_input1.SetEditable(False)
+		self.sizer.Add(self.low_input1, pos=(2, 5))
 		# enter mid band field
-		self.mid_input = wx.TextCtrl(self.panel, value="0", size=(100, -1))
-		self.sizer.Add(self.mid_input, pos=(4, 5))
-
-		# enter high band gain/attenuation ----------------
-		# enter high band label
-		self.high_input_label = wx.StaticText(self.panel, label="Enter the high band gain (-10dB <= gain <= 10dB)")
-		self.sizer.Add(self.high_input_label, pos=(5, 5))
+		self.mid_input1 = wx.TextCtrl(self.panel, value="0")
+		self.mid_input1.SetEditable(False)
+		self.sizer.Add(self.mid_input1, pos=(2, 7))
 		# enter mid band field
-		self.high_input = wx.TextCtrl(self.panel, value="0", size=(100, -1))
-		self.sizer.Add(self.high_input, pos=(6, 5))
+		self.high_input1 = wx.TextCtrl(self.panel, value="0")
+		self.high_input1.SetEditable(False)
+		self.sizer.Add(self.high_input1, pos=(2, 9))
+
+		# PRESET 6 - Mid Boost -------------------------------------
+		self.preset6_button = wx.Button(self.panel, label="Mid Boost")
+		self.Bind(wx.EVT_BUTTON, self.on_midboost, self.preset6_button)
+		self.sizer.Add(self.preset6_button, pos=(4, 3))
+		# enter low band field
+		self.low_input2 = wx.TextCtrl(self.panel, value="0")
+		self.low_input2.SetEditable(False)
+		self.sizer.Add(self.low_input2, pos=(4, 5))
+		# enter mid band field
+		self.mid_input2 = wx.TextCtrl(self.panel, value="10")
+		self.mid_input2.SetEditable(False)
+		self.sizer.Add(self.mid_input2, pos=(4, 7))
+		# enter mid band field
+		self.high_input2 = wx.TextCtrl(self.panel, value="0")
+		self.high_input2.SetEditable(False)
+		self.sizer.Add(self.high_input2, pos=(4, 9))
+
+		# PRESET 7 - High Boost ------------------------------------
+		self.preset7_button = wx.Button(self.panel, label="High Boost")
+		self.Bind(wx.EVT_BUTTON, self.on_midboost, self.preset7_button)
+		self.sizer.Add(self.preset7_button, pos=(4, 3))
+		# enter low band field
+		self.low_input3 = wx.TextCtrl(self.panel, value="0")
+		self.low_input3.SetEditable(False)
+		self.sizer.Add(self.low_input3, pos=(4, 5))
+		# enter mid band field
+		self.mid_input3 = wx.TextCtrl(self.panel, value="0")
+		self.mid_input3.SetEditable(False)
+		self.sizer.Add(self.mid_input3, pos=(4, 7))
+		# enter mid band field
+		self.high_input3 = wx.TextCtrl(self.panel, value="10")
+		self.high_input3.SetEditable(False)
+		self.sizer.Add(self.high_input3, pos=(4, 9))
+
 
 		# fix the layout of widgets
 		self.Layout()
+
+
+
+	# event handlers for on preset click ---------------------------------------------------
+	# DELAY PRESETS --------------------------
+	# preset 1 - Large Room Delay
+	def on_large_room(self):
+		# highlight selected preset grey
+		self.time_input1.SetBackgroundColour((111, 111, 111))
+		self.gain_input1.SetBackgroundColour((111, 111, 111))
+		self.time_input2.SetBackgroundColour((0, 0, 0))
+		self.time_input2.SetBackgroundColour((0, 0, 0))
+
+	# preset 2 - Small Room Delay
+	def on_small_room:
+		# highlight selected preset grey
+		self.time_input1.SetBackgroundColour((0, 0, 0))
+		self.time_input1.SetBackgroundColour((0, 0, 0))
+		self.time_input2.SetBackgroundColour((111, 111, 111))
+		self.gain_input2.SetBackgroundColour((111, 111, 111))
+
+
+
 
 
 	# called when value is outside of appropriate bounds
@@ -247,18 +354,33 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		if self.selected_effect == 1:
 			# put delay effect as selected effect in the output buffer
 			self.output[0] = 1
-			# amount of delay in seconds
-			try:
-				self.delay_time = float(self.time_input.GetValue())
-			except ValueError:
-				self.error()
-				return
-			if self.delay_time < 0 or self.delay_time > 0.5:
-				self.error()
-				return
-			else: 
-				# highest amount of delay is 0.5 (255 for an 8bit value), put in output buffer
-				self.output[1] = int(self.delay_time * (2.0 * 255.0))
+
+			if self.selected_preset == 1:
+				# amount of delay in seconds
+				try:
+					self.delay_time = float(self.time_input1.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.delay_time < 0 or self.delay_time > 0.5:
+					self.error()
+					return
+				else: 
+					# highest amount of delay is 0.5 (255 for an 8bit value), put in output buffer
+					self.output[1] = int(self.delay_time * (2.0 * 255.0))
+			elif self.selected_preset == 2:
+				# amount of delay in seconds
+				try:
+					self.delay_time = float(self.time_input2.GetValue())
+				except ValueError:
+					self.error()
+					return
+				if self.delay_time < 0 or self.delay_time > 0.5:
+					self.error()
+					return
+				else: 
+					# highest amount of delay is 0.5 (255 for an 8bit value), put in output buffer
+					self.output[1] = int(self.delay_time * (2.0 * 255.0))			
 
 			# gain of delayed signal
 			try:

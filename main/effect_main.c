@@ -51,9 +51,7 @@
 #include "calc_rms.h"
 #include "compressor.h"
 #include "eq.h"
-
-#include "uart_rx.h"
-// #include "uart.h"
+#include "read_effect.h"
 
 #include "fir_lowpass.h"
 
@@ -71,32 +69,20 @@
 
 int main(int argc, char const *argv[]) {
 
-	// Set up sysclock
+	// Set up system clock, adc, dac, etc
 	initialize(FS_48K, MONO_IN, STEREO_OUT); 
-	// set up adc and dac because I made initialize not include them so we can deal with uart stuff and not be waiting for adc/dac buffers
-	init_dac(FS_48K, STEREO_OUT);
-	init_adc(FS_48K, MONO_IN);
 
-
-
-	
-	// RX_T * R = init_rx();
-
-	// char outstr[100];
-	// // UART_putstr("before \n");
-
-	// // wait until recieve is complete and then set the recieved characters in the R->rx_string
-	// usart_read(R);
-
-	// UART_putstr("I made it past read");
-
-
+	// GET EFFECT --------------------------------------------------------------------------------------
 	// set up buffers for reading the effect and params from gui
 	FX_T * F = init_effects_read();
 	// F->effect and F->effect_params are updated by the read effect call
 	read_effect(F);
+	// -------------------------------------------------------------------------------------------------
 
-
+	// now start the adc and dac since we don't have to wait for an input anymore
+	init_dac(FS_48K, STEREO_OUT);
+	init_adc(FS_48K, MONO_IN);
+	init_uart();
 
 	
 	// SELECTEFFECT ------------------------------------------------------------------------------------
@@ -108,6 +94,17 @@ int main(int argc, char const *argv[]) {
 	equalizer = { 3, lowband_gain, midband_gain, highband_gain } */
 
 	int effect = F->effect;
+	// int effect = 1;
+
+	// char string[100];
+	// sprintf(string, "effect select is: %d\n", effect);
+	// UART_putstr(string);
+	// while(1) {
+ //    	BSP_LED_Toggle(NORMAL_LED);
+ //    	HAL_Delay(100);	
+ //    	BSP_LED_Toggle(ERROR_LED);
+ //    	HAL_Delay(100);
+	// }
 
 	// declare variables used for effects assigned in switch cases --------------
 	// cannot declare variables in switch case, so we declare all here
@@ -178,19 +175,20 @@ int main(int argc, char const *argv[]) {
  		case 2: // COMPRESSOR ---------------------------------------------------
 
 			// initialize rms detection -----------
- 		// 	window = 100 * block_size;
+ 			window = 100 * block_size;
 
-			// V = init_rms(window, block_size);
-			// if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
+			V = init_rms(window, block_size);
+			if(V == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 			
-			// // initialize compressor --------------
+			// initialize compressor --------------
 			// threshold = R->rx_string[1];	// 0db entered is 1VRMS
 			// if(threshold > 6) { flagerror(DEBUG_ERROR); while(1); } // limit threshold to the max rms voltage the board is capable of
 			// ratio = R->rx_string[2];
 			// if(ratio <= 0) { flagerror(DEBUG_ERROR); while(1); }	// limit ratio to positive value
 
 			// C = init_compressor(threshold, ratio, block_size);
-			// if(C == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
+			C = init_compressor(-7, 10, block_size);
+			if(C == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 
 			break;
 
@@ -205,7 +203,8 @@ int main(int argc, char const *argv[]) {
 			// high_gain = R->rx_string[3];
 			// if(high_gain > 15 || high_gain < -15) { flagerror(DEBUG_ERROR); while(1); }
 			// Q = init_eq(low_gain, mid_gain, high_gain, block_size, FS);
-			// if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
+			Q = init_eq(0, 10, 0, block_size, FS);
+			if(Q == NULL) { flagerror(MEMORY_ALLOCATION_ERROR); while(1); }
 
 			break;
 
@@ -264,7 +263,7 @@ int main(int argc, char const *argv[]) {
 				calc_eq(Q->D1, Q->D2, Q->D3, Q, lpf_samples_output);
 
 				// pass buffers for output to the dac
-				putblockstereo(lpf_samples_output, Q->output);
+				putblockstereo(output1, Q->output);
 
 				break;
 

@@ -27,6 +27,9 @@
 
 #define ENABLE_GPIO_FILE "/sys/class/gpio/export"
 
+#define SET_DIRECTION_GPIO25 "/sys/class/gpio/gpio25/direction"
+#define SET_VALUE_GPIO25 "/sys/class/gpio/gpio25/value"
+
 #define SET_DIRECTION_GPIO5 "/sys/class/gpio/gpio5/direction"
 #define SET_VALUE_GPIO5 "/sys/class/gpio/gpio5/value"
 
@@ -73,16 +76,46 @@ int main(int argc, char ** argv) {
  */
 int init_gpio(void) {
 /**
- * 	RPi			Xbee
+ * /// GPIO MAPPING ///
+ * 
+ * 	RPi	  --->	STM
+ * 	------------------
+ * 	valid send bit
+ * 	------------------
+ * 	gpio 25		PB3
+ * 	
  * 	------------------
  * 	effect selection
  * 	------------------
- * 	gpio 5		DI/O 0
- * 	gpio 6		DI/O 1
+ * 	gpio 5		PD0
+ * 	gpio 6		PD1
  */
 
-// effect selection bits -------------------------------------------------------
 
+// valid send bit --------------------------------------------------------------
+// when this is set, the stm board knows that it is ready to read the other pins
+
+	// gpio25 - DI/O7 ----------------------------------------------
+	// enable gpio 25 and close the file
+	if(write_to_file(ENABLE_GPIO_FILE, "25")) {
+		perror("could not enable gpio25");
+		return 1;
+	}
+
+	// make gpio25 an output and close the file
+	if(write_to_file(SET_DIRECTION_GPIO25, "out")) {
+		perror("could not make gpio25 an output");
+		return 1;
+	}
+
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO25, "0")) {
+		perror("could not set gpio25 low");
+		return 1;
+	}
+
+
+// effect selection bits -------------------------------------------------------
 
 	// gpio5 - DI/O1 ----------------------------------------------
 	// enable gpio 5 and close the file
@@ -94,6 +127,12 @@ int init_gpio(void) {
 	// make gpio5 an output and close the file
 	if(write_to_file(SET_DIRECTION_GPIO5, "out")) {
 		perror("could not make gpio5 an output");
+		return 1;
+	}
+
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO5, "0")) {
+		perror("could not set gpio5 low");
 		return 1;
 	}
 
@@ -110,6 +149,13 @@ int init_gpio(void) {
 		return 1;
 	}
 
+	// initialize to 0
+	if(write_to_file(SET_VALUE_GPIO6, "0")) {
+		perror("could not set gpio6 low");
+		return 1;
+	}
+
+
 	return 0;
 }
 
@@ -124,16 +170,24 @@ int init_gpio(void) {
 int send_effect(char ** argv) {
 
 	/**
+	 *	GPIO25			valid
+	 *	-----------------------
+	 *	0				no
+	 *	1				yes
+	 *	
+	 *	
 	 *	GPIO6	GPIO5	effect
 	 *	-----------------------
 	 *	0		1		delay
 	 *	1		0		compressor
 	 *	1		1		equalizer
+	 *	-----------------------
+	 *	
 	 */
 
  	int effect = atoi(argv[1]);
 
-	// set gpio for effect selection ---------------------
+	// set gpio for effect selection ------------------------------------------
 	if(effect == 1) {			// delay
 		// gpio5 - 1
 		if(write_to_file(SET_VALUE_GPIO5, "1")) {
@@ -175,6 +229,13 @@ int send_effect(char ** argv) {
 		return 1;
 	}
 
+
+	// now that all bits are set, set valid send bit for STM board ------------
+	if(write_to_file(SET_VALUE_GPIO25, "1")) {
+		perror("could not set gpio25 high");
+		return 1;
+	}
+
 }
 
 
@@ -189,19 +250,23 @@ int send_effect(char ** argv) {
 int write_to_file(char * file, char * value) {
 
 	FILE * fp;
+
 	// open file and error check
 	fp = fopen(file, "w");	
 	if(!fp) {
 		perror("file open failed");
 		return 1;
 	}
+
 	// write value to file and error check
 	if(fprintf(fp, "%s\n", value) == 0) {
 		perror("error writing to file");
 		return 1;
 	}
+
 	// clear write buffer
 	fflush(fp);
+
 	// close file
 	if(fclose(fp)) {
 		perror("close error");
