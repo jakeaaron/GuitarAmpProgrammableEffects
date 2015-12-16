@@ -7,7 +7,12 @@
  * @brief This file contains the functions for the delay effect portion 
  * of the GAPE suite.
  * 
- * @details
+ * @details [
+ * 		init_delay() - initialize delay structure for delay calculation
+ * 		
+ * 		calc_delay() - do the delay calculation
+ * ]
+ * 
  * 
  */
 

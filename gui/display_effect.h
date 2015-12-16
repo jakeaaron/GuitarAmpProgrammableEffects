@@ -1,5 +1,7 @@
 
 
+#ifndef DISP_H
+#define DISP_H
 
 
 #define ZERO 0x3F
@@ -52,3 +54,6 @@ int char_to_7seg(int argc, DISP_T * D_T);
 int lcd_write(DISP_T * D_T);
 int clear_display(int fd);
 // --------------------------------------
+
+
+#endif

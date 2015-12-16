@@ -7,7 +7,11 @@
  * @brief This file contains the functions for the compressor effect portion 
  * of the GAPE suite.
  * 
- * @details
+ * @details [
+ * 		init_compressor() - initialize compressor struct that holds the data for the compressor calculation
+ * 		
+ * 		calc_compressor() - do the compressor calculation on a block on samples
+ * ]
  * 
  */
 

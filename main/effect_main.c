@@ -6,7 +6,7 @@
  *
  * @brief This file contains the main program to run the selected GAPE effect; either a delay, a compressor, or an equalizer.
  * 
- * @setup []
+ * @setup [see effect_read mapping]
  * 
  * @details [
  * At the start of this program, the usart_read function is called to find out what effect should be run. The function 

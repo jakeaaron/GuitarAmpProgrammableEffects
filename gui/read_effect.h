@@ -6,8 +6,6 @@
  *
  * @brief This file contains the prototypes for acquiring the gpio states set by the GUI, in turn 
  * determining which effect was selected and the parameters for the effect.
- * @details [
- * ]
  * 
  */
  
@@ -30,11 +28,20 @@ FX_T * init_effects_read(
 	);
 
 
+/**
+ * @brief [initialize the gpio pins on the STM board, to receive effect and preset values from the gui]
+ */
  void init_gpio(
  		void
  	);
 
 
+/**
+ * @brief [read the state of each gpio pin and place the values in the F->pin_states buffer]
+ * @details [this is used to determine which effect and which preset has been selected from the gui]
+ * 
+ * @param F [pointer to effect structure]
+ */
 void read_gpio(
 		FX_T * F 	// pointer to effect struct
 	);

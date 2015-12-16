@@ -250,7 +250,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 		self.Bind(wx.EVT_BUTTON, self.on_coffee_shop, self.preset3_button)
 		self.sizer.Add(self.preset3_button, pos=(2, 4))
 		# enter threshold field
-		self.threshold_input1 = wx.TextCtrl(self.panel, value="-10")
+		self.threshold_input1 = wx.TextCtrl(self.panel, value="-7")
 		self.threshold_input1.SetEditable(False)
 		self.sizer.Add(self.threshold_input1, pos=(2, 6))
 		# enter ratio field
@@ -1038,6 +1038,8 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 				else:
 					self.output[3] = self.high + 10
 
+		if self.selected_preset == 0:
+			self.error()
 
 		# count how many times we have submitted params so we can determine if we need to kill the running process before running again
 		self.count = self.count + 1

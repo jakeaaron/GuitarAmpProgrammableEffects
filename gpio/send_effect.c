@@ -389,7 +389,6 @@ int send_effect(char ** argv) {
 	 *	10		EQ		1		0		0		0		0		0
 	 *	11		EQ		0		0		0		0		1		1
 	 *	
-	 *	
 	 */
 
  	int effect = atoi(argv[1]);

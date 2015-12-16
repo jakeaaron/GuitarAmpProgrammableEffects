@@ -7,7 +7,11 @@
  * @brief This file contains the functions for calculating the rms value of the input signal.
  * RMS values are needed for the compressor. 
  * 
- * @details
+ * @details [
+ * 		init_rms() - initialize rms struct for calculations
+ * 		
+ * 		calc_rms() - do the rms calculation on a block of samples
+ * ]
  * 
  */
 

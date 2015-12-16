@@ -6,12 +6,40 @@
  *
  * @brief This file contains the prototypes for acquiring the gpio states set by the GUI, in turn 
  * determining which effect was selected and the parameters for the effect.
+ * 
  * @details [
+ *		PD1		PD0		effect
+ *		-----------------------
+ *		0		1		delay
+ *		1		0		compressor
+ *		1		1		equalizer
+ *		
+ *		
+ *		
+ *		
+ *						GPIO21	GPIO20	GPIO16	GPIO26	GPIO19	GPIO13
+ *		Preset	Effect	PD7		PD6		PD5		PD4		PD3		PD2	
+ *		-----------------------------------------------------------
+ *		1		Delay	0		0		0		0		0		1
+ *		2		Delay	0		0		0		0		1		0
+ *		
+ *		3		Comp	0		0		0		0		0		1
+ *		4		Comp	0		0		0		0		1		0
+ *		
+ *		5		EQ		0		0		0		0		0		1
+ *		6		EQ		0		0		0		0		1		0
+ *		7		EQ		0		0		0		1		0		0
+ *		8		EQ		0		0		1		0		0		0
+ *		9		EQ		0		1		0		0		0		0
+ *		10		EQ		1		0		0		0		0		0
+ *		11		EQ		0		0		0		0		1		1
+ *	
  * ]
  * 
  */
  
 
+// INCLUDE -----------------------------------------------
 
 #include "stm32f4xx_hal.h"
 #include "stm32f4_discovery.h"
@@ -24,9 +52,16 @@
 
 #include "read_effect.h"
 
+// -------------------------------------------------------
 
 
 
+
+/**
+ * @brief [initialize the struct for giving the main program access to the input from the gui]
+ * @details [this function waits until the gui set PB3, which says that now there is valid data on the pins]
+ * @return [pointer to the effect seelction struct]
+ */
  FX_T * init_effects_read(void) {
 
 	int i, j;
@@ -64,6 +99,9 @@
 }
 
 
+/**
+ * @brief [initialize the gpio pins on the STM board, to receive effect and preset values from the gui]
+ */
 void init_gpio(void) {
 	
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -182,6 +220,13 @@ void read_gpio(FX_T * F) {
 }
 
 
+/**
+ * @brief [sets the parameter values used in the main program for the effect initializations and calculations
+ * from the effect and preset data read from the gpio pins set by the gui]
+ * @details [check out the pin mapping below]
+ * 
+ * @param F [pointer to the effect selection structure]
+ */
 void read_effect(FX_T * F) {
 
 	/** pin mapping
@@ -252,7 +297,7 @@ void read_effect(FX_T * F) {
 			if(F->pin_states[2] == 1 && F->pin_states[3] == 0) {		// preset 3 - Coffee Shop
 				F->preset = 3;
 				// compressor { threshold, ratio }
-				F->effect_params[0] = -10;
+				F->effect_params[0] = -7;
 				F->effect_params[1] = 2;
 			} else if(F->pin_states[2] == 0 && F->pin_states[3] == 1) {	// preset 4 - Celestial Immolation
 				F->preset = 4;

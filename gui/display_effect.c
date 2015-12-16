@@ -14,7 +14,6 @@
  * and appropriate parameters for the GAPE unit. this program is called in the python script using subprocess.call("executable name", argv)]
  * 
  * @brief [takes input from gui (argc, argv) and writes the data to the 7segment display]
- * @details []
  * 
  * @note [some things to note:
  * 			the first element in the 'effect' array is the effect itself. (1 = delay, 2 = compressor, 3 = equalizer) This value
@@ -184,7 +183,7 @@ DISP_T * init_params(int fd, char ** argv) {
 			// param 1
 			// amount of delay
 			if((val = atof(argv[2]) / (2.0 * 255.0)) >= 0) {
-				D_T->input[1] = val + 0.01;
+				D_T->input[1] = val;
 				D_T->sign_buffer[0] = 1;
 			} else {
 				D_T->input[1] = abs(val);
