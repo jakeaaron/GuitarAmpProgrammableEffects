@@ -58,47 +58,6 @@
 
 // ---------------------------------------------------------
 
-// DEFINES -------------------------------------------------
-
-#define ENABLE_GPIO_FILE "/sys/class/gpio/export"
-
-#define SET_DIRECTION_GPIO25 "/sys/class/gpio/gpio25/direction"
-#define SET_VALUE_GPIO25 "/sys/class/gpio/gpio25/value"
-
-#define SET_DIRECTION_GPIO5 "/sys/class/gpio/gpio5/direction"
-#define SET_VALUE_GPIO5 "/sys/class/gpio/gpio5/value"
-
-#define SET_DIRECTION_GPIO6 "/sys/class/gpio/gpio6/direction"
-#define SET_VALUE_GPIO6 "/sys/class/gpio/gpio6/value"
-
-#define SET_DIRECTION_GPIO13 "/sys/class/gpio/gpio13/direction"
-#define SET_VALUE_GPIO13 "/sys/class/gpio/gpio13/value"
-
-#define SET_DIRECTION_GPIO19 "/sys/class/gpio/gpio19/direction"
-#define SET_VALUE_GPIO19 "/sys/class/gpio/gpio19/value"
-
-#define SET_DIRECTION_GPIO26 "/sys/class/gpio/gpio26/direction"
-#define SET_VALUE_GPIO26 "/sys/class/gpio/gpio26/value"
-
-#define SET_DIRECTION_GPIO16 "/sys/class/gpio/gpio16/direction"
-#define SET_VALUE_GPIO16 "/sys/class/gpio/gpio16/value"
-
-#define SET_DIRECTION_GPIO20 "/sys/class/gpio/gpio20/direction"
-#define SET_VALUE_GPIO20 "/sys/class/gpio/gpio20/value"
-
-#define SET_DIRECTION_GPIO21 "/sys/class/gpio/gpio21/direction"
-#define SET_VALUE_GPIO21 "/sys/class/gpio/gpio21/value"
-
-// ---------------------------------------------------------
-
-// FUNCTION PROTOTYPES -------------------------------------
-
-int init_gpio(void);
-int send_effect(char ** argv);
-int write_to_file(char * file, char * value);	// open write and close file
-
-// ---------------------------------------------------------
-
 
 
 
@@ -118,6 +77,8 @@ int main(int argc, char ** argv) {
 
 	return 0;
 }
+
+
 
 
 /**
@@ -347,7 +308,7 @@ int init_gpio(void) {
 /**
  * @brief [this function writes to the correct gpio pins to tell the STM board which effect and what parameters were 
  * selected by the gui]
- * @details [long description]
+ * @details [note the mapping below]
  * 
  * @param argv [arguments passed from the gui through the command line]
  * @return [0 success, 1 error]

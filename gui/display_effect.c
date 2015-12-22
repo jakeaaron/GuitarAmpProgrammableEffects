@@ -138,7 +138,7 @@ int init_display(int fd) {
 
 /**
  * @brief [determines the effect parameters from the gui]
- * @details [note that the values are mapped in a certain way to avoid passing negative numbers from file to file]
+ * @details [note that the values are mapped in a certain way to avoid passing negative numbers and decimals from file to file]
  * 
  * @param argv [array of command line arguments]
  * @return [pointer to display structure or NULL on error]

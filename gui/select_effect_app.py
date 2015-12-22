@@ -1040,6 +1040,7 @@ class select_effect(wx.Frame):	# inherit from base class for gui windows
 
 		if self.selected_preset == 0:
 			self.error()
+			return
 
 		# count how many times we have submitted params so we can determine if we need to kill the running process before running again
 		self.count = self.count + 1

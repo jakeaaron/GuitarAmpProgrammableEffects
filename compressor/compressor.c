@@ -32,7 +32,6 @@
 
 /**
  * @brief [initialize compressor structure necessary for compressor calculation]
- * @details [long description]
  * 
  * @param threshold_db [level in db to pass for compressor to kick in]
  * @param ratio [amount to compress by once the threshold is passed]
@@ -68,7 +67,6 @@
 
 /**
  * @brief [compresses the input signal once the rms level passes the threshold entered into the initialize function]
- * @details [long description]
  * 
  * @param C [pointer to the compressor struct]
  * @param rms_vals [the rms values of the input, to check and see if the input needs to be compressed]
@@ -83,10 +81,8 @@
  		if(rms_vals[i] > C->threshold_rms) {
  			// C->output[i] = 20 * log10((C->threshold_rms + ((input[i] - C->threshold_rms) / C->ratio)));
  			C->output[i] = input[i] * 0.5;
- 			// C->output[i] = 0;
  		} else {
  			C->output[i] = input[i];
- 			// C->output[i] = 0;
  		}
  	}
 

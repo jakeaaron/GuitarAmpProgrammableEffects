@@ -108,7 +108,7 @@ void calc_rms(RMS_T * V, float * input) {
 
 
 		// reset index if at the end of history buffer
-		if(V->index == (V->window_size - 2)) {
+		if(V->index == (V->window_size - 2)) {	
 			V->index = 0;
 		} else {
 			V->index++;
