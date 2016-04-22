@@ -3,9 +3,7 @@ Computer Engineering Capstone 2016: GUI controlled modeling of audio effects usi
 
 ## Digital Signal Processing Algorithms
 
-These algorithms were developed to apply digital guitar effects to the incoming guitar signal. 
-
-The basic idea of DSP is to convert real-life continuous-time signals into digital discrete-time signals to be mathematically manipulated and used for another purpose. This is done by 'sampling' (taking a finite number of snapshots of the signal) a continuous-time signal and representing it with '1's and '0's.
+The basic idea of DSP is to convert real-life continuous-time signals into digital discrete-time signals to be mathematically manipulated and used for another purpose. This is done by 'sampling' (taking a finite number of snapshots of the signal) a continuous-time signal and representing it with '1's and '0's. These algorithms were developed to apply digital guitar effects to the incoming guitar signal.
 
 The main.c file grabs a block of input samples, filters the input to reject any high frequency noise, and then applies the user-selected guitar affect on the input samples. This is the basic workflow:
 
