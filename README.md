@@ -26,7 +26,7 @@ This algorithm uses circular buffering with a buffer of *N* samples long to dela
 
 This is found by:
 ` N = t * Fs `
-As seen, multiplying the desired time delay by the sampling frequency *Fs* results in the amount of samples *N* that represents the continuous time *t*.
+As seen, multiplying the desired time delay by the sampling frequency *Fs* results in the amount of samples *N* that represents that time delay *t*.
 
 ### Audio Compression     (calc_rms.c/h && compressor.c/h)
 
